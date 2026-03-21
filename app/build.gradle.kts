@@ -4,15 +4,15 @@ plugins {
 }
 
 android {
-    namespace = "de.parip69.rechengurulgi"
+    namespace = "de.parip69.barcodeaudiscanner"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "de.parip69.rechengurulgi"
+        applicationId = "de.parip69.barcodeaudiscanner"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "1"
+        versionCode = 3
+        versionName = "3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

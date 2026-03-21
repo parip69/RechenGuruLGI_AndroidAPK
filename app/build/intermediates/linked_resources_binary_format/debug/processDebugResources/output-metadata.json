@@ -4,15 +4,15 @@
     "type": "LINKED_RESOURCES_BINARY_FORMAT",
     "kind": "Directory"
   },
-  "applicationId": "de.parip69.rechengurulgi",
+  "applicationId": "de.parip69.barcodeaudiscanner",
   "variantName": "debug",
   "elements": [
     {
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 1,
-      "versionName": "1",
+      "versionCode": 3,
+      "versionName": "3",
       "outputFile": "linked-resources-binary-format-debug.ap_"
     }
   ],

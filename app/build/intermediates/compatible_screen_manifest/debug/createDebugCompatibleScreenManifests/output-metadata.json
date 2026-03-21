@@ -4,7 +4,7 @@
     "type": "COMPATIBLE_SCREEN_MANIFEST",
     "kind": "Directory"
   },
-  "applicationId": "de.parip69.rechengurulgi",
+  "applicationId": "de.parip69.barcodeaudiscanner",
   "variantName": "debug",
   "elements": []
 }

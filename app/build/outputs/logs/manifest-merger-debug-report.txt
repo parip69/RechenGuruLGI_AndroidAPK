@@ -96,8 +96,8 @@ MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\ge
 	android:allowBackup
 		ADDED from D:\@Visual Studio Code\BarcodeAudi_AndroidAPK\app\src\main\AndroidManifest.xml:7:9-35
 	android:theme
-		ADDED from D:\@Visual Studio Code\BarcodeAudi_AndroidAPK\app\src\main\AndroidManifest.xml:12:9-51
-activity#de.parip69.rechengurulgi.MainActivity
+		ADDED from D:\@Visual Studio Code\BarcodeAudi_AndroidAPK\app\src\main\AndroidManifest.xml:12:9-56
+activity#de.parip69.barcodeaudiscanner.MainActivity
 ADDED from D:\@Visual Studio Code\BarcodeAudi_AndroidAPK\app\src\main\AndroidManifest.xml:13:9-26:20
 	android:screenOrientation
 		ADDED from D:\@Visual Studio Code\BarcodeAudi_AndroidAPK\app\src\main\AndroidManifest.xml:19:13-49
@@ -251,7 +251,7 @@ ADDED from [androidx.core:core:1.15.0] C:\Users\gerha\.gradle\caches\8.9\transfo
 		ADDED from [androidx.core:core:1.15.0] C:\Users\gerha\.gradle\caches\8.9\transforms\3e85dc3a27e7bbf172ac49206d18ddee\transformed\core-1.15.0\AndroidManifest.xml:24:9-44
 	android:name
 		ADDED from [androidx.core:core:1.15.0] C:\Users\gerha\.gradle\caches\8.9\transforms\3e85dc3a27e7bbf172ac49206d18ddee\transformed\core-1.15.0\AndroidManifest.xml:23:9-81
-permission#de.parip69.rechengurulgi.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+permission#de.parip69.barcodeaudiscanner.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
 ADDED from [androidx.core:core:1.15.0] C:\Users\gerha\.gradle\caches\8.9\transforms\3e85dc3a27e7bbf172ac49206d18ddee\transformed\core-1.15.0\AndroidManifest.xml:22:5-24:47
 	android:protectionLevel
 		ADDED from [androidx.core:core:1.15.0] C:\Users\gerha\.gradle\caches\8.9\transforms\3e85dc3a27e7bbf172ac49206d18ddee\transformed\core-1.15.0\AndroidManifest.xml:24:9-44
@@ -261,7 +261,7 @@ uses-permission#${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
 ADDED from [androidx.core:core:1.15.0] C:\Users\gerha\.gradle\caches\8.9\transforms\3e85dc3a27e7bbf172ac49206d18ddee\transformed\core-1.15.0\AndroidManifest.xml:26:5-97
 	android:name
 		ADDED from [androidx.core:core:1.15.0] C:\Users\gerha\.gradle\caches\8.9\transforms\3e85dc3a27e7bbf172ac49206d18ddee\transformed\core-1.15.0\AndroidManifest.xml:26:22-94
-uses-permission#de.parip69.rechengurulgi.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+uses-permission#de.parip69.barcodeaudiscanner.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
 ADDED from [androidx.core:core:1.15.0] C:\Users\gerha\.gradle\caches\8.9\transforms\3e85dc3a27e7bbf172ac49206d18ddee\transformed\core-1.15.0\AndroidManifest.xml:26:5-97
 	android:name
 		ADDED from [androidx.core:core:1.15.0] C:\Users\gerha\.gradle\caches\8.9\transforms\3e85dc3a27e7bbf172ac49206d18ddee\transformed\core-1.15.0\AndroidManifest.xml:26:22-94

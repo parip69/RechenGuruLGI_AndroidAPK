@@ -1,4 +1,4 @@
-package de.parip69.rechengurulgi
+package de.parip69.barcodeaudiscanner
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
@@ -14,7 +14,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
-import de.parip69.rechengurulgi.databinding.ActivityMainBinding
+import de.parip69.barcodeaudiscanner.databinding.ActivityMainBinding
 import java.io.ByteArrayInputStream
 
 class MainActivity : AppCompatActivity() {

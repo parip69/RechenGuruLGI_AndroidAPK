@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "de.parip69.rechengurulgi.app-mergeDebugResources-34:/values-kn/values-kn.xml",
+            "outputFile": "de.parip69.barcodeaudiscanner.app-mergeDebugResources-34:/values-kn/values-kn.xml",
             "map": [
                 {
                     "source": "C:\\Users\\gerha\\.gradle\\caches\\8.9\\transforms\\3e85dc3a27e7bbf172ac49206d18ddee\\transformed\\core-1.15.0\\res\\values-kn\\values-kn.xml",
