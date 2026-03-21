@@ -1,7 +1,7 @@
-<!-- Version: 4 -->
-<!-- BarcodeScannerAudi - Ver. 4 -->
+<!-- Version: 8 -->
+<!-- BarcodeScannerAudi - Ver. 8 -->
 <!doctype html>
-<html lang="de" data-app-version="4">
+<html lang="de" data-app-version="8">
   <head>
     <meta charset="UTF-8" />
     <title>
@@ -2495,7 +2495,7 @@
       }
 
       #appFooter {
-        text-align: left;
+        text-align: center;
         font-size: 12px;
         color: #777;
         padding: 6px 12px 8px 12px;
@@ -4597,7 +4597,7 @@
           <input
             type="text"
             id="popupFileNameInput"
-            value="BarcodeAudi_ver_4"
+            value="BarcodeAudi_ver_8"
             style="width: 100%; padding: 10px; text-align: center"
           />
         </div>
@@ -4626,7 +4626,7 @@
           <input
             type="text"
             id="settingsPopupFileNameInput"
-            value="BarcodeSettings_ver_4"
+            value="BarcodeSettings_ver_8"
             style="width: 100%; padding: 10px; text-align: center"
           />
         </div>
@@ -11310,8 +11310,50 @@ In den App-Namensraum importieren?`)
       })();
     </script>
 
-    <footer id="appFooter" data-app-version="91">
-      Entwickelt von: Bachner Gerhard (Parip69) - Ver. 3
+    <footer id="appFooter" data-app-version="8">
+      Entwickelt von: Bachner Gerhard (Parip69) - Ver. 8
     </footer>
+
+    <script>
+      (function() {
+        // Overscroll pull-up: allows user to pull entire page up at the bottom
+        // to reveal content hidden behind Android navigation bar
+        const body = document.body;
+        let startY = 0, dragging = false, atBottom = false;
+
+        body.addEventListener('touchstart', function(e) {
+          const scrollTop = window.scrollY || document.documentElement.scrollTop;
+          const scrollHeight = document.documentElement.scrollHeight;
+          const clientHeight = window.innerHeight;
+          atBottom = (scrollTop + clientHeight >= scrollHeight - 5);
+          if (atBottom) {
+            startY = e.touches[0].clientY;
+            dragging = false;
+          }
+        }, { passive: true });
+
+        body.addEventListener('touchmove', function(e) {
+          if (!atBottom) return;
+          const dy = e.touches[0].clientY - startY;
+          if (dy < 0) {
+            dragging = true;
+            const offset = Math.max(dy, -200);
+            body.style.transition = 'none';
+            body.style.transform = 'translateY(' + offset + 'px)';
+          }
+        }, { passive: true });
+
+        function snapBack() {
+          if (dragging) {
+            body.style.transition = 'transform 0.3s ease';
+            body.style.transform = 'translateY(0)';
+          }
+          dragging = false;
+          atBottom = false;
+        }
+        body.addEventListener('touchend', snapBack);
+        body.addEventListener('touchcancel', snapBack);
+      })();
+    </script>
   </body>
 </html>

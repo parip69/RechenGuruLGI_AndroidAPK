@@ -49,6 +49,10 @@ class MainActivity : AppCompatActivity() {
         configureWebView(binding.webView)
         binding.webView.loadUrl("file:///android_asset/index.html")
 
+        binding.swipeRefresh.setOnRefreshListener {
+            binding.webView.reload()
+        }
+
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (binding.webView.canGoBack()) {
@@ -117,6 +121,11 @@ class MainActivity : AppCompatActivity() {
 
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                 super.onPageStarted(view, url, favicon)
+            }
+
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                binding.swipeRefresh.isRefreshing = false
             }
 
             override fun shouldInterceptRequest(view: WebView?, request: WebResourceRequest?): WebResourceResponse? {
