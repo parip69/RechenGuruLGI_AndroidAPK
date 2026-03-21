@@ -2,17 +2,21 @@ package de.parip69.barcodeaudiscanner
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.webkit.ConsoleMessage
+import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebSettings
 import android.webkit.WebView
+import android.webkit.MimeTypeMap
 import android.webkit.WebViewClient
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import de.parip69.barcodeaudiscanner.databinding.ActivityMainBinding
 import java.io.ByteArrayInputStream
@@ -20,6 +24,16 @@ import java.io.ByteArrayInputStream
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private var fileUploadCallback: ValueCallback<Array<Uri>>? = null
+
+    private val fileChooserLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri: Uri? ->
+        fileUploadCallback?.onReceiveValue(
+            if (uri != null) arrayOf(uri) else emptyArray()
+        )
+        fileUploadCallback = null
+    }
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,6 +89,25 @@ class MainActivity : AppCompatActivity() {
             override fun onConsoleMessage(consoleMessage: ConsoleMessage): Boolean {
                 return true
             }
+
+            override fun onShowFileChooser(
+                webView: WebView?,
+                filePathCallback: ValueCallback<Array<Uri>>?,
+                fileChooserParams: FileChooserParams?
+            ): Boolean {
+                fileUploadCallback?.onReceiveValue(emptyArray())
+                fileUploadCallback = filePathCallback
+                val acceptTypes = fileChooserParams?.acceptTypes ?: emptyArray()
+                val mimeTypes = resolveMimeTypes(acceptTypes)
+                try {
+                    fileChooserLauncher.launch(mimeTypes)
+                } catch (e: Exception) {
+                    fileUploadCallback?.onReceiveValue(emptyArray())
+                    fileUploadCallback = null
+                    return false
+                }
+                return true
+            }
         }
 
         webView.webViewClient = object : WebViewClient() {
@@ -108,6 +141,23 @@ class MainActivity : AppCompatActivity() {
         } catch (_: Exception) {
             null
         }
+    }
+
+    private fun resolveMimeTypes(acceptTypes: Array<String>): Array<String> {
+        val mimeTypes = mutableSetOf<String>()
+        for (type in acceptTypes) {
+            val trimmed = type.trim().lowercase()
+            if (trimmed.isEmpty()) continue
+            if (trimmed.contains("/")) {
+                mimeTypes.add(trimmed)
+            } else {
+                val ext = trimmed.removePrefix(".")
+                val resolved = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext)
+                if (resolved != null) mimeTypes.add(resolved)
+                if (ext == "json") mimeTypes.add("text/plain")
+            }
+        }
+        return if (mimeTypes.isEmpty()) arrayOf("*/*") else mimeTypes.toTypedArray()
     }
 
     override fun onDestroy() {

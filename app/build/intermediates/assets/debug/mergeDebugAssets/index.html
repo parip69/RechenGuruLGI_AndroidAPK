@@ -1,7 +1,7 @@
-<!-- Version: 1 -->
-<!-- BarcodeScannerAudi - Ver. 1 -->
+<!-- Version: 4 -->
+<!-- BarcodeScannerAudi - Ver. 4 -->
 <!doctype html>
-<html lang="de" data-app-version="1">
+<html lang="de" data-app-version="4">
   <head>
     <meta charset="UTF-8" />
     <title>
@@ -4199,13 +4199,6 @@
           title="Dunkelmodus"
           >🌙</span
         >
-        <span
-          id="buildApkButton"
-          class="build-apk-button"
-          title="Build APK v3 anfordern"
-          style="cursor: pointer; margin: 0 8px; font-size: 20px"
-          >🏗️</span
-        >
         <!-- Hamburger-Menü-Button -->
         <span
           id="mainSettingsButton"
@@ -4280,11 +4273,11 @@
           <button id="exportButton">Exportieren</button>
           <button id="importButton">Importieren</button>
           <button id="editorButtonHauptListe">Editor</button>
-          <input type="file" id="importFile" style="display: none" accept=".txt" />
+          <input type="file" id="importFile" style="position: absolute; left: -9999px; opacity: 0;" accept=".txt" />
           <input
             type="file"
             id="localStorageImportFile"
-            accept=".json"
+            accept=".json,application/json,text/plain"
             style="
               position: fixed;
               left: -9999px;
@@ -4292,7 +4285,7 @@
               width: 1px;
               height: 1px;
               opacity: 0;
-              pointer-events: none;
+              pointer-events: auto;
             "
           />
         </div>
@@ -4604,7 +4597,7 @@
           <input
             type="text"
             id="popupFileNameInput"
-            value="BarcodeAudi_ver_91"
+            value="BarcodeAudi_ver_4"
             style="width: 100%; padding: 10px; text-align: center"
           />
         </div>
@@ -4633,7 +4626,7 @@
           <input
             type="text"
             id="settingsPopupFileNameInput"
-            value="BarcodeSettings_ver_91"
+            value="BarcodeSettings_ver_4"
             style="width: 100%; padding: 10px; text-align: center"
           />
         </div>
@@ -5122,7 +5115,7 @@
 
     <script>
       const APP_STORAGE_PREFIX = "BarcodesApp_";
-      const APP_VERSION_FALLBACK = 1;
+      const APP_VERSION_FALLBACK = 89;
 
       function getCurrentAppVersion() {
         const footer = document.getElementById("appFooter");
@@ -5755,25 +5748,6 @@
           importLocalStorageWithConfirmation();
           // Popup bleibt geöffnet
         };
-
-        // NEU: Button zum Cache-Editor (Johnson)
-        const btnOpenCache = document.createElement("button");
-        btnOpenCache.textContent = "📝 Einzelne Barcodes bearbeiten (Cache)";
-        Object.assign(btnOpenCache.style, {
-          margin: "10px 5px",
-          padding: "10px 20px",
-          backgroundColor: "#5bbdff",
-          color: "#fff",
-          border: "none",
-          borderRadius: "5px",
-          cursor: "pointer",
-          width: "100%",
-        });
-        btnOpenCache.onclick = () => {
-          overlay.remove();
-          openCacheEditor();
-        };
-
         // Neuer Button: Werkseinstellung (alles außer barcodeList löschen)
         const btnFactoryReset = document.createElement("button");
         btnFactoryReset.textContent = "🔄 Werkseinstellung";
@@ -5833,7 +5807,6 @@
         btnContainer.appendChild(btnDelete);
         btnContainer.appendChild(btnExport);
         btnContainer.appendChild(btnImport);
-        btnContainer.appendChild(btnOpenCache);
 
         popup.appendChild(btnContainer);
         popup.appendChild(btnCancel); // Cancel als letzter
@@ -5967,56 +5940,12 @@
 
         try {
           input.value = "";
-        } catch (e) {}
-
-        const originalStyle = {
-          display: input.style.display,
-          position: input.style.position,
-          left: input.style.left,
-          top: input.style.top,
-          width: input.style.width,
-          height: input.style.height,
-          opacity: input.style.opacity,
-          pointerEvents: input.style.pointerEvents,
-          visibility: input.style.visibility,
-          zIndex: input.style.zIndex,
-        };
-
-        const restore = () => {
-          input.style.display = originalStyle.display;
-          input.style.position = originalStyle.position;
-          input.style.left = originalStyle.left;
-          input.style.top = originalStyle.top;
-          input.style.width = originalStyle.width;
-          input.style.height = originalStyle.height;
-          input.style.opacity = originalStyle.opacity;
-          input.style.pointerEvents = originalStyle.pointerEvents;
-          input.style.visibility = originalStyle.visibility;
-          input.style.zIndex = originalStyle.zIndex;
-        };
-
-        try {
-          input.style.display = "block";
-          input.style.position = "fixed";
-          input.style.left = "-9999px";
-          input.style.top = "0";
-          input.style.width = "1px";
-          input.style.height = "1px";
-          input.style.opacity = "0.01";
-          input.style.pointerEvents = "auto";
-          input.style.visibility = "visible";
-          input.style.zIndex = "2147483647";
-
-          if (typeof input.showPicker === "function") {
-            input.showPicker();
-          } else {
-            input.click();
-          }
-
-          setTimeout(restore, 1200);
+          // In some WebViews, programmatically clicking a hidden input fails if it's display:none.
+          // However, overly complex styling can also break it.
+          // We try a direct click first on the provided input.
+          input.click();
           return true;
         } catch (error) {
-          restore();
           console.error("Dateiauswahl konnte nicht geöffnet werden", error);
           return false;
         }
@@ -8587,22 +8516,18 @@ In den App-Namensraum importieren?`)
       }
       function handleDownload(selectedBarcodes, fileName) {
         const barcodeText = selectedBarcodes.join("\n");
-        const ok = downloadTextFileRobust(fileName, barcodeText);
-        if (ok) {
-          showToast("Barcodes erfolgreich heruntergeladen!", "success");
-        } else {
-          // Fallback if robust download fails (though it shouldn't)
-          const blob = new Blob([barcodeText], { type: "text/plain" });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = fileName;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-          showToast("Barcodes heruntergeladen (Standard-Download)!");
-        }
+        const blob = new Blob([barcodeText], {
+          type: "text/plain",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast("Barcodes heruntergeladen!");
       }
       async function handleSendOrShareJson(jsonText, fileName) {
         const safeJsonText =
@@ -8867,19 +8792,15 @@ In den App-Namensraum importieren?`)
           const file = event.target.files[0];
           if (!file) return;
           const reader = new FileReader();
-        reader.onload = async (e) => {
-          try {
-            const importedBarcodes = e.target.result.split(/\r?\n/);
+          reader.onload = async (e) => {
+            const importedBarcodes = e.target.result.split("\n");
             let changesMade = false;
-            for (let text of importedBarcodes) {
-              text = text.trim();
+            for (const text of importedBarcodes) {
               if (text === "") continue;
-
               const codePart = text.split("/")[0] || "";
               const existingIndex = barcodeList.findIndex(
                 (bc) => bc.split("/")[0] === codePart,
               );
-
               if (existingIndex > -1) {
                 // Konflikt: Barcode existiert bereits
                 const result = await showConflictModal(
@@ -8890,10 +8811,17 @@ In den App-Namensraum importieren?`)
                   showToast("Import abgebrochen!");
                   break;
                 } else if (result === "overwrite") {
+                  const oldText = barcodeList[existingIndex];
+                  const oldElement = document.querySelector(
+                    `.barcode-container[data-text="${oldText}"]`,
+                  );
+                  if (oldElement) oldElement.remove();
                   barcodeList[existingIndex] = text;
+                  createBarcode(text);
                   changesMade = true;
                 } else if (result === "adopt") {
                   barcodeList.push(text);
+                  createBarcode(text);
                   changesMade = true;
                 } else if (result === "skip") {
                   continue;
@@ -8906,28 +8834,20 @@ In den App-Namensraum importieren?`)
                   break;
                 } else if (result === "add") {
                   barcodeList.push(text);
+
                   changesMade = true;
                 } else if (result === "skip") {
                   continue;
                 }
               }
             }
-
             if (changesMade) {
               // STRENGE KONTROLLE: Nur Import darf die Barcode-Liste ändern
               if (saveBarcodesStrict(barcodeList, "import")) {
-                loadBarcodes(); // UI komplett neu aufbauen
-                const selectedGroup =
-                  document.getElementById("groupFilter").value;
-                filterAndSortBarcodesByGroup(selectedGroup);
-                showToast("Daten erfolgreich importiert!", "success");
+                showToast("Daten erfolgreich importiert!");
               }
             }
-          } catch (err) {
-            console.error("Fehler beim Verarbeiten des Imports:", err);
-            showToast("Fehler beim Importieren der Datei!", "error");
-          }
-        };
+          };
           reader.readAsText(file);
         });
 
@@ -11387,19 +11307,10 @@ In den App-Namensraum importieren?`)
           enableRememberedFullscreenOnNextTap();
           setTimeout(showHint, 280);
         });
-
-        // Event-Listener für den neuen Build-Button
-        const buildBtn = document.getElementById("buildApkButton");
-        if (buildBtn) {
-          buildBtn.addEventListener("click", function (e) {
-            e.stopPropagation();
-            showToast("🏗️ APK-Build v3 angefordert! Antigravity führt den Build aus...", "success");
-          });
-        }
       })();
     </script>
 
-    <footer id="appFooter" data-app-version="3">
+    <footer id="appFooter" data-app-version="91">
       Entwickelt von: Bachner Gerhard (Parip69) - Ver. 3
     </footer>
   </body>
