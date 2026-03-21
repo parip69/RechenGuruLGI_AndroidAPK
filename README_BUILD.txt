@@ -1,4 +1,4 @@
-RechenGuru LGI Android-Projekt (Version 183)
+RechenGuru LGI Android-Projekt (Version 1)
 
 Das ist ein fertiges Android-Studio-Projekt für eine APK auf Basis deiner HTML-Datei.
 
@@ -14,7 +14,7 @@ Hinweise:
 - Die HTML wird offline aus den Android-Assets geladen
 - JavaScript und DOM Storage sind aktiviert
 - Die App ist auf Hochformat gestellt
-- Dateiname/Version wurde auf 183 gesetzt
+- Dateiname/Version wurde auf 1 gesetzt
 
 Wenn du eine signierte Release-APK willst:
 - Build > Generate Signed Bundle / APK

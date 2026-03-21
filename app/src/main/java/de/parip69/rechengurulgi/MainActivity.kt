@@ -4,8 +4,11 @@ import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
+import android.print.PrintAttributes
+import android.print.PrintManager
 import android.view.View
 import android.webkit.ConsoleMessage
+import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -46,6 +49,22 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    private fun printWebView() {
+        val printManager = getSystemService(PRINT_SERVICE) as? PrintManager ?: return
+        val jobName = "RechenGuru Arbeitsblatt"
+        val printAdapter = binding.webView.createPrintDocumentAdapter(jobName)
+        printManager.print(jobName, printAdapter, PrintAttributes.Builder()
+            .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
+            .build())
+    }
+
+    inner class WebAppInterface {
+        @JavascriptInterface
+        fun printPage() {
+            runOnUiThread { printWebView() }
+        }
+    }
+
     @SuppressLint("SetJavaScriptEnabled")
     private fun configureWebView(webView: WebView) {
         val settings = webView.settings
@@ -71,6 +90,9 @@ class MainActivity : AppCompatActivity() {
 
         webView.isVerticalScrollBarEnabled = false
         webView.isHorizontalScrollBarEnabled = false
+
+        webView.addJavascriptInterface(WebAppInterface(), "AndroidPrint")
+
         webView.webChromeClient = object : WebChromeClient() {
             override fun onConsoleMessage(consoleMessage: ConsoleMessage): Boolean {
                 return true
@@ -84,6 +106,13 @@ class MainActivity : AppCompatActivity() {
 
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                 super.onPageStarted(view, url, favicon)
+            }
+
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                view?.evaluateJavascript(
+                    "window.print = function() { AndroidPrint.printPage(); };", null
+                )
             }
 
             override fun shouldInterceptRequest(view: WebView?, request: WebResourceRequest?): WebResourceResponse? {
