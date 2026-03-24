@@ -5,9 +5,11 @@ color ic_launcher_background
 color status_bar
 color white
 drawable ic_launcher_foreground
+drawable ic_launcher_foreground_inset
 id webView
 layout activity_main
 mipmap ic_launcher
 mipmap ic_launcher_round
 string app_name
 style Theme.RechenGuruLGI
+xml provider_paths

@@ -1,4 +1,4 @@
-RechenGuru LGI Android-Projekt (Version 1)
+Mathe Guru Android-Projekt
 
 Das ist ein fertiges Android-Studio-Projekt für eine APK auf Basis deiner HTML-Datei.
 
@@ -8,13 +8,13 @@ So baust du die APK:
 3. Warten bis Gradle synchronisiert ist
 4. Menü: Build > Build APK(s)
 5. Danach liegt die Debug-APK typischerweise unter:
-   app/build/outputs/apk/debug/app-debug.apk
+   app/build/outputs/apk/debug/MatheGuru-v<Version>.apk
 
 Hinweise:
 - Die HTML wird offline aus den Android-Assets geladen
 - JavaScript und DOM Storage sind aktiviert
 - Die App ist auf Hochformat gestellt
-- Dateiname/Version wurde auf 1 gesetzt
+- Version und APK-Dateiname werden aus version.properties gelesen
 
 Wenn du eine signierte Release-APK willst:
 - Build > Generate Signed Bundle / APK

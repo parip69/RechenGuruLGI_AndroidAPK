@@ -1,6 +1,31 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+}
+
+val versionProperties = Properties().apply {
+    val versionFile = rootProject.file("version.properties")
+    if (versionFile.exists()) {
+        versionFile.inputStream().use(::load)
+    }
+}
+
+val appVersionCode = versionProperties
+    .getProperty("VERSION_CODE")
+    ?.toIntOrNull()
+    ?: 1
+
+val appVersionName = versionProperties
+    .getProperty("VERSION_NAME")
+    ?.takeIf { it.isNotBlank() }
+    ?: appVersionCode.toString()
+
+val syncLauncherForegroundFromAssets = tasks.register<Copy>("syncLauncherForegroundFromAssets") {
+    from(layout.projectDirectory.file("src/main/assets/icons/icon-512.png"))
+    into(layout.projectDirectory.dir("src/main/res/drawable"))
+    rename { "ic_launcher_foreground.png" }
 }
 
 android {
@@ -11,8 +36,8 @@ android {
         applicationId = "de.parip69.rechengurulgi"
         minSdk = 24
         targetSdk = 35
-        versionCode = 3
-        versionName = "3"
+        versionCode = appVersionCode
+        versionName = appVersionName
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -43,6 +68,10 @@ android {
             output.outputFileName = "MatheGuru-v${versionName}.apk"
         }
     }
+}
+
+tasks.named("preBuild") {
+    dependsOn(syncLauncherForegroundFromAssets)
 }
 
 dependencies {

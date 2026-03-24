@@ -2601,6 +2601,26 @@
           </button>
         </div>
 
+        <div id="bundledHtmlExportSection" style="display: none">
+          <hr class="overlayDivider" />
+          <h3>Export</h3>
+          <div class="parentGrid" style="grid-template-columns: 1fr">
+            <button
+              id="exportBundledIndexHtmlButton"
+              class="btn-mini"
+              type="button"
+              onclick="exportBundledIndexHtml()"
+              hidden
+              style="display: none"
+            >
+              Index HTML exportieren
+            </button>
+          </div>
+          <div class="parentHint" style="margin-top: -4px">
+            Speichert die originale App-HTML mit portablem localStorage-Stand.
+          </div>
+        </div>
+
         <div
           id="parentMsg"
           class="parentMsg"
@@ -2637,6 +2657,8 @@
     <script>
       const APP_VERSION = 3;
       const APP_STORAGE_PREFIX = "RechenGuruLGI_";
+      const APP_NAME_FALLBACK = "Mathe Guru";
+      const PORTABLE_HTML_MARKER_PREFIX = "__portableBootstrapApplied_";
       const appStorage = {
         getItem(key) {
           return localStorage.getItem(APP_STORAGE_PREFIX + key);
@@ -2669,6 +2691,459 @@
           return keys;
         },
       };
+
+      function setStatusMessage(text, color = "#475569") {
+        const msg = document.getElementById("statusMessage");
+        if (!msg) return;
+        msg.textContent = text;
+        msg.style.color = color;
+      }
+
+      function getAndroidBridge() {
+        if (
+          window.AndroidInterface &&
+          typeof window.AndroidInterface === "object"
+        ) {
+          return window.AndroidInterface;
+        }
+        return null;
+      }
+
+      function supportsBundledIndexHtmlExport() {
+        const androidBridge = getAndroidBridge();
+        return Boolean(
+          androidBridge &&
+            typeof androidBridge.getBundledIndexHtml === "function" &&
+            typeof androidBridge.saveTextFile === "function",
+        );
+      }
+
+      function supportsNativeTextFileShare() {
+        const androidBridge = getAndroidBridge();
+        return Boolean(
+          androidBridge && typeof androidBridge.shareTextFile === "function",
+        );
+      }
+
+      function updateBundledIndexHtmlExportVisibility() {
+        const exportSection = document.getElementById(
+          "bundledHtmlExportSection",
+        );
+        const exportButton = document.getElementById(
+          "exportBundledIndexHtmlButton",
+        );
+        const supported = supportsBundledIndexHtmlExport();
+
+        if (exportSection) {
+          exportSection.hidden = !supported;
+          exportSection.style.display = supported ? "" : "none";
+        }
+
+        if (exportButton) {
+          exportButton.hidden = !supported;
+          exportButton.style.display = supported ? "" : "none";
+        }
+      }
+
+      function sanitizeFilenamePart(value) {
+        return String(value ?? "")
+          .replace(/[<>:"/\\|?*\u0000-\u001f]/g, " ")
+          .replace(/\s+/g, "_")
+          .replace(/^_+|_+$/g, "")
+          .trim();
+      }
+
+      function getCurrentAppName() {
+        try {
+          const androidBridge = getAndroidBridge();
+          if (
+            androidBridge &&
+            typeof androidBridge.getAppDisplayName === "function"
+          ) {
+            const nativeName = String(
+              androidBridge.getAppDisplayName() || "",
+            ).trim();
+            if (nativeName) return nativeName;
+          }
+        } catch (error) {
+          console.warn("Nativer App-Name konnte nicht gelesen werden", error);
+        }
+
+        const metaName = String(
+          document
+            .querySelector('meta[name="application-name"]')
+            ?.getAttribute("content") ||
+            document
+              .querySelector('meta[name="apple-mobile-web-app-title"]')
+              ?.getAttribute("content") ||
+            document.title ||
+            APP_NAME_FALLBACK,
+        ).trim();
+
+        return metaName || APP_NAME_FALLBACK;
+      }
+
+      function getCurrentAppVersion() {
+        try {
+          const androidBridge = getAndroidBridge();
+          if (
+            androidBridge &&
+            typeof androidBridge.getAppVersionName === "function"
+          ) {
+            const nativeVersion = String(
+              androidBridge.getAppVersionName() || "",
+            ).trim();
+            if (nativeVersion) return nativeVersion;
+          }
+        } catch (error) {
+          console.warn(
+            "Native Versionsnummer konnte nicht gelesen werden",
+            error,
+          );
+        }
+
+        const footer = document.getElementById("appFooter");
+        if (footer) {
+          const dataVersion = String(
+            footer.getAttribute("data-app-version") || "",
+          ).trim();
+          if (dataVersion) return dataVersion;
+        }
+
+        return String(APP_VERSION || "").trim() || "1";
+      }
+
+      function syncAppVersionDisplay() {
+        const currentVersion = getCurrentAppVersion();
+        const footer = document.getElementById("appFooter");
+        const versionLabel = document.getElementById("appVersion");
+
+        if (footer && currentVersion) {
+          footer.setAttribute("data-app-version", currentVersion);
+        }
+
+        if (versionLabel && currentVersion) {
+          versionLabel.textContent = currentVersion;
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        updateBundledIndexHtmlExportVisibility();
+        syncAppVersionDisplay();
+      });
+
+      function buildHtmlExportBaseName() {
+        const safeAppName =
+          sanitizeFilenamePart(getCurrentAppName()) ||
+          sanitizeFilenamePart(APP_NAME_FALLBACK) ||
+          "Mathe_Guru";
+        const safeVersion =
+          sanitizeFilenamePart(getCurrentAppVersion()) ||
+          String(APP_VERSION || "1");
+        return `${safeAppName}_ver_${safeVersion}`;
+      }
+
+      function buildHtmlExportFilename() {
+        return `${buildHtmlExportBaseName()}.html`;
+      }
+
+      function buildPortableHtmlStatePayload() {
+        const selectedKeys = Array.from(
+          new Set(
+            appStorage
+              .ownKeys()
+              .filter(
+                (key) =>
+                  key &&
+                  !String(key).startsWith("__") &&
+                  !String(key).startsWith(PORTABLE_HTML_MARKER_PREFIX),
+              ),
+          ),
+        ).sort((a, b) =>
+          String(a).localeCompare(String(b), "de", { sensitivity: "base" }),
+        );
+
+        const storage = {};
+        selectedKeys.forEach((key) => {
+          const value = appStorage.getItem(key);
+          if (value !== null) {
+            storage[key] = value;
+          }
+        });
+
+        return {
+          app: getCurrentAppName(),
+          version: getCurrentAppVersion(),
+          namespace: APP_STORAGE_PREFIX,
+          exportedAt: new Date().toISOString(),
+          entryCount: Object.keys(storage).length,
+          selectedKeys,
+          storage,
+        };
+      }
+
+      function serializePortableHtmlPayload(payload) {
+        return JSON.stringify(payload)
+          .replace(/</g, "\\u003C")
+          .replace(/>/g, "\\u003E")
+          .replace(/&/g, "\\u0026")
+          .replace(/\u2028/g, "\\u2028")
+          .replace(/\u2029/g, "\\u2029");
+      }
+
+      function embedPortableAppStateIntoHtml(htmlText) {
+        const safeHtmlText =
+          typeof htmlText === "string" ? htmlText : String(htmlText ?? "");
+        if (!safeHtmlText.trim()) return safeHtmlText;
+
+        const payload = buildPortableHtmlStatePayload();
+        if (!payload || !payload.storage) return safeHtmlText;
+
+        const storageKeys = Object.keys(payload.storage);
+        if (storageKeys.length === 0) return safeHtmlText;
+
+        const serializedPayload = serializePortableHtmlPayload(payload);
+        const bootstrapScript =
+          `<script>(function(){const payload=${serializedPayload};` +
+          `try{const storage=window.localStorage;if(!storage||!payload||!payload.storage)return;` +
+          `const namespace=String(payload.namespace||"");` +
+          `const markerKey=namespace+"${PORTABLE_HTML_MARKER_PREFIX}"+String(payload.exportedAt||"snapshot");` +
+          `if(storage.getItem(markerKey)==="1")return;` +
+          `Object.entries(payload.storage).forEach(([key,value])=>{storage.setItem(namespace+key,String(value));});` +
+          `storage.setItem(markerKey,"1");` +
+          `}catch(error){console.warn("Portable Startdaten konnten nicht initialisiert werden.",error);}})();` +
+          `<\/script>`;
+
+        if (safeHtmlText.includes("</head>")) {
+          return safeHtmlText.replace(
+            "</head>",
+            `${bootstrapScript}\n</head>`,
+          );
+        }
+
+        if (safeHtmlText.includes("</body>")) {
+          return safeHtmlText.replace(
+            "</body>",
+            `${bootstrapScript}\n</body>`,
+          );
+        }
+
+        return `${safeHtmlText}\n${bootstrapScript}`;
+      }
+
+      async function getBundledIndexHtmlText() {
+        const androidBridge = getAndroidBridge();
+        if (
+          androidBridge &&
+          typeof androidBridge.getBundledIndexHtml === "function"
+        ) {
+          try {
+            const nativeHtml = String(
+              androidBridge.getBundledIndexHtml() || "",
+            );
+            if (nativeHtml.trim()) return nativeHtml;
+          } catch (error) {
+            console.warn(
+              "Gebuendelte index.html konnte nicht gelesen werden",
+              error,
+            );
+          }
+        }
+
+        const currentUrl = window.location.href.split("#")[0].split("?")[0];
+        const response = await fetch(currentUrl, { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        return response.text();
+      }
+
+      function resolveMimeTypeForFilename(fileName) {
+        const extension = String(fileName || "")
+          .split(".")
+          .pop()
+          .toLowerCase();
+
+        switch (extension) {
+          case "html":
+          case "htm":
+            return "text/html;charset=utf-8";
+          case "json":
+            return "application/json;charset=utf-8";
+          case "txt":
+            return "text/plain;charset=utf-8";
+          case "csv":
+            return "text/csv;charset=utf-8";
+          default:
+            return "text/plain;charset=utf-8";
+        }
+      }
+
+      function downloadTextFileRobust(filename, textContent) {
+        const safeFilename =
+          sanitizeFilenamePart(filename) || "Mathe_Guru_export.txt";
+        const safeText =
+          typeof textContent === "string"
+            ? textContent
+            : String(textContent ?? "");
+        const mimeType = resolveMimeTypeForFilename(safeFilename);
+        const androidBridge = getAndroidBridge();
+
+        if (
+          androidBridge &&
+          typeof androidBridge.saveTextFile === "function"
+        ) {
+          try {
+            const result = androidBridge.saveTextFile(safeFilename, safeText);
+            if (result !== false) return true;
+          } catch (error) {
+            console.warn("AndroidInterface.saveTextFile fehlgeschlagen", error);
+          }
+        }
+
+        const attempts = [
+          { useBlob: true },
+          { useBlob: false },
+        ];
+
+        for (const attempt of attempts) {
+          try {
+            const link = document.createElement("a");
+            link.download = safeFilename;
+            link.setAttribute("download", safeFilename);
+            link.rel = "noopener";
+            link.style.display = "none";
+
+            let revokeUrl = null;
+            if (attempt.useBlob) {
+              const blob = new Blob([safeText], { type: mimeType });
+              revokeUrl = URL.createObjectURL(blob);
+              link.href = revokeUrl;
+            } else {
+              link.href = `data:${mimeType},${encodeURIComponent(safeText)}`;
+            }
+
+            document.body.appendChild(link);
+            link.click();
+
+            setTimeout(() => {
+              try {
+                link.remove();
+              } catch (e) {}
+            }, 1500);
+
+            if (revokeUrl) {
+              setTimeout(() => {
+                try {
+                  URL.revokeObjectURL(revokeUrl);
+                } catch (e) {}
+              }, 60000);
+            }
+
+            return true;
+          } catch (error) {
+            console.warn("Download-Versuch fehlgeschlagen", attempt, error);
+          }
+        }
+
+        return false;
+      }
+
+      async function shareTextFileRobust(filename, textContent) {
+        const safeFilename =
+          sanitizeFilenamePart(filename) || "Mathe_Guru_export.txt";
+        const safeText =
+          typeof textContent === "string"
+            ? textContent
+            : String(textContent ?? "");
+        const mimeType = resolveMimeTypeForFilename(safeFilename);
+        const androidBridge = getAndroidBridge();
+
+        if (supportsNativeTextFileShare()) {
+          try {
+            const result = androidBridge.shareTextFile(safeFilename, safeText);
+            return result !== false;
+          } catch (error) {
+            console.warn("AndroidInterface.shareTextFile fehlgeschlagen", error);
+          }
+        }
+
+        if (
+          navigator.share &&
+          typeof File === "function" &&
+          typeof navigator.canShare === "function"
+        ) {
+          try {
+            const file = new File([safeText], safeFilename, { type: mimeType });
+            if (navigator.canShare({ files: [file] })) {
+              await navigator.share({
+                files: [file],
+                title: safeFilename,
+              });
+              return true;
+            }
+          } catch (error) {
+            if (error && error.name === "AbortError") return false;
+            console.warn("Browser-Share fehlgeschlagen", error);
+          }
+        }
+
+        return downloadTextFileRobust(safeFilename, safeText);
+      }
+
+      function downloadJsonFileRobust(filename, payload) {
+        const safeFilename =
+          sanitizeFilenamePart(filename) || "Mathe_Guru_export.json";
+        const jsonText =
+          typeof payload === "string"
+            ? payload
+            : JSON.stringify(payload, null, 2);
+        return downloadTextFileRobust(safeFilename, jsonText);
+      }
+
+      async function shareJsonFileRobust(filename, payload) {
+        const safeFilename =
+          sanitizeFilenamePart(filename) || "Mathe_Guru_export.json";
+        const jsonText =
+          typeof payload === "string"
+            ? payload
+            : JSON.stringify(payload, null, 2);
+        return shareTextFileRobust(safeFilename, jsonText);
+      }
+
+      async function exportBundledIndexHtml() {
+        try {
+          closeLegend();
+        } catch (e) {}
+
+        const fileName = buildHtmlExportFilename();
+        const usingNativeBridge = supportsBundledIndexHtmlExport();
+
+        try {
+          const htmlText = await getBundledIndexHtmlText();
+          const portableHtml = embedPortableAppStateIntoHtml(htmlText);
+          const ok = downloadTextFileRobust(fileName, portableHtml);
+          if (!ok) {
+            throw new Error("download_failed");
+          }
+
+          setStatusMessage(
+            usingNativeBridge
+              ? `Index HTML exportiert: ${fileName}`
+              : `Index HTML heruntergeladen: ${fileName}`,
+            "#2d6a4f",
+          );
+          return true;
+        } catch (error) {
+          console.warn("HTML-Export fehlgeschlagen", error);
+          setStatusMessage(
+            "Index HTML konnte nicht exportiert werden.",
+            "#bc4749",
+          );
+          return false;
+        }
+      }
+
       let scoreCorrect = parseInt(appStorage.getItem("mathScoreCorrect")) || 0;
       let scoreWrong = parseInt(appStorage.getItem("mathScoreWrong")) || 0;
       let streak = parseInt(appStorage.getItem("mathStreak")) || 0;
@@ -9949,7 +10424,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "mathe-guru-v1";
+        const SW_VERSION = "mathe-guru-v184";
         window.__deferredPwaPrompt = null;
 
         function updateInstallButton() {
@@ -10021,6 +10496,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
+      data-app-version="7"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -10031,7 +10507,8 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         letter-spacing: 0.4px;
       "
     >
-      Entwickelt von: Bachner Gerhard & Isabella - Ver. 3
+      Entwickelt von: Bachner Gerhard & Isabella - Ver.
+      <span id="appVersion">7</span>
     </footer>
 
     <!-- ❌ Fehler-Aktionen (Zurücksetzen / Drucken) -->

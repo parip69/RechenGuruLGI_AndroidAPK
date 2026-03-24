@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mathe-guru-v183';
+const CACHE_NAME = 'mathe-guru-v184';
 const PRECACHE_URLS = [
   './',
   './index.html',
