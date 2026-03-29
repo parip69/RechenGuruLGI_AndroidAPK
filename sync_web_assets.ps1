@@ -28,12 +28,141 @@ function Write-Utf8NoBom {
     param(
         [Parameter(Mandatory = $true)]
         [string]$Path,
+        [AllowEmptyString()]
         [Parameter(Mandatory = $true)]
         [string]$Content
     )
 
     $encoding = [System.Text.UTF8Encoding]::new($false)
     [System.IO.File]::WriteAllText($Path, $Content, $encoding)
+}
+
+function Invoke-WithRetry {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Description,
+        [Parameter(Mandatory = $true)]
+        [scriptblock]$Action,
+        [int]$MaxAttempts = 6,
+        [int]$InitialDelayMs = 200
+    )
+
+    $attempt = 0
+    while ($attempt -lt $MaxAttempts) {
+        $attempt++
+        try {
+            & $Action
+            return
+        }
+        catch {
+            if ($attempt -ge $MaxAttempts) {
+                throw "$Description fehlgeschlagen: $($_.Exception.Message)"
+            }
+
+            Start-Sleep -Milliseconds ($InitialDelayMs * $attempt)
+        }
+    }
+}
+
+function Get-FileContentUtf8OrNull {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path
+    )
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        return $null
+    }
+
+    return [System.IO.File]::ReadAllText($Path, [System.Text.Encoding]::UTF8)
+}
+
+function Get-FileBytesOrNull {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path
+    )
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        return $null
+    }
+
+    return [System.IO.File]::ReadAllBytes($Path)
+}
+
+function Test-ByteArrayEqual {
+    param(
+        [byte[]]$Left,
+        [byte[]]$Right
+    )
+
+    if ($null -eq $Left -or $null -eq $Right) {
+        return $false
+    }
+
+    if ($Left.Length -ne $Right.Length) {
+        return $false
+    }
+
+    for ($i = 0; $i -lt $Left.Length; $i++) {
+        if ($Left[$i] -ne $Right[$i]) {
+            return $false
+        }
+    }
+
+    return $true
+}
+
+function Write-Utf8NoBomIfChanged {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path,
+        [AllowEmptyString()]
+        [Parameter(Mandatory = $true)]
+        [string]$Content
+    )
+
+    $currentContent = Get-FileContentUtf8OrNull -Path $Path
+    if ($null -ne $currentContent -and $currentContent -ceq $Content) {
+        return
+    }
+
+    $parentDir = Split-Path -Parent $Path
+    if (-not [string]::IsNullOrWhiteSpace($parentDir)) {
+        New-Item -ItemType Directory -Force -Path $parentDir | Out-Null
+    }
+
+    Invoke-WithRetry -Description "Schreiben von '$Path'" -Action {
+        Write-Utf8NoBom -Path $Path -Content $Content
+    }
+}
+
+function Copy-FileIfChanged {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$SourcePath,
+        [Parameter(Mandatory = $true)]
+        [string]$DestinationPath
+    )
+
+    if (-not (Test-Path -LiteralPath $SourcePath)) {
+        throw "Quelldatei nicht gefunden: $SourcePath"
+    }
+
+    $sourceBytes = Get-FileBytesOrNull -Path $SourcePath
+    $destinationBytes = Get-FileBytesOrNull -Path $DestinationPath
+    if (Test-ByteArrayEqual -Left $sourceBytes -Right $destinationBytes) {
+        return
+    }
+
+    $destinationDir = Split-Path -Parent $DestinationPath
+    if (-not [string]::IsNullOrWhiteSpace($destinationDir)) {
+        New-Item -ItemType Directory -Force -Path $destinationDir | Out-Null
+    }
+
+    Invoke-WithRetry -Description "Kopieren von '$SourcePath' nach '$DestinationPath'" -Action {
+        Copy-Item -LiteralPath $SourcePath -Destination $DestinationPath -Force
+    }
 }
 
 function Get-VersionNameFromProperties {
@@ -95,7 +224,7 @@ function Set-IndexVersionMarkers {
         [System.Text.RegularExpressions.RegexOptions]::IgnoreCase
     )
 
-    Write-Utf8NoBom -Path $Path -Content $content
+    Write-Utf8NoBomIfChanged -Path $Path -Content $content
 }
 
 function Set-ServiceWorkerVersion {
@@ -122,7 +251,7 @@ function Set-ServiceWorkerVersion {
         [System.Text.RegularExpressions.RegexOptions]::IgnoreCase
     )
 
-    Write-Utf8NoBom -Path $Path -Content $content
+    Write-Utf8NoBomIfChanged -Path $Path -Content $content
 }
 
 function Sync-DocsFromAssets {
@@ -150,13 +279,16 @@ function Sync-DocsFromAssets {
     New-Item -ItemType Directory -Force -Path $TargetDocsDir | Out-Null
     New-Item -ItemType Directory -Force -Path $TargetDocsIconsDir | Out-Null
 
-    Copy-Item -LiteralPath (Join-Path $SourceAssetsDir "index.html") -Destination (Join-Path $TargetDocsDir "index.html") -Force
-    Copy-Item -LiteralPath $SourceManifestFile -Destination (Join-Path $TargetDocsDir "manifest.webmanifest") -Force
-    Copy-Item -LiteralPath $SourceSwFile -Destination (Join-Path $TargetDocsDir "sw.js") -Force
-    Copy-Item -LiteralPath (Join-Path $SourceIconsDir "*") -Destination $TargetDocsIconsDir -Force
+    Copy-FileIfChanged -SourcePath (Join-Path $SourceAssetsDir "index.html") -DestinationPath (Join-Path $TargetDocsDir "index.html")
+    Copy-FileIfChanged -SourcePath $SourceManifestFile -DestinationPath (Join-Path $TargetDocsDir "manifest.webmanifest")
+    Copy-FileIfChanged -SourcePath $SourceSwFile -DestinationPath (Join-Path $TargetDocsDir "sw.js")
 
-    New-Item -ItemType File -Force -Path $TargetNoJekyllFile | Out-Null
-    Write-Utf8NoBom -Path $TargetReadmeFile -Content $ReadmeContent
+    Get-ChildItem -LiteralPath $SourceIconsDir -File | ForEach-Object {
+        Copy-FileIfChanged -SourcePath $_.FullName -DestinationPath (Join-Path $TargetDocsIconsDir $_.Name)
+    }
+
+    Write-Utf8NoBomIfChanged -Path $TargetNoJekyllFile -Content ""
+    Write-Utf8NoBomIfChanged -Path $TargetReadmeFile -Content $ReadmeContent
 }
 
 $resolvedVersionName = if ($PSBoundParameters.ContainsKey("VersionName") -and -not [string]::IsNullOrWhiteSpace($VersionName)) {
