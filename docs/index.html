@@ -2357,6 +2357,19 @@
         aria-live="polite"
         aria-atomic="true"
       ></div>
+      <div
+        id="installHint"
+        role="note"
+        style="
+          display: none;
+          margin-top: 10px;
+          text-align: center;
+          font-size: 0.92rem;
+          font-weight: 800;
+          color: #475569;
+          line-height: 1.35;
+        "
+      ></div>
     </div>
 
     <!-- Motivations-Overlay -->
@@ -2657,7 +2670,7 @@
     <script>
       const APP_VERSION = 3;
       const APP_STORAGE_PREFIX = "RechenGuruLGI_";
-      const APP_NAME_FALLBACK = "Mathe Guru";
+      const APP_NAME_FALLBACK = "RechenGuru LGI";
       const PORTABLE_HTML_MARKER_PREFIX = "__portableBootstrapApplied_";
       const appStorage = {
         getItem(key) {
@@ -2950,12 +2963,31 @@
           }
         }
 
-        const currentUrl = window.location.href.split("#")[0].split("?")[0];
-        const response = await fetch(currentUrl, { cache: "no-store" });
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
+        const buildHtmlSnapshot = () => {
+          const doctype = document.doctype
+            ? `<!DOCTYPE ${document.doctype.name}>`
+            : "<!doctype html>";
+          return `${doctype}\n${document.documentElement.outerHTML}`;
+        };
+
+        if (location.protocol === "file:") {
+          return buildHtmlSnapshot();
         }
-        return response.text();
+
+        const currentUrl = window.location.href.split("#")[0].split("?")[0];
+        try {
+          const response = await fetch(currentUrl, { cache: "no-store" });
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+          return response.text();
+        } catch (error) {
+          console.warn(
+            "Aktuelle index.html konnte nicht per Fetch geladen werden, DOM-Snapshot wird verwendet.",
+            error,
+          );
+          return buildHtmlSnapshot();
+        }
       }
 
       function resolveMimeTypeForFilename(fileName) {
@@ -10427,25 +10459,100 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         const SW_VERSION = "mathe-guru-v184";
         window.__deferredPwaPrompt = null;
 
-        function updateInstallButton() {
+        function isStandaloneMode() {
+          return (
+            window.matchMedia("(display-mode: standalone)").matches ||
+            window.navigator.standalone === true
+          );
+        }
+
+        function getInstallContext() {
+          const ua = navigator.userAgent || "";
+          const platform = navigator.platform || "";
+          const maxTouchPoints = Number(navigator.maxTouchPoints || 0);
+          const isIOS =
+            /iPad|iPhone|iPod/i.test(ua) ||
+            (platform === "MacIntel" && maxTouchPoints > 1);
+          const isSafari =
+            /Safari/i.test(ua) &&
+            !/CriOS|FxiOS|EdgiOS|OPiOS|OPT|YaBrowser|DuckDuckGo/i.test(ua);
+          const isAndroid = /Android/i.test(ua);
+          const isMobile =
+            isIOS || isAndroid || /Mobile|Tablet/i.test(ua) || maxTouchPoints > 0;
+          const isInAppBrowser =
+            /; wv\)|FBAN|FBAV|Instagram|Line\/|Snapchat|TikTok|MicroMessenger/i.test(
+              ua,
+            );
+
+          return {
+            isAndroid,
+            isIOS,
+            isMobile,
+            isSafari,
+            isStandalone: isStandaloneMode(),
+            isIosSafari: isIOS && isSafari,
+            isInAppBrowser,
+          };
+        }
+
+        function getInstallHintText() {
+          const ctx = getInstallContext();
+          if (ctx.isStandalone) return "";
+
+          const suffix = ctx.isInAppBrowser
+            ? " Falls die Seite in einem In-App-Browser geöffnet ist, bitte in Safari oder den Standardbrowser wechseln."
+            : "";
+
+          if (ctx.isIosSafari) {
+            return `Auf dem iPhone in Safari öffnen, dann „Teilen“ -> „Zum Home-Bildschirm“.${suffix}`;
+          }
+
+          if (ctx.isAndroid) {
+            return `Auf Android im Browser-Menü „Zum Startbildschirm“ oder „App installieren“ wählen.${suffix}`;
+          }
+
+          if (ctx.isMobile) {
+            return `Im mobilen Browser über das Menü zum Startbildschirm hinzufügen oder installieren.${suffix}`;
+          }
+
+          return "";
+        }
+
+        function updateInstallUi() {
           const btn = document.getElementById("installBtn");
-          if (!btn) return;
-          btn.style.display = window.__deferredPwaPrompt ? "" : "none";
+          const hint = document.getElementById("installHint");
+          const ctx = getInstallContext();
+          const hintText = getInstallHintText();
+          const canUsePrompt =
+            Boolean(window.__deferredPwaPrompt) && !ctx.isIosSafari;
+
+          if (btn) {
+            btn.style.display = canUsePrompt ? "" : "none";
+          }
+
+          if (hint) {
+            const showHint =
+              !ctx.isStandalone &&
+              Boolean(hintText) &&
+              (!canUsePrompt || ctx.isIosSafari || ctx.isInAppBrowser);
+            hint.textContent = showHint ? hintText : "";
+            hint.style.display = showHint ? "" : "none";
+          }
         }
 
         window.addEventListener("beforeinstallprompt", (event) => {
           event.preventDefault();
           window.__deferredPwaPrompt = event;
-          updateInstallButton();
+          updateInstallUi();
         });
 
         window.addEventListener("appinstalled", () => {
           window.__deferredPwaPrompt = null;
-          updateInstallButton();
+          updateInstallUi();
           try {
             const msg = document.getElementById("statusMessage");
             if (msg) {
-              msg.textContent = "Mathe Guru ist jetzt installiert. 🎉";
+              msg.textContent = `${getCurrentAppName()} ist jetzt installiert. 🎉`;
               msg.style.color = "#2d6a4f";
             }
           } catch (e) {}
@@ -10460,6 +10567,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
                   const msg = document.getElementById("statusMessage");
                   if (msg) {
                     msg.textContent =
+                      getInstallHintText() ||
                       "Installation im Browser-Menü öffnen: „Zum Startbildschirm hinzufügen“ bzw. „Installieren“.";
                     msg.style.color = "#475569";
                   }
@@ -10472,12 +10580,14 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
               } catch (e) {
               } finally {
                 window.__deferredPwaPrompt = null;
-                updateInstallButton();
+                updateInstallUi();
               }
             });
           }
-          updateInstallButton();
+          updateInstallUi();
         });
+
+        window.addEventListener("pageshow", () => updateInstallUi());
 
         if (
           "serviceWorker" in navigator &&
@@ -10496,7 +10606,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="9"
+      data-app-version="8"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -10508,7 +10618,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">9</span>
+      <span id="appVersion">8</span>
     </footer>
 
     <!-- ❌ Fehler-Aktionen (Zurücksetzen / Drucken) -->
