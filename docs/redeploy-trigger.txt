@@ -1,0 +1,3 @@
+GitHub Pages Redeploy Trigger
+Timestamp: 2026-03-29 23:02:49 +02:00
+Reason: Force a fresh Pages deployment for docs/
