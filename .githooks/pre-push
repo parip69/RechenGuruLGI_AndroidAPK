@@ -33,6 +33,7 @@ if ! git -C "$repo_root" diff --quiet -- \
   app/src/main/assets/icons \
   docs/index.html \
   docs/manifest.webmanifest \
+  docs/redeploy-trigger.txt \
   docs/sw.js \
   docs/icons \
   docs/.nojekyll \
@@ -49,6 +50,7 @@ if ! git -C "$repo_root" diff --cached --quiet -- \
   app/src/main/assets/icons \
   docs/index.html \
   docs/manifest.webmanifest \
+  docs/redeploy-trigger.txt \
   docs/sw.js \
   docs/icons \
   docs/.nojekyll \

@@ -19,6 +19,8 @@ Hinweise:
 - Dabei werden index.html, sw.js und die docs-Version auf die aktuelle VERSION_NAME abgestimmt
 - Fuer manuelle HTML-Aenderungen kannst du jederzeit .\sync_web_assets.bat ausfuehren
 - Nach einmaligem Ausfuehren von .\setup_git_hooks.bat pruefen Git-Hooks vor Commit und Push automatisch, dass docs/index.html wirklich die neueste Version aus app/src/main/assets enthaelt
+- Beim lokalen Commit wird zusaetzlich automatisch docs/redeploy-trigger.txt aktualisiert, damit GitHub Pages nach dem Push sicher einen frischen Redeploy anstoesst
+- Empfohlen fuer GitHub Pages: In GitHub unter Settings -> Pages die Quelle auf GitHub Actions stellen und den Workflow "Deploy GitHub Pages" verwenden
 
 Wenn du eine signierte Release-APK willst:
 - Build > Generate Signed Bundle / APK
