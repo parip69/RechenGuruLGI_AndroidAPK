@@ -1,0 +1,39 @@
+#!/usr/bin/env sh
+set -eu
+
+repo_root="$(git rev-parse --show-toplevel)"
+sync_script="$repo_root/sync_web_assets.ps1"
+
+run_sync() {
+  if command -v pwsh >/dev/null 2>&1; then
+    pwsh -NoProfile -ExecutionPolicy Bypass -File "$sync_script"
+    return
+  fi
+
+  if command -v powershell.exe >/dev/null 2>&1; then
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$sync_script"
+    return
+  fi
+
+  if command -v powershell >/dev/null 2>&1; then
+    powershell -NoProfile -ExecutionPolicy Bypass -File "$sync_script"
+    return
+  fi
+
+  echo "PowerShell wurde nicht gefunden. Der Web-Asset-Sync konnte vor dem Commit nicht ausgefuehrt werden." >&2
+  exit 1
+}
+
+run_sync
+
+git -C "$repo_root" add -- \
+  app/src/main/assets/index.html \
+  app/src/main/assets/manifest.webmanifest \
+  app/src/main/assets/sw.js \
+  app/src/main/assets/icons \
+  docs/index.html \
+  docs/manifest.webmanifest \
+  docs/sw.js \
+  docs/icons \
+  docs/.nojekyll \
+  docs/README-GitHub-Pages.txt

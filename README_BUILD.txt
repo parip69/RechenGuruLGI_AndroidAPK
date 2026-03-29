@@ -15,8 +15,10 @@ Hinweise:
 - JavaScript und DOM Storage sind aktiviert
 - Die App ist auf Hochformat gestellt
 - Version und APK-Dateiname werden aus version.properties gelesen
-- Vor jedem Build werden die Web-Assets aus app/src/main/assets nach docs synchronisiert
+- Vor jedem Build und nach jedem Versions-Build werden die Web-Assets aus app/src/main/assets nach docs synchronisiert
 - Dabei werden index.html, sw.js und die docs-Version auf die aktuelle VERSION_NAME abgestimmt
+- Fuer manuelle HTML-Aenderungen kannst du jederzeit .\sync_web_assets.bat ausfuehren
+- Nach einmaligem Ausfuehren von .\setup_git_hooks.bat pruefen Git-Hooks vor Commit und Push automatisch, dass docs/index.html wirklich die neueste Version aus app/src/main/assets enthaelt
 
 Wenn du eine signierte Release-APK willst:
 - Build > Generate Signed Bundle / APK

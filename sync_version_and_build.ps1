@@ -115,6 +115,13 @@ try {
         throw "Gradle-Build fehlgeschlagen."
     }
 
+    try {
+        & $syncWebAssetsScript -VersionName $nextVersionName
+    }
+    catch {
+        throw "Abschliessende Synchronisierung nach dem Build fehlgeschlagen: $($_.Exception.Message)"
+    }
+
     New-Item -ItemType Directory -Force -Path $privatDir | Out-Null
 
     $htmlArchivePath = Join-Path $privatDir "$htmlBaseName-v$nextVersionName.html"
@@ -131,6 +138,7 @@ try {
     Write-Host "Archivkopien erstellt:"
     Write-Host " - $htmlArchivePath"
     Write-Host " - $apkArchivePath"
+    Write-Host " - docs/index.html ist auf dem neuesten Stand."
 }
 finally {
     Pop-Location
