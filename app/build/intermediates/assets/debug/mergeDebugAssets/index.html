@@ -10456,11 +10456,12 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v18";
+        const SW_VERSION = "rechenguru-lgi-v19";
         window.__deferredPwaPrompt = null;
 
         function isStandaloneMode() {
           return (
+            window.matchMedia("(display-mode: fullscreen)").matches ||
             window.matchMedia("(display-mode: standalone)").matches ||
             window.navigator.standalone === true
           );
@@ -10616,7 +10617,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="18"
+      data-app-version="19"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -10628,7 +10629,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">18</span>
+      <span id="appVersion">19</span>
     </footer>
 
     <!-- ❌ Fehler-Aktionen (Zurücksetzen / Drucken) -->
