@@ -15,6 +15,8 @@ Hinweise:
 - JavaScript und DOM Storage sind aktiviert
 - Die App ist auf Hochformat gestellt
 - Version und APK-Dateiname werden aus version.properties gelesen
+- Vor jedem Build werden die Web-Assets aus app/src/main/assets nach docs synchronisiert
+- Dabei werden index.html, sw.js und die docs-Version auf die aktuelle VERSION_NAME abgestimmt
 
 Wenn du eine signierte Release-APK willst:
 - Build > Generate Signed Bundle / APK

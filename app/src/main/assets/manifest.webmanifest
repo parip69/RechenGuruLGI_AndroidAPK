@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "Mathe Guru",
-  "short_name": "Mathe Guru",
-  "description": "Installierbare Offline-Mathe-App.",
+  "name": "RechenGuru LGI",
+  "short_name": "RechenGuru",
+  "description": "RechenGuru LGI - installierbare Offline-Mathe-App.",
   "lang": "de",
   "start_url": "./index.html",
   "scope": "./",

@@ -10456,13 +10456,19 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "mathe-guru-v184";
+        const SW_VERSION = "rechenguru-lgi-v13";
         window.__deferredPwaPrompt = null;
 
         function isStandaloneMode() {
           return (
             window.matchMedia("(display-mode: standalone)").matches ||
             window.navigator.standalone === true
+          );
+        }
+
+        function shouldSuppressWebInstallUi() {
+          return (
+            typeof getAndroidBridge === "function" && Boolean(getAndroidBridge())
           );
         }
 
@@ -10496,6 +10502,8 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         }
 
         function getInstallHintText() {
+          if (shouldSuppressWebInstallUi()) return "";
+
           const ctx = getInstallContext();
           if (ctx.isStandalone) return "";
 
@@ -10524,7 +10532,9 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           const ctx = getInstallContext();
           const hintText = getInstallHintText();
           const canUsePrompt =
-            Boolean(window.__deferredPwaPrompt) && !ctx.isIosSafari;
+            Boolean(window.__deferredPwaPrompt) &&
+            !ctx.isIosSafari &&
+            !shouldSuppressWebInstallUi();
 
           if (btn) {
             btn.style.display = canUsePrompt ? "" : "none";
@@ -10606,7 +10616,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="8"
+      data-app-version="13"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -10618,7 +10628,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">8</span>
+      <span id="appVersion">13</span>
     </footer>
 
     <!-- ❌ Fehler-Aktionen (Zurücksetzen / Drucken) -->

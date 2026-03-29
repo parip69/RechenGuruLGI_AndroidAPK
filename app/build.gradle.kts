@@ -28,6 +28,20 @@ val syncLauncherForegroundFromAssets = tasks.register<Copy>("syncLauncherForegro
     rename { "ic_launcher_foreground.png" }
 }
 
+val syncWebAssetsForDocs = tasks.register<Exec>("syncWebAssetsForDocs") {
+    workingDir = rootProject.projectDir
+    commandLine(
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        rootProject.file("sync_web_assets.ps1").absolutePath,
+        "-VersionName",
+        appVersionName
+    )
+}
+
 android {
     namespace = "de.parip69.rechengurulgi"
     compileSdk = 35
@@ -72,6 +86,7 @@ android {
 
 tasks.named("preBuild") {
     dependsOn(syncLauncherForegroundFromAssets)
+    dependsOn(syncWebAssetsForDocs)
 }
 
 dependencies {
