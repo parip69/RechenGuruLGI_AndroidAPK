@@ -12,7 +12,6 @@ $indexFile = Join-Path $assetsDir "index.html"
 $manifestFile = Join-Path $assetsDir "manifest.webmanifest"
 $swFile = Join-Path $assetsDir "sw.js"
 $iconsDir = Join-Path $assetsDir "icons"
-$webIconGeneratorScript = Join-Path $scriptRoot "generate_web_icons.ps1"
 $docsDir = Join-Path $scriptRoot "docs"
 $docsIconsDir = Join-Path $docsDir "icons"
 $docsReadmeFile = Join-Path $docsDir "README-GitHub-Pages.txt"
@@ -302,11 +301,6 @@ $webCacheVersion = "rechenguru-lgi-v$resolvedVersionName"
 
 Set-IndexVersionMarkers -Path $indexFile -ResolvedVersionName $resolvedVersionName -WebCacheVersion $webCacheVersion
 Set-ServiceWorkerVersion -Path $swFile -WebCacheVersion $webCacheVersion
-if (-not (Test-Path -LiteralPath $webIconGeneratorScript)) {
-    throw "Web-Icon-Skript nicht gefunden: $webIconGeneratorScript"
-}
-
-& $webIconGeneratorScript
 Sync-DocsFromAssets `
     -SourceAssetsDir $assetsDir `
     -SourceManifestFile $manifestFile `
