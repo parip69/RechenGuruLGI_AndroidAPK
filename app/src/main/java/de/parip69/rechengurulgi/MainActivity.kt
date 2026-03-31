@@ -3,6 +3,7 @@ package de.parip69.rechengurulgi
 import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
@@ -35,13 +36,13 @@ import androidx.core.view.WindowInsetsCompat
 import de.parip69.rechengurulgi.databinding.ActivityMainBinding
 import java.io.ByteArrayInputStream
 import java.io.File
-import kotlin.math.max
 import org.json.JSONObject
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private var currentChromeTheme: ChromeTheme? = null
+    private val immersiveModeRunnable = Runnable { hideSystemBars() }
 
     private data class ChromeTheme(
         val topColor: Int,
@@ -171,36 +172,45 @@ class MainActivity : AppCompatActivity() {
 
     private fun configureEdgeToEdge() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            window.attributes = window.attributes.apply {
+                layoutInDisplayCutoutMode =
+                    android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+            }
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            window.isStatusBarContrastEnforced = false
+            window.isNavigationBarContrastEnforced = false
+        }
+
         applyChromeTheme(resolveFallbackChromeTheme())
-        hideSystemBars()
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
-            val displayCutoutInsets = insets.getInsets(WindowInsetsCompat.Type.displayCutout())
-            val navigationInsets = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
-            val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
-
-            view.setPadding(
-                max(displayCutoutInsets.left, navigationInsets.left),
-                0,
-                max(displayCutoutInsets.right, navigationInsets.right),
-                imeInsets.bottom
-            )
-            insets
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, _ ->
+            scheduleImmersiveFullscreen()
+            WindowInsetsCompat.CONSUMED
         }
 
         ViewCompat.requestApplyInsets(binding.root)
+        scheduleImmersiveFullscreen()
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         if (hasFocus) {
-            hideSystemBars()
+            scheduleImmersiveFullscreen()
         }
     }
 
     override fun onResume() {
         super.onResume()
-        hideSystemBars()
+        scheduleImmersiveFullscreen()
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        scheduleImmersiveFullscreen()
     }
 
     private fun printWebView() {
@@ -430,7 +440,15 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        hideSystemBars()
+        scheduleImmersiveFullscreen()
+    }
+
+    private fun scheduleImmersiveFullscreen() {
+        if (!::binding.isInitialized) return
+        binding.root.removeCallbacks(immersiveModeRunnable)
+        binding.root.post(immersiveModeRunnable)
+        binding.root.postDelayed(immersiveModeRunnable, 120)
+        binding.root.postDelayed(immersiveModeRunnable, 300)
     }
 
     private fun hideSystemBars() {
@@ -470,6 +488,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        if (::binding.isInitialized) {
+            binding.root.removeCallbacks(immersiveModeRunnable)
+        }
         binding.webView.destroy()
         super.onDestroy()
     }
