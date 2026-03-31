@@ -172,7 +172,7 @@ class MainActivity : AppCompatActivity() {
     private fun configureEdgeToEdge() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         applyChromeTheme(resolveFallbackChromeTheme())
-        hideStatusBar()
+        hideSystemBars()
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
             val displayCutoutInsets = insets.getInsets(WindowInsetsCompat.Type.displayCutout())
@@ -194,7 +194,7 @@ class MainActivity : AppCompatActivity() {
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         if (hasFocus) {
-            hideStatusBar()
+            hideSystemBars()
         }
     }
 
@@ -425,13 +425,13 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        hideStatusBar()
+        hideSystemBars()
     }
 
-    private fun hideStatusBar() {
+    private fun hideSystemBars() {
         WindowCompat.getInsetsController(window, window.decorView)?.let { controller ->
             controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            controller.hide(WindowInsetsCompat.Type.statusBars())
+            controller.hide(WindowInsetsCompat.Type.systemBars())
         }
     }
 
