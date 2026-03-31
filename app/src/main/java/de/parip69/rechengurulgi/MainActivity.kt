@@ -181,9 +181,9 @@ class MainActivity : AppCompatActivity() {
 
             view.setPadding(
                 max(displayCutoutInsets.left, navigationInsets.left),
-                displayCutoutInsets.top,
+                0,
                 max(displayCutoutInsets.right, navigationInsets.right),
-                max(navigationInsets.bottom, imeInsets.bottom)
+                imeInsets.bottom
             )
             insets
         }
@@ -196,6 +196,11 @@ class MainActivity : AppCompatActivity() {
         if (hasFocus) {
             hideSystemBars()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        hideSystemBars()
     }
 
     private fun printWebView() {
