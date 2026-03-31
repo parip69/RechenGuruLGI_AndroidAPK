@@ -56,27 +56,6 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    flavorDimensions += "distribution"
-
-    productFlavors {
-        create("offline") {
-            dimension = "distribution"
-            buildConfigField("String", "START_URL", "\"file:///android_asset/index.html\"")
-            buildConfigField("boolean", "LOAD_LOCAL_ASSETS", "true")
-        }
-
-        create("web") {
-            dimension = "distribution"
-            applicationIdSuffix = ".web"
-            buildConfigField(
-                "String",
-                "START_URL",
-                "\"https://parip69.github.io/RechenGuruLGI_AndroidAPK/\""
-            )
-            buildConfigField("boolean", "LOAD_LOCAL_ASSETS", "false")
-        }
-    }
-
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -95,18 +74,12 @@ android {
     }
     buildFeatures {
         viewBinding = true
-        buildConfig = true
     }
 
     applicationVariants.all {
-        val apkBaseName = when (flavorName) {
-            "web" -> "MatheGuruWeb"
-            else -> "MatheGuru"
-        }
-
         outputs.all {
             val output = this as com.android.build.gradle.internal.api.ApkVariantOutputImpl
-            output.outputFileName = "$apkBaseName-v${versionName}.apk"
+            output.outputFileName = "MatheGuru-v${versionName}.apk"
         }
     }
 }

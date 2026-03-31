@@ -7,13 +7,11 @@ So baust du die APK:
 2. Diesen Ordner in Android Studio öffnen
 3. Warten bis Gradle synchronisiert ist
 4. Menü: Build > Build APK(s)
-5. Danach liegen die Debug-APKs typischerweise unter:
-   app/build/outputs/apk/offline/debug/MatheGuru-v<Version>.apk
-   app/build/outputs/apk/web/debug/MatheGuruWeb-v<Version>.apk
+5. Danach liegt die Debug-APK typischerweise unter:
+   app/build/outputs/apk/debug/MatheGuru-v<Version>.apk
 
 Hinweise:
-- `offline` laedt die HTML aus den Android-Assets
-- `web` laedt die GitHub-Pages-Version in einer nativen Android-Huelle
+- Die HTML wird offline aus den Android-Assets geladen
 - JavaScript und DOM Storage sind aktiviert
 - Die App ist auf Hochformat gestellt
 - Version und APK-Dateiname werden aus version.properties gelesen

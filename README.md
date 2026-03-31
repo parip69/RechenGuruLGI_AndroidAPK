@@ -1,9 +1,6 @@
 # RechenGuruLGI_AndroidAPK
 
-Android-Studio-Projekt fuer zwei native Android-Wrapper:
-
-- `offline`: laedt die lokale Web-App aus `app/src/main/assets/index.html`
-- `web`: laedt die GitHub-Pages-Version unter `https://parip69.github.io/RechenGuruLGI_AndroidAPK/`
+Android-Studio-Projekt fuer einen nativen Android-Wrapper um die lokale Web-App `app/src/main/assets/index.html`.
 
 Dieses Projekt folgt einem festen Muster:
 
@@ -30,11 +27,10 @@ Dieses Projekt folgt einem festen Muster:
 
 ## Schnellstart
 
-Debug-Builds:
+Debug-Build:
 
 ```powershell
-.\gradlew.bat assembleOfflineDebug
-.\gradlew.bat assembleWebDebug
+.\gradlew.bat assembleDebug
 ```
 
 Nur Web-Assets und `docs/` synchronisieren:

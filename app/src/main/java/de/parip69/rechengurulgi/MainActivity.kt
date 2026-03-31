@@ -156,7 +156,7 @@ class MainActivity : AppCompatActivity() {
 
         configureEdgeToEdge()
         configureWebView(binding.webView)
-        binding.webView.loadUrl(resolveStartUrl())
+        binding.webView.loadUrl("file:///android_asset/index.html")
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -354,10 +354,6 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun shouldInterceptRequest(view: WebView?, request: WebResourceRequest?): WebResourceResponse? {
-                if (!BuildConfig.LOAD_LOCAL_ASSETS) {
-                    return super.shouldInterceptRequest(view, request)
-                }
-
                 val url = request?.url?.toString() ?: return super.shouldInterceptRequest(view, request)
                 return when {
                     url.endsWith("manifest.webmanifest") -> assetResponse("manifest.webmanifest", "application/manifest+json")
@@ -370,10 +366,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-    }
-
-    private fun resolveStartUrl(): String {
-        return BuildConfig.START_URL
     }
 
     private fun resolveFallbackChromeTheme(): ChromeTheme {
@@ -442,6 +434,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun hideSystemBars() {
+        @Suppress("DEPRECATION")
+        window.decorView.systemUiVisibility =
+            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                View.SYSTEM_UI_FLAG_FULLSCREEN
+
         WindowCompat.getInsetsController(window, window.decorView)?.let { controller ->
             controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             controller.hide(WindowInsetsCompat.Type.systemBars())
