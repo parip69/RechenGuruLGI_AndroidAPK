@@ -17,23 +17,23 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <meta name="application-name" content="Mathe Guru" />
     <meta name="apple-mobile-web-app-title" content="Mathe Guru" />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="192x192"
-      href="icons/icon-192.png"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="512x512"
-      href="icons/icon-512.png"
-    />
-    <link
-      rel="apple-touch-icon"
-      sizes="180x180"
-      href="icons/apple-touch-icon.png"
-    />
+      <link
+        rel="icon"
+        type="image/png"
+        sizes="192x192"
+        href="icons/web-icon-192.png"
+      />
+      <link
+        rel="icon"
+        type="image/png"
+        sizes="512x512"
+        href="icons/web-icon-512.png"
+      />
+      <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="icons/web-apple-touch-icon.png"
+      />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta
@@ -10551,7 +10551,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v25";
+        const SW_VERSION = "rechenguru-lgi-v26";
         window.__deferredPwaPrompt = null;
 
         function isStandaloneMode() {
@@ -10581,35 +10581,48 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             return;
           }
 
-          const root = document.documentElement;
-          const requestFullscreen =
-            root.requestFullscreen ||
-            root.webkitRequestFullscreen ||
-            root.msRequestFullscreen;
+          const candidates = [document.documentElement, document.body].filter(
+            Boolean,
+          );
 
-          if (typeof requestFullscreen !== "function") {
-            return;
-          }
+          for (const target of candidates) {
+            const requestFullscreen =
+              target.requestFullscreen ||
+              target.webkitRequestFullscreen ||
+              target.msRequestFullscreen;
 
-          try {
-            if (requestFullscreen === root.requestFullscreen) {
-              const requestPromise = requestFullscreen.call(root, {
-                navigationUI: "hide",
-              });
-              if (requestPromise && typeof requestPromise.catch === "function") {
-                requestPromise.catch(() => {});
-              }
-              return;
+            if (typeof requestFullscreen !== "function") {
+              continue;
             }
 
-            requestFullscreen.call(root);
-          } catch (error) {
             try {
-              const requestPromise = root.requestFullscreen?.call(root);
-              if (requestPromise && typeof requestPromise.catch === "function") {
-                requestPromise.catch(() => {});
+              if (requestFullscreen === target.requestFullscreen) {
+                const requestPromise = requestFullscreen.call(target, {
+                  navigationUI: "hide",
+                });
+                if (
+                  requestPromise &&
+                  typeof requestPromise.catch === "function"
+                ) {
+                  requestPromise.catch(() => {});
+                }
+                return;
               }
-            } catch (fallbackError) {}
+
+              requestFullscreen.call(target);
+              return;
+            } catch (error) {
+              try {
+                const requestPromise = target.requestFullscreen?.call(target);
+                if (
+                  requestPromise &&
+                  typeof requestPromise.catch === "function"
+                ) {
+                  requestPromise.catch(() => {});
+                }
+                return;
+              } catch (fallbackError) {}
+            }
           }
         }
 
@@ -10625,6 +10638,16 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           );
           window.removeEventListener(
             "touchend",
+            installedFullscreenActivationHandler,
+            true,
+          );
+          window.removeEventListener(
+            "touchstart",
+            installedFullscreenActivationHandler,
+            true,
+          );
+          window.removeEventListener(
+            "click",
             installedFullscreenActivationHandler,
             true,
           );
@@ -10671,6 +10694,19 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
               capture: true,
             },
           );
+          window.addEventListener(
+            "touchstart",
+            installedFullscreenActivationHandler,
+            {
+              once: true,
+              passive: true,
+              capture: true,
+            },
+          );
+          window.addEventListener("click", installedFullscreenActivationHandler, {
+            once: true,
+            capture: true,
+          });
           window.addEventListener("keydown", installedFullscreenActivationHandler, {
             once: true,
             capture: true,
@@ -10855,7 +10891,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="25"
+      data-app-version="26"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -10867,7 +10903,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">25</span>
+      <span id="appVersion">26</span>
     </footer>
 
     <!-- ❌ Fehler-Aktionen (Zurücksetzen / Drucken) -->
