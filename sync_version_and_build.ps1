@@ -12,7 +12,8 @@ $syncWebAssetsScript = Join-Path $scriptRoot "sync_web_assets.ps1"
 $gradlewBat = Join-Path $scriptRoot "gradlew.bat"
 $privatDir = Join-Path $scriptRoot "Privat"
 $apkOutputDir = Join-Path $scriptRoot "app\build\outputs\apk"
-$apkBaseName = "MatheGuru"
+$offlineApkBaseName = "MatheGuru"
+$webApkBaseName = "MatheGuruWeb"
 $htmlBaseName = "MatheGuru"
 
 function Write-Utf8NoBom {
@@ -70,6 +71,8 @@ function Find-VersionedApk {
         [Parameter(Mandatory = $true)]
         [string]$Path,
         [Parameter(Mandatory = $true)]
+        [string]$ApkBaseName,
+        [Parameter(Mandatory = $true)]
         [string]$VersionName
     )
 
@@ -78,7 +81,7 @@ function Find-VersionedApk {
     }
 
     Get-ChildItem -Path $Path -Recurse -File -Filter "*.apk" |
-        Where-Object { $_.Name -eq "$apkBaseName-v$VersionName.apk" } |
+        Where-Object { $_.Name -eq "$ApkBaseName-v$VersionName.apk" } |
         Select-Object -First 1
 }
 
@@ -110,7 +113,7 @@ try {
         throw "gradlew.bat nicht gefunden: $gradlewBat"
     }
 
-    & $gradlewBat assembleDebug
+    & $gradlewBat assembleOfflineDebug assembleWebDebug
     if ($LASTEXITCODE -ne 0) {
         throw "Gradle-Build fehlgeschlagen."
     }
@@ -127,17 +130,26 @@ try {
     $htmlArchivePath = Join-Path $privatDir "$htmlBaseName-v$nextVersionName.html"
     Copy-Item -LiteralPath $indexFile -Destination $htmlArchivePath -Force
 
-    $apkFile = Find-VersionedApk -Path $apkOutputDir -VersionName $nextVersionName
-    if (-not $apkFile) {
-        throw "Es wurde keine APK mit dem Namen '$apkBaseName-v$nextVersionName.apk' gefunden."
+    $offlineApkFile = Find-VersionedApk -Path $apkOutputDir -ApkBaseName $offlineApkBaseName -VersionName $nextVersionName
+    if (-not $offlineApkFile) {
+        throw "Es wurde keine APK mit dem Namen '$offlineApkBaseName-v$nextVersionName.apk' gefunden."
     }
 
-    $apkArchivePath = Join-Path $privatDir $apkFile.Name
-    Copy-Item -LiteralPath $apkFile.FullName -Destination $apkArchivePath -Force
+    $webApkFile = Find-VersionedApk -Path $apkOutputDir -ApkBaseName $webApkBaseName -VersionName $nextVersionName
+    if (-not $webApkFile) {
+        throw "Es wurde keine APK mit dem Namen '$webApkBaseName-v$nextVersionName.apk' gefunden."
+    }
+
+    $offlineApkArchivePath = Join-Path $privatDir $offlineApkFile.Name
+    Copy-Item -LiteralPath $offlineApkFile.FullName -Destination $offlineApkArchivePath -Force
+
+    $webApkArchivePath = Join-Path $privatDir $webApkFile.Name
+    Copy-Item -LiteralPath $webApkFile.FullName -Destination $webApkArchivePath -Force
 
     Write-Host "Archivkopien erstellt:"
     Write-Host " - $htmlArchivePath"
-    Write-Host " - $apkArchivePath"
+    Write-Host " - $offlineApkArchivePath"
+    Write-Host " - $webApkArchivePath"
     Write-Host " - docs/index.html ist auf dem neuesten Stand."
 }
 finally {

@@ -156,7 +156,7 @@ class MainActivity : AppCompatActivity() {
 
         configureEdgeToEdge()
         configureWebView(binding.webView)
-        binding.webView.loadUrl("file:///android_asset/index.html")
+        binding.webView.loadUrl(resolveStartUrl())
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -349,6 +349,10 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun shouldInterceptRequest(view: WebView?, request: WebResourceRequest?): WebResourceResponse? {
+                if (!BuildConfig.LOAD_LOCAL_ASSETS) {
+                    return super.shouldInterceptRequest(view, request)
+                }
+
                 val url = request?.url?.toString() ?: return super.shouldInterceptRequest(view, request)
                 return when {
                     url.endsWith("manifest.webmanifest") -> assetResponse("manifest.webmanifest", "application/manifest+json")
@@ -361,6 +365,10 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun resolveStartUrl(): String {
+        return BuildConfig.START_URL
     }
 
     private fun resolveFallbackChromeTheme(): ChromeTheme {
