@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "RechenGuru LGI",
-  "short_name": "RechenGuru",
-  "description": "RechenGuru LGI - installierbare Offline-Mathe-App.",
+  "name": "Mathe Guru",
+  "short_name": "Mathe Guru",
+  "description": "Mathe Guru - installierbare Offline-Mathe-App.",
   "lang": "de",
   "start_url": "./index.html",
   "scope": "./",
@@ -13,7 +13,7 @@
   "display": "fullscreen",
   "orientation": "portrait",
   "background_color": "#F1F5F9",
-  "theme_color": "#0F172A",
+  "theme_color": "#D9DFE8",
   "icons": [
     {
       "src": "icons/icon-192.png",

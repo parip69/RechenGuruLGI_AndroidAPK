@@ -1,9 +1,9 @@
-<!-- RechenGuru LGI - Version 3 -->
+<!-- Mathe Guru - Version 3 -->
 <!doctype html>
 <html lang="de">
   <head>
     <meta charset="UTF-8" />
-    <title>RechenGuru LGI</title>
+    <title>Mathe Guru</title>
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
@@ -12,11 +12,11 @@
 
     <meta
       name="description"
-      content="RechenGuru LGI – installierbare Offline-Mathe-App als PWA."
+      content="Mathe Guru - installierbare Offline-Mathe-App als PWA."
     />
     <link rel="manifest" href="manifest.webmanifest" />
-    <meta name="application-name" content="RechenGuru LGI" />
-    <meta name="apple-mobile-web-app-title" content="RechenGuru LGI" />
+    <meta name="application-name" content="Mathe Guru" />
+    <meta name="apple-mobile-web-app-title" content="Mathe Guru" />
     <link
       rel="icon"
       type="image/png"
@@ -2678,7 +2678,7 @@
     <script>
       const APP_VERSION = 3;
       const APP_STORAGE_PREFIX = "RechenGuruLGI_";
-      const APP_NAME_FALLBACK = "RechenGuru LGI";
+      const APP_NAME_FALLBACK = "Mathe Guru";
       const PORTABLE_HTML_MARKER_PREFIX = "__portableBootstrapApplied_";
       const appStorage = {
         getItem(key) {
@@ -10551,7 +10551,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v23";
+        const SW_VERSION = "rechenguru-lgi-v25";
         window.__deferredPwaPrompt = null;
 
         function isStandaloneMode() {
@@ -10560,6 +10560,121 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             window.matchMedia("(display-mode: standalone)").matches ||
             window.navigator.standalone === true
           );
+        }
+
+        function isDocumentFullscreen() {
+          return Boolean(
+            document.fullscreenElement ||
+              document.webkitFullscreenElement ||
+              document.msFullscreenElement,
+          );
+        }
+
+        function requestInstalledWebFullscreen() {
+          const ctx = getInstallContext();
+          if (
+            shouldSuppressWebInstallUi() ||
+            !ctx.isAndroid ||
+            !ctx.isStandalone ||
+            isDocumentFullscreen()
+          ) {
+            return;
+          }
+
+          const root = document.documentElement;
+          const requestFullscreen =
+            root.requestFullscreen ||
+            root.webkitRequestFullscreen ||
+            root.msRequestFullscreen;
+
+          if (typeof requestFullscreen !== "function") {
+            return;
+          }
+
+          try {
+            if (requestFullscreen === root.requestFullscreen) {
+              const requestPromise = requestFullscreen.call(root, {
+                navigationUI: "hide",
+              });
+              if (requestPromise && typeof requestPromise.catch === "function") {
+                requestPromise.catch(() => {});
+              }
+              return;
+            }
+
+            requestFullscreen.call(root);
+          } catch (error) {
+            try {
+              const requestPromise = root.requestFullscreen?.call(root);
+              if (requestPromise && typeof requestPromise.catch === "function") {
+                requestPromise.catch(() => {});
+              }
+            } catch (fallbackError) {}
+          }
+        }
+
+        let installedFullscreenActivationHandler = null;
+
+        function clearInstalledFullscreenActivation() {
+          if (!installedFullscreenActivationHandler) return;
+
+          window.removeEventListener(
+            "pointerdown",
+            installedFullscreenActivationHandler,
+            true,
+          );
+          window.removeEventListener(
+            "touchend",
+            installedFullscreenActivationHandler,
+            true,
+          );
+          window.removeEventListener(
+            "keydown",
+            installedFullscreenActivationHandler,
+            true,
+          );
+          installedFullscreenActivationHandler = null;
+        }
+
+        function armInstalledFullscreenActivation() {
+          const ctx = getInstallContext();
+          if (
+            shouldSuppressWebInstallUi() ||
+            !ctx.isAndroid ||
+            !ctx.isStandalone ||
+            isDocumentFullscreen() ||
+            installedFullscreenActivationHandler
+          ) {
+            return;
+          }
+
+          installedFullscreenActivationHandler = () => {
+            clearInstalledFullscreenActivation();
+            requestInstalledWebFullscreen();
+          };
+
+          window.addEventListener(
+            "pointerdown",
+            installedFullscreenActivationHandler,
+            {
+              once: true,
+              passive: true,
+              capture: true,
+            },
+          );
+          window.addEventListener(
+            "touchend",
+            installedFullscreenActivationHandler,
+            {
+              once: true,
+              passive: true,
+              capture: true,
+            },
+          );
+          window.addEventListener("keydown", installedFullscreenActivationHandler, {
+            once: true,
+            capture: true,
+          });
         }
 
         function shouldSuppressWebInstallUi() {
@@ -10655,6 +10770,8 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         window.addEventListener("appinstalled", () => {
           window.__deferredPwaPrompt = null;
           updateInstallUi();
+          armInstalledFullscreenActivation();
+          requestInstalledWebFullscreen();
           try {
             const msg = document.getElementById("statusMessage");
             if (msg) {
@@ -10691,9 +10808,35 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             });
           }
           updateInstallUi();
+          armInstalledFullscreenActivation();
+          requestInstalledWebFullscreen();
         });
 
-        window.addEventListener("pageshow", () => updateInstallUi());
+        window.addEventListener("pageshow", () => {
+          updateInstallUi();
+          armInstalledFullscreenActivation();
+          requestInstalledWebFullscreen();
+        });
+        document.addEventListener("visibilitychange", () => {
+          if (!document.hidden) {
+            armInstalledFullscreenActivation();
+            requestInstalledWebFullscreen();
+          }
+        });
+        document.addEventListener("fullscreenchange", () => {
+          if (isDocumentFullscreen()) {
+            clearInstalledFullscreenActivation();
+          } else {
+            armInstalledFullscreenActivation();
+          }
+        });
+        document.addEventListener("webkitfullscreenchange", () => {
+          if (isDocumentFullscreen()) {
+            clearInstalledFullscreenActivation();
+          } else {
+            armInstalledFullscreenActivation();
+          }
+        });
 
         if (
           "serviceWorker" in navigator &&
@@ -10712,7 +10855,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="23"
+      data-app-version="25"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -10724,7 +10867,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">23</span>
+      <span id="appVersion">25</span>
     </footer>
 
     <!-- ❌ Fehler-Aktionen (Zurücksetzen / Drucken) -->
