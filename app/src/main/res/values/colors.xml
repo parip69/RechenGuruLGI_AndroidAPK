@@ -2,5 +2,7 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="status_bar">#FF202124</color>
+    <color name="app_window_background">#D9DFE8</color>
+    <color name="system_bar_top">#E8ECF1</color>
+    <color name="system_bar_bottom">#D9DFE8</color>
 </resources>

@@ -1,5 +1,9 @@
 [
     {
+        "merged": "C:\\Users\\gerha\\.gradle\\daemon\\8.9\\de.parip69.rechengurulgi.app-mergeDebugResources-35:\\layout\\activity_main.xml",
+        "source": "C:\\Users\\gerha\\.gradle\\daemon\\8.9\\de.parip69.rechengurulgi.app-main-38:\\layout\\activity_main.xml"
+    },
+    {
         "merged": "de.parip69.rechengurulgi.app-mergeDebugResources-35:/layout/activity_main.xml",
         "source": "de.parip69.rechengurulgi.app-main-38:/layout/activity_main.xml"
     }

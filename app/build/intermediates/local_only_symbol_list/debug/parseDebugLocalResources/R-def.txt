@@ -1,11 +1,14 @@
 R_DEF: Internal format may change without notice
 local
+color app_window_background
 color black
 color ic_launcher_background
-color status_bar
+color system_bar_bottom
+color system_bar_top
 color white
 drawable ic_launcher_foreground
 drawable ic_launcher_foreground_inset
+drawable window_background
 id webView
 layout activity_main
 mipmap ic_launcher

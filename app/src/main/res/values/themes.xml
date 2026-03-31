@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <style name="Theme.RechenGuruLGI" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="android:statusBarColor">@color/status_bar</item>
-        <item name="android:navigationBarColor">@android:color/black</item>
+        <item name="android:statusBarColor">@color/system_bar_top</item>
+        <item name="android:navigationBarColor">@color/system_bar_bottom</item>
+        <item name="android:windowBackground">@drawable/window_background</item>
+        <item name="android:colorBackground">@color/app_window_background</item>
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
         <item name="android:windowFullscreen">false</item>
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>

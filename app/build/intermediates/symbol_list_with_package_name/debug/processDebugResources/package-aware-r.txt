@@ -1271,6 +1271,7 @@ color accent_material_dark
 color accent_material_light
 color androidx_core_ripple_material_light
 color androidx_core_secondary_text_default_material_light
+color app_window_background
 color background_floating_material_dark
 color background_floating_material_light
 color background_material_dark
@@ -2009,13 +2010,14 @@ color secondary_text_default_material_dark
 color secondary_text_default_material_light
 color secondary_text_disabled_material_dark
 color secondary_text_disabled_material_light
-color status_bar
 color switch_thumb_disabled_material_dark
 color switch_thumb_disabled_material_light
 color switch_thumb_material_dark
 color switch_thumb_material_light
 color switch_thumb_normal_material_dark
 color switch_thumb_normal_material_light
+color system_bar_bottom
+color system_bar_top
 color tooltip_background_dark
 color tooltip_background_light
 color white
@@ -3012,6 +3014,7 @@ drawable notify_panel_notification_icon_bg
 drawable test_level_drawable
 drawable tooltip_frame_dark
 drawable tooltip_frame_light
+drawable window_background
 id ALT
 id BOTTOM_END
 id BOTTOM_START

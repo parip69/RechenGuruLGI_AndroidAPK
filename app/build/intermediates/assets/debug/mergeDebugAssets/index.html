@@ -8,7 +8,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
-    <meta name="theme-color" content="#0F172A" />
+    <meta name="theme-color" content="#D9DFE8" />
 
     <meta
       name="description"
@@ -101,6 +101,8 @@
         /* Pastell-Blau (Buttons: Werkseinstellung + Druck) */
         --actionBlue1: #7fb9ea;
         --actionBlue2: #4e93d3;
+        color-scheme: light;
+        background-color: var(--bg2);
       }
 
       * {
@@ -110,9 +112,19 @@
         font-family: "Outfit", sans-serif;
       }
 
+      html {
+        min-height: 100%;
+        height: -webkit-fill-available;
+        background-color: var(--bg2);
+        overscroll-behavior: none;
+      }
+
       body {
-        background: linear-gradient(135deg, var(--bg), var(--bg2));
+        background-color: var(--bg2);
+        background-image: linear-gradient(135deg, var(--bg), var(--bg2));
+        background-attachment: fixed;
         min-height: 100vh;
+        min-height: 100dvh;
         min-height: -webkit-fill-available;
         color: var(--text);
         display: block;
@@ -120,10 +132,6 @@
         position: relative;
         -webkit-tap-highlight-color: transparent;
         overscroll-behavior: none;
-      }
-
-      html {
-        height: -webkit-fill-available;
       }
 
       body::before {
@@ -2796,6 +2804,90 @@
         return metaName || APP_NAME_FALLBACK;
       }
 
+      function normalizeThemeHexColor(value, fallback) {
+        const color = String(value ?? "").trim();
+        return /^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(color)
+          ? color
+          : fallback;
+      }
+
+      function isDarkThemeColor(hexColor) {
+        const normalized = normalizeThemeHexColor(hexColor, "#000000").replace(
+          "#",
+          "",
+        );
+        const rgbHex =
+          normalized.length === 3
+            ? normalized
+                .split("")
+                .map((part) => part + part)
+                .join("")
+            : normalized.length === 8
+              ? normalized.slice(2)
+              : normalized;
+
+        const red = parseInt(rgbHex.slice(0, 2), 16);
+        const green = parseInt(rgbHex.slice(2, 4), 16);
+        const blue = parseInt(rgbHex.slice(4, 6), 16);
+        const luminance =
+          (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255;
+        return luminance < 0.5;
+      }
+
+      function syncThemeChrome() {
+        const root = document.documentElement;
+        if (!root) return;
+
+        const styles = getComputedStyle(root);
+        const topColor = normalizeThemeHexColor(
+          styles.getPropertyValue("--bg"),
+          "#E8ECF1",
+        );
+        const bottomColor = normalizeThemeHexColor(
+          styles.getPropertyValue("--bg2"),
+          topColor,
+        );
+        const gradient = `linear-gradient(135deg, ${topColor}, ${bottomColor})`;
+        const darkMode = isDarkThemeColor(bottomColor);
+
+        root.style.colorScheme = darkMode ? "dark" : "light";
+        root.dataset.themeMode = darkMode ? "dark" : "light";
+        root.style.backgroundColor = bottomColor;
+        root.style.backgroundImage = "none";
+
+        if (document.body) {
+          document.body.style.backgroundColor = bottomColor;
+          document.body.style.backgroundImage = gradient;
+        }
+
+        const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+        if (themeColorMeta) {
+          themeColorMeta.setAttribute("content", bottomColor);
+        }
+
+        const androidBridge = getAndroidBridge();
+        if (
+          androidBridge &&
+          typeof androidBridge.syncSystemTheme === "function"
+        ) {
+          try {
+            androidBridge.syncSystemTheme(
+              JSON.stringify({
+                topColor,
+                bottomColor,
+              }),
+            );
+          } catch (error) {
+            console.warn(
+              "AndroidInterface.syncSystemTheme fehlgeschlagen",
+              error,
+            );
+          }
+        }
+      }
+
+      window.__syncNativeThemeChrome = syncThemeChrome;
+
       function getCurrentAppVersion() {
         try {
           const androidBridge = getAndroidBridge();
@@ -2843,6 +2935,7 @@
       document.addEventListener("DOMContentLoaded", () => {
         updateBundledIndexHtmlExportVisibility();
         syncAppVersionDisplay();
+        syncThemeChrome();
       });
 
       function buildHtmlExportBaseName() {
@@ -3992,16 +4085,15 @@
         const t = THEMES[idx];
         const root = document.documentElement;
 
-        try {
-          root.style.colorScheme =
-            t.name && t.name.toLowerCase().includes("dark") ? "dark" : "light";
-        } catch (e) {}
-
         Object.entries(t.vars).forEach(([k, v]) => {
           try {
             root.style.setProperty(k, v);
           } catch (e) {}
         });
+
+        try {
+          syncThemeChrome();
+        } catch (e) {}
 
         currentThemeIndex = idx;
         if (persist) {
@@ -10459,7 +10551,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v20";
+        const SW_VERSION = "rechenguru-lgi-v21";
         window.__deferredPwaPrompt = null;
 
         function isStandaloneMode() {
@@ -10620,7 +10712,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="20"
+      data-app-version="21"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -10632,7 +10724,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">20</span>
+      <span id="appVersion">21</span>
     </footer>
 
     <!-- ❌ Fehler-Aktionen (Zurücksetzen / Drucken) -->

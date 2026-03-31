@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
@@ -23,14 +25,27 @@ import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.graphics.ColorUtils
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import de.parip69.rechengurulgi.databinding.ActivityMainBinding
 import java.io.ByteArrayInputStream
 import java.io.File
+import kotlin.math.max
+import org.json.JSONObject
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private var currentChromeTheme: ChromeTheme? = null
+
+    private data class ChromeTheme(
+        val topColor: Int,
+        val bottomColor: Int
+    )
 
     private fun showToast(message: String) {
         runOnUiThread {
@@ -138,11 +153,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        window.decorView.systemUiVisibility = (
-            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-        )
-
+        configureEdgeToEdge()
         configureWebView(binding.webView)
         binding.webView.loadUrl("file:///android_asset/index.html")
 
@@ -155,6 +166,28 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    private fun configureEdgeToEdge() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        applyChromeTheme(resolveFallbackChromeTheme())
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val systemBars = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+            )
+            val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
+
+            view.setPadding(
+                systemBars.left,
+                systemBars.top,
+                systemBars.right,
+                max(systemBars.bottom, imeInsets.bottom)
+            )
+            insets
+        }
+
+        ViewCompat.requestApplyInsets(binding.root)
     }
 
     private fun printWebView() {
@@ -200,6 +233,14 @@ class MainActivity : AppCompatActivity() {
         @JavascriptInterface
         fun getAppVersionName(): String {
             return resolveAppVersionName()
+        }
+
+        @JavascriptInterface
+        fun syncSystemTheme(themeJson: String?) {
+            val chromeTheme = parseChromeTheme(themeJson) ?: return
+            runOnUiThread {
+                applyChromeTheme(chromeTheme)
+            }
         }
 
         @JavascriptInterface
@@ -263,6 +304,8 @@ class MainActivity : AppCompatActivity() {
 
         webView.isVerticalScrollBarEnabled = false
         webView.isHorizontalScrollBarEnabled = false
+        webView.overScrollMode = View.OVER_SCROLL_NEVER
+        webView.setBackgroundColor(resolveFallbackChromeTheme().bottomColor)
 
         webView.addJavascriptInterface(WebAppInterface(), "AndroidPrint")
         webView.addJavascriptInterface(AndroidInterface(), "AndroidInterface")
@@ -285,7 +328,15 @@ class MainActivity : AppCompatActivity() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 view?.evaluateJavascript(
-                    "window.print = function() { AndroidPrint.printPage(); };", null
+                    """
+                        (function() {
+                            window.print = function() { AndroidPrint.printPage(); };
+                            if (window.__syncNativeThemeChrome) {
+                                window.__syncNativeThemeChrome();
+                            }
+                        })();
+                    """.trimIndent(),
+                    null
                 )
             }
 
@@ -302,6 +353,80 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun resolveFallbackChromeTheme(): ChromeTheme {
+        return ChromeTheme(
+            topColor = ContextCompat.getColor(this, R.color.system_bar_top),
+            bottomColor = ContextCompat.getColor(this, R.color.system_bar_bottom)
+        )
+    }
+
+    private fun parseChromeTheme(themeJson: String?): ChromeTheme? {
+        val payload = themeJson?.trim().orEmpty()
+        if (payload.isEmpty()) {
+            return null
+        }
+
+        return try {
+            val fallback = resolveFallbackChromeTheme()
+            val theme = JSONObject(payload)
+            ChromeTheme(
+                topColor = parseColorOrDefault(theme.optString("topColor"), fallback.topColor),
+                bottomColor = parseColorOrDefault(theme.optString("bottomColor"), fallback.bottomColor)
+            )
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    private fun parseColorOrDefault(rawColor: String?, defaultColor: Int): Int {
+        val value = rawColor?.trim().orEmpty()
+        if (value.isEmpty()) {
+            return defaultColor
+        }
+
+        return try {
+            Color.parseColor(value)
+        } catch (_: Exception) {
+            defaultColor
+        }
+    }
+
+    private fun applyChromeTheme(chromeTheme: ChromeTheme) {
+        if (currentChromeTheme == chromeTheme) {
+            return
+        }
+
+        currentChromeTheme = chromeTheme
+        binding.root.background = createWindowBackground(chromeTheme)
+        window.setBackgroundDrawable(createWindowBackground(chromeTheme))
+        binding.webView.setBackgroundColor(chromeTheme.bottomColor)
+        window.statusBarColor = Color.TRANSPARENT
+        window.navigationBarColor = Color.TRANSPARENT
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            window.isStatusBarContrastEnforced = false
+            window.isNavigationBarContrastEnforced = false
+        }
+
+        WindowCompat.getInsetsController(window, window.decorView)?.let { controller ->
+            controller.isAppearanceLightStatusBars = isLightColor(chromeTheme.topColor)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                controller.isAppearanceLightNavigationBars = isLightColor(chromeTheme.bottomColor)
+            }
+        }
+    }
+
+    private fun createWindowBackground(chromeTheme: ChromeTheme): GradientDrawable {
+        return GradientDrawable(
+            GradientDrawable.Orientation.TL_BR,
+            intArrayOf(chromeTheme.topColor, chromeTheme.bottomColor)
+        )
+    }
+
+    private fun isLightColor(color: Int): Boolean {
+        return ColorUtils.calculateLuminance(color) > 0.5
     }
 
     private fun assetResponse(assetPath: String, mimeType: String): WebResourceResponse? {
