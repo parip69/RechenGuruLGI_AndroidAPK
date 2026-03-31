@@ -13,7 +13,7 @@
         <item name="android:windowBackground">@drawable/window_background</item>
         <item name="android:colorBackground">@color/app_window_background</item>
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
-        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowFullscreen">true</item>
         <item name="android:forceDarkAllowed" ns1:targetApi="q">false</item>
     </style>
 </resources>

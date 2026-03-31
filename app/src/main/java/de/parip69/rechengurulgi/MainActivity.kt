@@ -30,6 +30,7 @@ import androidx.core.content.FileProvider
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.WindowInsetsCompat
 import de.parip69.rechengurulgi.databinding.ActivityMainBinding
 import java.io.ByteArrayInputStream
@@ -171,23 +172,30 @@ class MainActivity : AppCompatActivity() {
     private fun configureEdgeToEdge() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         applyChromeTheme(resolveFallbackChromeTheme())
+        hideStatusBar()
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
-            val systemBars = insets.getInsets(
-                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
-            )
+            val displayCutoutInsets = insets.getInsets(WindowInsetsCompat.Type.displayCutout())
+            val navigationInsets = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
             val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
 
             view.setPadding(
-                systemBars.left,
-                systemBars.top,
-                systemBars.right,
-                max(systemBars.bottom, imeInsets.bottom)
+                max(displayCutoutInsets.left, navigationInsets.left),
+                displayCutoutInsets.top,
+                max(displayCutoutInsets.right, navigationInsets.right),
+                max(navigationInsets.bottom, imeInsets.bottom)
             )
             insets
         }
 
         ViewCompat.requestApplyInsets(binding.root)
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) {
+            hideStatusBar()
+        }
     }
 
     private fun printWebView() {
@@ -415,6 +423,15 @@ class MainActivity : AppCompatActivity() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 controller.isAppearanceLightNavigationBars = isLightColor(chromeTheme.bottomColor)
             }
+        }
+
+        hideStatusBar()
+    }
+
+    private fun hideStatusBar() {
+        WindowCompat.getInsetsController(window, window.decorView)?.let { controller ->
+            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            controller.hide(WindowInsetsCompat.Type.statusBars())
         }
     }
 
