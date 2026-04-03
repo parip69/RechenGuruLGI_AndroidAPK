@@ -752,6 +752,11 @@
         -webkit-tap-highlight-color: transparent;
       }
 
+      #installBtn {
+        min-width: 12.5rem;
+        white-space: nowrap;
+      }
+
       .btn-action:hover {
         transform: translateY(-2px);
         box-shadow: 0 12px 24px rgba(0, 0, 0, 0.16);
@@ -10551,14 +10556,66 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v29";
+        const SW_VERSION = "rechenguru-lgi-v31";
+        const INSTALL_UI_MODES = Object.freeze({
+          APK: "apk",
+          STANDALONE: "standalone",
+          EXTERNAL_BROWSER: "external-browser",
+          IOS: "ios",
+          PROMPT: "prompt",
+          ANDROID_MANUAL: "android-manual",
+          UNSUPPORTED: "unsupported",
+        });
         window.__deferredPwaPrompt = null;
 
         function isStandaloneMode() {
           return (
             window.matchMedia("(display-mode: fullscreen)").matches ||
             window.matchMedia("(display-mode: standalone)").matches ||
+            window.matchMedia("(display-mode: minimal-ui)").matches ||
             window.navigator.standalone === true
+          );
+        }
+
+        function isIOSDevice() {
+          const ua = navigator.userAgent || "";
+          const platform = navigator.platform || "";
+          const maxTouchPoints = Number(navigator.maxTouchPoints || 0);
+          return (
+            /iPad|iPhone|iPod/i.test(ua) ||
+            (platform === "MacIntel" && maxTouchPoints > 1)
+          );
+        }
+
+        function isAndroidDevice() {
+          const ua = navigator.userAgent || "";
+          return /Android/i.test(ua);
+        }
+
+        function isAndroidAppWebView() {
+          try {
+            if (
+              (typeof getAndroidBridge === "function" && getAndroidBridge()) ||
+              window.AndroidDownload
+            ) {
+              return true;
+            }
+          } catch (error) {}
+
+          const currentUrl = String(window.location.href || "");
+          const ua = navigator.userAgent || "";
+          const hasWebViewUa = /\bwv\b/i.test(ua) || /; wv\)/i.test(ua);
+
+          return (
+            currentUrl.indexOf("file:///android_asset/") === 0 ||
+            (hasWebViewUa && !/^https?:/i.test(currentUrl))
+          );
+        }
+
+        function isInAppBrowser() {
+          const ua = navigator.userAgent || "";
+          return /FBAN|FBAV|Instagram|Line\/|Snapchat|TikTok|MicroMessenger|Telegram|WhatsApp|Messenger|\bwv\b|; wv\)/i.test(
+            ua,
           );
         }
 
@@ -10714,90 +10771,175 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         }
 
         function shouldSuppressWebInstallUi() {
-          return (
-            typeof getAndroidBridge === "function" && Boolean(getAndroidBridge())
-          );
+          return getInstallContext().isApkWebView;
         }
 
         function getInstallContext() {
           const ua = navigator.userAgent || "";
-          const platform = navigator.platform || "";
           const maxTouchPoints = Number(navigator.maxTouchPoints || 0);
-          const isIOS =
-            /iPad|iPhone|iPod/i.test(ua) ||
-            (platform === "MacIntel" && maxTouchPoints > 1);
+          const isIOS = isIOSDevice();
           const isSafari =
             /Safari/i.test(ua) &&
             !/CriOS|FxiOS|EdgiOS|OPiOS|OPT|YaBrowser|DuckDuckGo/i.test(ua);
-          const isAndroid = /Android/i.test(ua);
+          const isAndroid = isAndroidDevice();
           const isMobile =
             isIOS || isAndroid || /Mobile|Tablet/i.test(ua) || maxTouchPoints > 0;
-          const isInAppBrowser =
-            /; wv\)|FBAN|FBAV|Instagram|Line\/|Snapchat|TikTok|MicroMessenger/i.test(
-              ua,
-            );
+          const isApkWebView = isAndroidAppWebView();
+          const inAppBrowser = !isApkWebView && isInAppBrowser();
 
           return {
             isAndroid,
+            isApkWebView,
+            hasInstallPrompt: Boolean(window.__deferredPwaPrompt),
             isIOS,
             isMobile,
-            isSafari,
+            isInAppBrowser: inAppBrowser,
             isStandalone: isStandaloneMode(),
+            isSafari,
             isIosSafari: isIOS && isSafari,
-            isInAppBrowser,
           };
         }
 
-        function getInstallHintText() {
-          if (shouldSuppressWebInstallUi()) return "";
+        function getIosInstallHintText() {
+          return "In Safari öffnen -> Teilen -> Zum Home-Bildschirm.";
+        }
 
-          const ctx = getInstallContext();
-          if (ctx.isStandalone) return "";
+        function getAndroidManualInstallHintText() {
+          return "Im Browser-Menü „Zum Startbildschirm“ oder „App installieren“ wählen.";
+        }
 
-          const suffix = ctx.isInAppBrowser
-            ? " Falls die Seite in einem In-App-Browser geöffnet ist, bitte in Safari oder den Standardbrowser wechseln."
-            : "";
-
-          if (ctx.isIosSafari) {
-            return `Auf dem iPhone in Safari öffnen, dann „Teilen“ -> „Zum Home-Bildschirm“.${suffix}`;
+        function getExternalBrowserHintText(ctx) {
+          if (ctx.isIOS) {
+            return "Bitte zuerst in Safari öffnen. Im In-App-Browser funktioniert „Zum Home-Bildschirm“ nicht zuverlässig.";
           }
 
           if (ctx.isAndroid) {
-            return `Auf Android im Browser-Menü „Zum Startbildschirm“ oder „App installieren“ wählen.${suffix}`;
+            return "Bitte zuerst im normalen Browser öffnen. Im In-App-Browser über das Menü „Im Browser öffnen“ wählen.";
           }
 
-          if (ctx.isMobile) {
-            return `Im mobilen Browser über das Menü zum Startbildschirm hinzufügen oder installieren.${suffix}`;
+          return "Bitte zuerst im normalen Browser öffnen. In-App-Browser unterstützen die Installation nicht zuverlässig.";
+        }
+
+        function getInstallUiState() {
+          const ctx = getInstallContext();
+
+          if (ctx.isApkWebView) {
+            return {
+              ...ctx,
+              mode: INSTALL_UI_MODES.APK,
+              showButton: false,
+              buttonLabel: "",
+              buttonAriaLabel: "",
+              hintText: "",
+              statusText: "",
+            };
           }
 
-          return "";
+          if (ctx.isStandalone) {
+            return {
+              ...ctx,
+              mode: INSTALL_UI_MODES.STANDALONE,
+              showButton: false,
+              buttonLabel: "",
+              buttonAriaLabel: "",
+              hintText: "",
+              statusText: "",
+            };
+          }
+
+          if (ctx.isInAppBrowser) {
+            const hintText = getExternalBrowserHintText(ctx);
+            return {
+              ...ctx,
+              mode: INSTALL_UI_MODES.EXTERNAL_BROWSER,
+              showButton: true,
+              buttonLabel: "🌐 Im Browser öffnen",
+              buttonAriaLabel: "Hinweis zum normalen Browser",
+              hintText,
+              statusText: hintText,
+            };
+          }
+
+          if (ctx.hasInstallPrompt) {
+            return {
+              ...ctx,
+              mode: INSTALL_UI_MODES.PROMPT,
+              showButton: true,
+              buttonLabel: "📲 App installieren",
+              buttonAriaLabel: "App installieren",
+              hintText: "",
+              statusText: "Der Installationsdialog des Browsers wird geöffnet.",
+            };
+          }
+
+          if (ctx.isIOS) {
+            const hintText = getIosInstallHintText();
+            return {
+              ...ctx,
+              mode: INSTALL_UI_MODES.IOS,
+              showButton: true,
+              buttonLabel: "📱 Zum Startbildschirm",
+              buttonAriaLabel: "Hinweis zum Home-Bildschirm",
+              hintText,
+              statusText: hintText,
+            };
+          }
+
+          if (ctx.isAndroid) {
+            const hintText = getAndroidManualInstallHintText();
+            return {
+              ...ctx,
+              mode: INSTALL_UI_MODES.ANDROID_MANUAL,
+              showButton: true,
+              buttonLabel: "📱 Zum Startbildschirm",
+              buttonAriaLabel: "Hinweis zur Browser-Installation",
+              hintText,
+              statusText: hintText,
+            };
+          }
+
+          return {
+            ...ctx,
+            mode: INSTALL_UI_MODES.UNSUPPORTED,
+            showButton: false,
+            buttonLabel: "",
+            buttonAriaLabel: "",
+            hintText: "",
+            statusText: "",
+          };
         }
 
         function updateInstallUi() {
           const btn = document.getElementById("installBtn");
           const hint = document.getElementById("installHint");
-          const ctx = getInstallContext();
-          const hintText = getInstallHintText();
-          const canUsePrompt =
-            Boolean(window.__deferredPwaPrompt) &&
-            !ctx.isIosSafari &&
-            !shouldSuppressWebInstallUi();
+          const state = getInstallUiState();
 
           if (btn) {
-            btn.style.display = canUsePrompt ? "" : "none";
+            btn.dataset.installMode = state.mode;
+            btn.textContent = state.buttonLabel || "📲 App installieren";
+            btn.setAttribute(
+              "aria-label",
+              state.buttonAriaLabel || "App installieren",
+            );
+            btn.style.display = state.showButton ? "" : "none";
           }
 
           if (hint) {
+            hint.textContent = state.hintText || "";
             const showHint =
-              !ctx.isStandalone &&
-              Boolean(hintText) &&
-              (!canUsePrompt || ctx.isIosSafari || ctx.isInAppBrowser);
-            hint.textContent = showHint ? hintText : "";
+              Boolean(state.hintText) &&
+              state.mode !== INSTALL_UI_MODES.APK &&
+              state.mode !== INSTALL_UI_MODES.STANDALONE;
             hint.style.display = showHint ? "" : "none";
           }
         }
 
         window.addEventListener("beforeinstallprompt", (event) => {
+          if (getInstallContext().isApkWebView) {
+            window.__deferredPwaPrompt = null;
+            updateInstallUi();
+            return;
+          }
           event.preventDefault();
           window.__deferredPwaPrompt = event;
           updateInstallUi();
@@ -10821,25 +10963,29 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           const btn = document.getElementById("installBtn");
           if (btn) {
             btn.addEventListener("click", async () => {
-              if (!window.__deferredPwaPrompt) {
+              const state = getInstallUiState();
+
+              if (state.mode === INSTALL_UI_MODES.PROMPT) {
+                if (!window.__deferredPwaPrompt) {
+                  setStatusMessage(getAndroidManualInstallHintText());
+                  updateInstallUi();
+                  return;
+                }
+
                 try {
-                  const msg = document.getElementById("statusMessage");
-                  if (msg) {
-                    msg.textContent =
-                      getInstallHintText() ||
-                      "Installation im Browser-Menü öffnen: „Zum Startbildschirm hinzufügen“ bzw. „Installieren“.";
-                    msg.style.color = "#475569";
-                  }
-                } catch (e) {}
+                  setStatusMessage(state.statusText);
+                  window.__deferredPwaPrompt.prompt();
+                  await window.__deferredPwaPrompt.userChoice;
+                } catch (e) {
+                } finally {
+                  window.__deferredPwaPrompt = null;
+                  updateInstallUi();
+                }
                 return;
               }
-              try {
-                window.__deferredPwaPrompt.prompt();
-                await window.__deferredPwaPrompt.userChoice;
-              } catch (e) {
-              } finally {
-                window.__deferredPwaPrompt = null;
-                updateInstallUi();
+
+              if (state.statusText) {
+                setStatusMessage(state.statusText);
               }
             });
           }
@@ -10855,6 +11001,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         });
         document.addEventListener("visibilitychange", () => {
           if (!document.hidden) {
+            updateInstallUi();
             armInstalledFullscreenActivation();
             requestInstalledWebFullscreen();
           }
@@ -10891,7 +11038,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="29"
+      data-app-version="31"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -10903,7 +11050,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">29</span>
+      <span id="appVersion">31</span>
     </footer>
 
     <!-- ❌ Fehler-Aktionen (Zurücksetzen / Drucken) -->
