@@ -2873,7 +2873,7 @@
         setPullRefreshIndicatorState({ distance: 0, refreshing: false });
       }
 
-      async function refreshWebAppFromPullGesture() {
+      function refreshWebAppFromPullGesture() {
         if (pullRefreshInProgress) return;
         pullRefreshInProgress = true;
         setPullRefreshIndicatorState({
@@ -2882,19 +2882,8 @@
         });
 
         try {
-          setStatusMessage("App wird aktualisiert...", "#475569");
-          const registration = await navigator.serviceWorker?.getRegistration?.();
-          await registration?.update?.();
+          setStatusMessage("Seite wird neu geladen...", "#475569");
         } catch (error) {}
-
-        try {
-          const revisionState = await ensureLatestPublishedRevision();
-          if (revisionState.reloading) {
-            return;
-          }
-        } catch (error) {
-          console.warn("Pull-to-Refresh konnte Revision nicht pruefen", error);
-        }
 
         window.location.reload();
       }
@@ -10832,7 +10821,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v39";
+        const SW_VERSION = "rechenguru-lgi-v40";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -11454,11 +11443,6 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           const btn = document.getElementById("installBtn");
           if (btn) {
             btn.addEventListener("click", async () => {
-              const revisionState = await ensureLatestPublishedRevision();
-              if (revisionState.reloading) {
-                return;
-              }
-
               const state = getInstallUiState();
 
               if (state.mode === INSTALL_UI_MODES.PROMPT) {
@@ -11539,7 +11523,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="39"
+      data-app-version="40"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -11551,7 +11535,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">39</span>
+      <span id="appVersion">40</span>
     </footer>
 
     <!-- ❌ Fehler-Aktionen (Zurücksetzen / Drucken) -->
