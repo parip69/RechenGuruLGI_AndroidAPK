@@ -1820,10 +1820,70 @@
       .stein.mgKpFocus {
         box-shadow: 0 0 0 3px var(--focusGlow);
       }
+
+      /* ── Pull-to-Refresh Indikator ── */
+      #pullRefreshIndicator {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 99999;
+        display: flex;
+        justify-content: center;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.18s ease;
+      }
+      #pullRefreshIndicator.visible {
+        opacity: 1;
+      }
+      .pullRefreshBadge {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--card, #fff);
+        color: var(--text, #333);
+        border-radius: 0 0 12px 12px;
+        padding: 8px 18px;
+        font-size: 13px;
+        font-weight: 600;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+        transform: translateY(var(--pullRefreshOffset, -40px));
+        transition: transform 0.15s ease;
+      }
+      #pullRefreshIndicator.ready .pullRefreshBadge {
+        background: var(--accent, #e91e8a);
+        color: #fff;
+      }
+      #pullRefreshIndicator.refreshing .pullRefreshBadge {
+        background: var(--accent, #e91e8a);
+        color: #fff;
+      }
+      .pullRefreshSpinner {
+        display: none;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: pullSpin 0.6s linear infinite;
+      }
+      #pullRefreshIndicator.refreshing .pullRefreshSpinner {
+        display: inline-block;
+      }
+      @keyframes pullSpin {
+        to { transform: rotate(360deg); }
+      }
     </style>
   </head>
 
   <body>
+    <div id="pullRefreshIndicator" aria-hidden="true">
+      <div class="pullRefreshBadge">
+        <span class="pullRefreshSpinner" aria-hidden="true"></span>
+        <span id="pullRefreshLabel">Nach unten ziehen zum Aktualisieren</span>
+      </div>
+    </div>
     <div class="container">
       <h1>Mathe LGI</h1>
 
@@ -10556,7 +10616,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v43";
+        const SW_VERSION = "rechenguru-lgi-v44";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -10960,6 +11020,77 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         });
 
         document.addEventListener("DOMContentLoaded", () => {
+          // ── Pull-to-Refresh (nur Web/PWA, nicht Android-WebView) ──
+          (function initPullToRefresh() {
+            if (isAndroidAppWebView()) return;
+            if (!(navigator.maxTouchPoints > 0 || "ontouchstart" in window)) return;
+
+            const PULL_MAX = 108;
+            const PULL_TRIGGER = 72;
+            let gesture = null;
+            let refreshing = false;
+
+            function getScrollTop() {
+              return Math.max(window.scrollY || 0, document.documentElement?.scrollTop || 0, document.body?.scrollTop || 0);
+            }
+
+            function isBlocked(target) {
+              if (!(target instanceof Element)) return false;
+              return Boolean(target.closest("button, input, textarea, select, summary, .overlay, .overlayCard"));
+            }
+
+            function setIndicator(distance, isRefreshing) {
+              const el = document.getElementById("pullRefreshIndicator");
+              const label = document.getElementById("pullRefreshLabel");
+              if (!el || !label) return;
+              const d = Math.max(0, Math.min(PULL_MAX, Math.round(distance)));
+              const ready = d >= PULL_TRIGGER;
+              const visible = isRefreshing || d > 0;
+              el.style.setProperty("--pullRefreshOffset", (isRefreshing ? 0 : d - PULL_TRIGGER) + "px");
+              el.classList.toggle("visible", visible);
+              el.classList.toggle("ready", ready && !isRefreshing);
+              el.classList.toggle("refreshing", isRefreshing);
+              label.textContent = isRefreshing ? "Aktualisiere…" : ready ? "Loslassen zum Aktualisieren" : "Nach unten ziehen zum Aktualisieren";
+            }
+
+            function reset() { setIndicator(0, false); }
+
+            function cancel() { gesture = null; if (!refreshing) reset(); }
+
+            window.addEventListener("touchstart", function(e) {
+              if (refreshing || e.touches.length !== 1) return;
+              if (getScrollTop() > 0) return;
+              if (isBlocked(e.target)) return;
+              gesture = { startY: e.touches[0].clientY, startX: e.touches[0].clientX, lastDist: 0 };
+            }, { passive: true });
+
+            window.addEventListener("touchmove", function(e) {
+              if (!gesture || refreshing || e.touches.length !== 1) { if (!refreshing) cancel(); return; }
+              var t = e.touches[0];
+              var dy = t.clientY - gesture.startY;
+              var dx = t.clientX - gesture.startX;
+              if (getScrollTop() > 0) { cancel(); return; }
+              if (dy <= 0) { reset(); return; }
+              if (Math.abs(dx) > dy + 12) { cancel(); return; }
+              var dist = Math.min(PULL_MAX, dy * 0.52);
+              gesture.lastDist = dist;
+              setIndicator(dist, false);
+              e.preventDefault();
+            }, { passive: false });
+
+            window.addEventListener("touchend", function() {
+              if (!gesture || refreshing) return;
+              var dist = Math.max(0, Math.min(PULL_MAX, gesture.lastDist || 0));
+              gesture = null;
+              if (dist < PULL_TRIGGER) { reset(); return; }
+              refreshing = true;
+              setIndicator(PULL_TRIGGER, true);
+              window.location.reload();
+            }, { passive: true });
+
+            window.addEventListener("touchcancel", function() { cancel(); }, { passive: true });
+          })();
+
           const btn = document.getElementById("installBtn");
           if (btn) {
             btn.addEventListener("click", async () => {
@@ -11038,7 +11169,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="43"
+      data-app-version="44"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -11050,7 +11181,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">43</span>
+      <span id="appVersion">44</span>
     </footer>
 
     <!-- ❌ Fehler-Aktionen (Zurücksetzen / Drucken) -->
