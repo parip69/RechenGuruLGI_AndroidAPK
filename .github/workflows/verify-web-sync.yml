@@ -35,10 +35,12 @@ jobs:
             app/src/main/assets/index.html \
             app/src/main/assets/manifest.webmanifest \
             app/src/main/assets/sw.js \
+            app/src/main/assets/version.json \
             app/src/main/assets/icons \
             docs/index.html \
             docs/manifest.webmanifest \
             docs/sw.js \
+            docs/version.json \
             docs/icons \
             docs/.nojekyll \
             docs/README-GitHub-Pages.txt

@@ -2686,6 +2686,10 @@
       const APP_NAME_FALLBACK = "Mathe Guru Web";
       const PORTABLE_HTML_MARKER_PREFIX = "__portableBootstrapApplied_";
       const INSTALLED_WEB_VERSION_STORAGE_KEY = "installedWebVersion";
+      const VERSION_MANIFEST_PATH = "./version.json";
+      const REVISION_QUERY_PARAM = "rev";
+      let latestPublishedVersion = "";
+      let latestPublishedVersionPromise = null;
       const appStorage = {
         getItem(key) {
           return localStorage.getItem(APP_STORAGE_PREFIX + key);
@@ -10809,6 +10813,99 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           return 0;
         }
 
+        function getPublishedVersionManifestUrl() {
+          try {
+            if (!/^https?:$/i.test(String(window.location.protocol || ""))) {
+              return "";
+            }
+
+            return new URL(VERSION_MANIFEST_PATH, window.location.href).toString();
+          } catch (error) {
+            return "";
+          }
+        }
+
+        async function fetchLatestPublishedVersion() {
+          const manifestUrl = getPublishedVersionManifestUrl();
+          if (!manifestUrl) {
+            return "";
+          }
+
+          const requestUrl = new URL(manifestUrl);
+          requestUrl.searchParams.set("_ts", String(Date.now()));
+
+          const response = await fetch(requestUrl.toString(), {
+            cache: "no-store",
+          });
+          if (!response.ok) {
+            throw new Error(`version_manifest_http_${response.status}`);
+          }
+
+          const payload = await response.json();
+          const publishedVersion = String(payload?.version || "").trim();
+          latestPublishedVersion = publishedVersion;
+          return publishedVersion;
+        }
+
+        function loadLatestPublishedVersion() {
+          if (!latestPublishedVersionPromise) {
+            latestPublishedVersionPromise = fetchLatestPublishedVersion().finally(
+              () => {
+                latestPublishedVersionPromise = null;
+              },
+            );
+          }
+
+          return latestPublishedVersionPromise;
+        }
+
+        function buildRevisionRefreshUrl(targetVersion) {
+          const nextUrl = new URL(window.location.href);
+          nextUrl.searchParams.set(
+            REVISION_QUERY_PARAM,
+            String(targetVersion || ""),
+          );
+          return nextUrl.toString();
+        }
+
+        async function ensureLatestPublishedRevision() {
+          try {
+            const publishedVersion = await loadLatestPublishedVersion();
+            const currentVersion = getCurrentAppVersion();
+
+            if (
+              !publishedVersion ||
+              compareVersionValues(publishedVersion, currentVersion) <= 0
+            ) {
+              return {
+                currentVersion,
+                publishedVersion,
+                reloading: false,
+              };
+            }
+
+            try {
+              const registration =
+                await navigator.serviceWorker?.getRegistration?.();
+              await registration?.update?.();
+            } catch (error) {}
+
+            window.location.replace(buildRevisionRefreshUrl(publishedVersion));
+            return {
+              currentVersion,
+              publishedVersion,
+              reloading: true,
+            };
+          } catch (error) {
+            console.warn("Neueste Revision konnte nicht geladen werden", error);
+            return {
+              currentVersion: getCurrentAppVersion(),
+              publishedVersion: latestPublishedVersion,
+              reloading: false,
+            };
+          }
+        }
+
         function getKnownInstalledWebVersion() {
           return String(
             appStorage.getItem(INSTALLED_WEB_VERSION_STORAGE_KEY) || "",
@@ -11085,6 +11182,11 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           const btn = document.getElementById("installBtn");
           if (btn) {
             btn.addEventListener("click", async () => {
+              const revisionState = await ensureLatestPublishedRevision();
+              if (revisionState.reloading) {
+                return;
+              }
+
               const state = getInstallUiState();
 
               if (state.mode === INSTALL_UI_MODES.PROMPT) {
@@ -11111,12 +11213,14 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
               }
             });
           }
+          ensureLatestPublishedRevision();
           updateInstallUi();
           armInstalledFullscreenActivation();
           requestInstalledWebFullscreen();
         });
 
         window.addEventListener("pageshow", () => {
+          ensureLatestPublishedRevision();
           syncKnownInstalledWebVersion();
           updateInstallUi();
           armInstalledFullscreenActivation();
@@ -11124,6 +11228,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         });
         document.addEventListener("visibilitychange", () => {
           if (!document.hidden) {
+            ensureLatestPublishedRevision();
             syncKnownInstalledWebVersion();
             updateInstallUi();
             armInstalledFullscreenActivation();

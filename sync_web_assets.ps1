@@ -11,6 +11,7 @@ $assetsDir = Join-Path $scriptRoot "app\src\main\assets"
 $indexFile = Join-Path $assetsDir "index.html"
 $manifestFile = Join-Path $assetsDir "manifest.webmanifest"
 $swFile = Join-Path $assetsDir "sw.js"
+$versionManifestFile = Join-Path $assetsDir "version.json"
 $iconsDir = Join-Path $assetsDir "icons"
 $docsDir = Join-Path $scriptRoot "docs"
 $docsIconsDir = Join-Path $docsDir "icons"
@@ -254,6 +255,25 @@ function Set-ServiceWorkerVersion {
     Write-Utf8NoBomIfChanged -Path $Path -Content $content
 }
 
+function Set-VersionManifest {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path,
+        [Parameter(Mandatory = $true)]
+        [string]$ResolvedVersionName,
+        [Parameter(Mandatory = $true)]
+        [string]$WebCacheVersion
+    )
+
+    $payload = [ordered]@{
+        version = $ResolvedVersionName
+        cacheVersion = $WebCacheVersion
+    }
+
+    $content = ($payload | ConvertTo-Json -Depth 3) + "`n"
+    Write-Utf8NoBomIfChanged -Path $Path -Content $content
+}
+
 function Sync-DocsFromAssets {
     param(
         [Parameter(Mandatory = $true)]
@@ -262,6 +282,8 @@ function Sync-DocsFromAssets {
         [string]$SourceManifestFile,
         [Parameter(Mandatory = $true)]
         [string]$SourceSwFile,
+        [Parameter(Mandatory = $true)]
+        [string]$SourceVersionManifestFile,
         [Parameter(Mandatory = $true)]
         [string]$SourceIconsDir,
         [Parameter(Mandatory = $true)]
@@ -282,6 +304,7 @@ function Sync-DocsFromAssets {
     Copy-FileIfChanged -SourcePath (Join-Path $SourceAssetsDir "index.html") -DestinationPath (Join-Path $TargetDocsDir "index.html")
     Copy-FileIfChanged -SourcePath $SourceManifestFile -DestinationPath (Join-Path $TargetDocsDir "manifest.webmanifest")
     Copy-FileIfChanged -SourcePath $SourceSwFile -DestinationPath (Join-Path $TargetDocsDir "sw.js")
+    Copy-FileIfChanged -SourcePath $SourceVersionManifestFile -DestinationPath (Join-Path $TargetDocsDir "version.json")
 
     Get-ChildItem -LiteralPath $SourceIconsDir -File | ForEach-Object {
         Copy-FileIfChanged -SourcePath $_.FullName -DestinationPath (Join-Path $TargetDocsIconsDir $_.Name)
@@ -301,10 +324,12 @@ $webCacheVersion = "rechenguru-lgi-v$resolvedVersionName"
 
 Set-IndexVersionMarkers -Path $indexFile -ResolvedVersionName $resolvedVersionName -WebCacheVersion $webCacheVersion
 Set-ServiceWorkerVersion -Path $swFile -WebCacheVersion $webCacheVersion
+Set-VersionManifest -Path $versionManifestFile -ResolvedVersionName $resolvedVersionName -WebCacheVersion $webCacheVersion
 Sync-DocsFromAssets `
     -SourceAssetsDir $assetsDir `
     -SourceManifestFile $manifestFile `
     -SourceSwFile $swFile `
+    -SourceVersionManifestFile $versionManifestFile `
     -SourceIconsDir $iconsDir `
     -TargetDocsDir $docsDir `
     -TargetDocsIconsDir $docsIconsDir `
