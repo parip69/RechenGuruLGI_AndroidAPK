@@ -11476,7 +11476,6 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         });
 
         window.addEventListener("pageshow", () => {
-          ensureLatestPublishedRevision();
           syncKnownInstalledWebVersion();
           updateInstallUi();
           armInstalledFullscreenActivation();
@@ -11484,7 +11483,6 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         });
         document.addEventListener("visibilitychange", () => {
           if (!document.hidden) {
-            ensureLatestPublishedRevision();
             syncKnownInstalledWebVersion();
             updateInstallUi();
             armInstalledFullscreenActivation();
