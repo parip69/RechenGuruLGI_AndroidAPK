@@ -2915,7 +2915,6 @@
             if (pullRefreshInProgress || event.touches.length !== 1) return;
 
             const touch = event.touches[0];
-            if (touch.clientY > PULL_REFRESH_TOP_ZONE) return;
             if (getPageScrollTop() > 0) return;
             if (isPullRefreshBlockedTarget(event.target)) return;
 
