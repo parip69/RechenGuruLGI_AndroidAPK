@@ -37,6 +37,7 @@ import de.parip69.rechengurulgi.databinding.ActivityMainBinding
 import java.io.ByteArrayInputStream
 import java.io.File
 import org.json.JSONObject
+import kotlin.math.roundToInt
 
 class MainActivity : AppCompatActivity() {
 
@@ -156,6 +157,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         configureEdgeToEdge()
+        configurePullToRefresh()
         configureWebView(binding.webView)
         binding.webView.loadUrl("file:///android_asset/index.html")
 
@@ -168,6 +170,27 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    private fun configurePullToRefresh() {
+        val fallbackTheme = resolveFallbackChromeTheme()
+        val triggerDistancePx = (120 * resources.displayMetrics.density).roundToInt()
+
+        binding.swipeRefresh.setColorSchemeColors(
+            fallbackTheme.topColor,
+            fallbackTheme.bottomColor
+        )
+        binding.swipeRefresh.setProgressBackgroundColorSchemeColor(
+            ContextCompat.getColor(this, R.color.app_window_background)
+        )
+        binding.swipeRefresh.setDistanceToTriggerSync(triggerDistancePx)
+        binding.swipeRefresh.setOnChildScrollUpCallback { _, _ ->
+            binding.webView.canScrollVertically(-1)
+        }
+        binding.swipeRefresh.setOnRefreshListener {
+            binding.webView.stopLoading()
+            binding.webView.reload()
+        }
     }
 
     private fun configureEdgeToEdge() {
@@ -350,6 +373,7 @@ class MainActivity : AppCompatActivity() {
 
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
+                binding.swipeRefresh.isRefreshing = false
                 view?.evaluateJavascript(
                     """
                         (function() {
@@ -425,6 +449,8 @@ class MainActivity : AppCompatActivity() {
         binding.root.background = createWindowBackground(chromeTheme)
         window.setBackgroundDrawable(createWindowBackground(chromeTheme))
         binding.webView.setBackgroundColor(chromeTheme.bottomColor)
+        binding.swipeRefresh.setColorSchemeColors(chromeTheme.topColor, chromeTheme.bottomColor)
+        binding.swipeRefresh.setProgressBackgroundColorSchemeColor(chromeTheme.bottomColor)
         window.statusBarColor = Color.TRANSPARENT
         window.navigationBarColor = Color.TRANSPARENT
 

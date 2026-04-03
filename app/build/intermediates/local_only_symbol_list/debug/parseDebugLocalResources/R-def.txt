@@ -9,6 +9,7 @@ color white
 drawable ic_launcher_foreground
 drawable ic_launcher_foreground_inset
 drawable window_background
+id swipeRefresh
 id webView
 layout activity_main
 mipmap ic_launcher

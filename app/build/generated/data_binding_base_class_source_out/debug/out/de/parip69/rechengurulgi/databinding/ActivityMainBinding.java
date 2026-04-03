@@ -5,9 +5,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
-import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import de.parip69.rechengurulgi.R;
@@ -17,19 +17,24 @@ import java.lang.String;
 
 public final class ActivityMainBinding implements ViewBinding {
   @NonNull
-  private final FrameLayout rootView;
+  private final SwipeRefreshLayout rootView;
+
+  @NonNull
+  public final SwipeRefreshLayout swipeRefresh;
 
   @NonNull
   public final WebView webView;
 
-  private ActivityMainBinding(@NonNull FrameLayout rootView, @NonNull WebView webView) {
+  private ActivityMainBinding(@NonNull SwipeRefreshLayout rootView,
+      @NonNull SwipeRefreshLayout swipeRefresh, @NonNull WebView webView) {
     this.rootView = rootView;
+    this.swipeRefresh = swipeRefresh;
     this.webView = webView;
   }
 
   @Override
   @NonNull
-  public FrameLayout getRoot() {
+  public SwipeRefreshLayout getRoot() {
     return rootView;
   }
 
@@ -54,13 +59,15 @@ public final class ActivityMainBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      SwipeRefreshLayout swipeRefresh = (SwipeRefreshLayout) rootView;
+
       id = R.id.webView;
       WebView webView = ViewBindings.findChildViewById(rootView, id);
       if (webView == null) {
         break missingId;
       }
 
-      return new ActivityMainBinding((FrameLayout) rootView, webView);
+      return new ActivityMainBinding((SwipeRefreshLayout) rootView, swipeRefresh, webView);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));
