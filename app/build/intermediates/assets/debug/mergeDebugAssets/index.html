@@ -234,6 +234,76 @@
         background: var(--bg2);
       }
 
+      #pullRefreshIndicator {
+        --pullRefreshOffset: -72px;
+        position: fixed;
+        top: max(10px, env(safe-area-inset-top));
+        left: 50%;
+        transform: translate(-50%, var(--pullRefreshOffset));
+        z-index: 90;
+        pointer-events: none;
+        opacity: 0;
+        transition:
+          transform 0.18s ease,
+          opacity 0.18s ease;
+      }
+
+      #pullRefreshIndicator.visible,
+      #pullRefreshIndicator.refreshing {
+        opacity: 1;
+      }
+
+      .pullRefreshBadge {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 44px;
+        padding: 10px 16px;
+        border-radius: 999px;
+        border: 1px solid var(--glass-border);
+        background: rgba(255, 255, 255, 0.92);
+        color: var(--text);
+        box-shadow: 0 12px 26px rgba(15, 23, 42, 0.16);
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
+      }
+
+      #pullRefreshIndicator.ready .pullRefreshBadge,
+      #pullRefreshIndicator.refreshing .pullRefreshBadge {
+        background: rgba(255, 255, 255, 0.98);
+      }
+
+      .pullRefreshSpinner {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 2px solid rgba(71, 85, 105, 0.2);
+        border-top-color: var(--secondary);
+        opacity: 0.55;
+      }
+
+      #pullRefreshIndicator.refreshing .pullRefreshSpinner {
+        animation: pullRefreshSpin 0.8s linear infinite;
+        opacity: 1;
+      }
+
+      .pullRefreshLabel {
+        font-size: 0.92rem;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        white-space: nowrap;
+      }
+
+      @keyframes pullRefreshSpin {
+        from {
+          transform: rotate(0deg);
+        }
+
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
       @media (max-width: 520px) {
         .themeToggle {
           top: 10px;
@@ -1824,6 +1894,14 @@
   </head>
 
   <body>
+    <div id="pullRefreshIndicator" aria-hidden="true">
+      <div class="pullRefreshBadge">
+        <span class="pullRefreshSpinner" aria-hidden="true"></span>
+        <span class="pullRefreshLabel" id="pullRefreshLabel"
+          >Nach unten ziehen zum Aktualisieren</span
+        >
+      </div>
+    </div>
     <div class="container">
       <h1>Mathe LGI</h1>
 
@@ -2686,10 +2764,15 @@
       const APP_NAME_FALLBACK = "Mathe Guru Web";
       const PORTABLE_HTML_MARKER_PREFIX = "__portableBootstrapApplied_";
       const INSTALLED_WEB_VERSION_STORAGE_KEY = "installedWebVersion";
+      const PULL_REFRESH_TOP_ZONE = 108;
+      const PULL_REFRESH_MAX_DISTANCE = 108;
+      const PULL_REFRESH_TRIGGER_DISTANCE = 72;
       const VERSION_MANIFEST_PATH = "./version.json";
       const REVISION_QUERY_PARAM = "rev";
       let latestPublishedVersion = "";
       let latestPublishedVersionPromise = null;
+      let pullRefreshGesture = null;
+      let pullRefreshInProgress = false;
       const appStorage = {
         getItem(key) {
           return localStorage.getItem(APP_STORAGE_PREFIX + key);
@@ -2728,6 +2811,195 @@
         if (!msg) return;
         msg.textContent = text;
         msg.style.color = color;
+      }
+
+      function getPageScrollTop() {
+        return Math.max(
+          window.scrollY || 0,
+          document.documentElement?.scrollTop || 0,
+          document.body?.scrollTop || 0,
+        );
+      }
+
+      function shouldEnableWebPullToRefresh() {
+        return (
+          !isAndroidAppWebView() &&
+          (navigator.maxTouchPoints > 0 || "ontouchstart" in window)
+        );
+      }
+
+      function isPullRefreshBlockedTarget(target) {
+        if (!(target instanceof Element)) return false;
+        return Boolean(
+          target.closest(
+            "button, input, textarea, select, summary, .overlay, .overlayCard",
+          ),
+        );
+      }
+
+      function setPullRefreshIndicatorState({
+        distance = 0,
+        refreshing = false,
+      } = {}) {
+        const indicator = document.getElementById("pullRefreshIndicator");
+        const label = document.getElementById("pullRefreshLabel");
+        if (!indicator || !label) return;
+
+        const clampedDistance = Math.max(
+          0,
+          Math.min(PULL_REFRESH_MAX_DISTANCE, Math.round(distance)),
+        );
+        const isReady = clampedDistance >= PULL_REFRESH_TRIGGER_DISTANCE;
+        const isVisible = refreshing || clampedDistance > 0;
+        const offset = refreshing
+          ? 0
+          : clampedDistance - PULL_REFRESH_TRIGGER_DISTANCE;
+
+        indicator.style.setProperty("--pullRefreshOffset", `${offset}px`);
+        indicator.classList.toggle("visible", isVisible);
+        indicator.classList.toggle("ready", isReady && !refreshing);
+        indicator.classList.toggle("refreshing", refreshing);
+
+        if (refreshing) {
+          label.textContent = "Aktualisiere...";
+        } else if (isReady) {
+          label.textContent = "Loslassen zum Aktualisieren";
+        } else {
+          label.textContent = "Nach unten ziehen zum Aktualisieren";
+        }
+      }
+
+      function resetPullRefreshIndicator() {
+        setPullRefreshIndicatorState({ distance: 0, refreshing: false });
+      }
+
+      async function refreshWebAppFromPullGesture() {
+        if (pullRefreshInProgress) return;
+        pullRefreshInProgress = true;
+        setPullRefreshIndicatorState({
+          distance: PULL_REFRESH_TRIGGER_DISTANCE,
+          refreshing: true,
+        });
+
+        try {
+          setStatusMessage("App wird aktualisiert...", "#475569");
+          const registration = await navigator.serviceWorker?.getRegistration?.();
+          await registration?.update?.();
+        } catch (error) {}
+
+        try {
+          const revisionState = await ensureLatestPublishedRevision();
+          if (revisionState.reloading) {
+            return;
+          }
+        } catch (error) {
+          console.warn("Pull-to-Refresh konnte Revision nicht pruefen", error);
+        }
+
+        window.location.reload();
+      }
+
+      function cancelPullRefreshGesture() {
+        pullRefreshGesture = null;
+        if (!pullRefreshInProgress) {
+          resetPullRefreshIndicator();
+        }
+      }
+
+      function installWebPullToRefresh() {
+        if (!shouldEnableWebPullToRefresh()) return;
+
+        window.addEventListener(
+          "touchstart",
+          (event) => {
+            if (pullRefreshInProgress || event.touches.length !== 1) return;
+
+            const touch = event.touches[0];
+            if (touch.clientY > PULL_REFRESH_TOP_ZONE) return;
+            if (getPageScrollTop() > 0) return;
+            if (isPullRefreshBlockedTarget(event.target)) return;
+
+            pullRefreshGesture = {
+              startY: touch.clientY,
+              startX: touch.clientX,
+            };
+          },
+          { passive: true },
+        );
+
+        window.addEventListener(
+          "touchmove",
+          (event) => {
+            if (!pullRefreshGesture || pullRefreshInProgress) return;
+            if (event.touches.length !== 1) {
+              cancelPullRefreshGesture();
+              return;
+            }
+
+            const touch = event.touches[0];
+            const deltaY = touch.clientY - pullRefreshGesture.startY;
+            const deltaX = touch.clientX - pullRefreshGesture.startX;
+
+            if (getPageScrollTop() > 0) {
+              cancelPullRefreshGesture();
+              return;
+            }
+
+            if (deltaY <= 0) {
+              resetPullRefreshIndicator();
+              return;
+            }
+
+            if (Math.abs(deltaX) > deltaY + 12) {
+              cancelPullRefreshGesture();
+              return;
+            }
+
+            const distance = Math.min(
+              PULL_REFRESH_MAX_DISTANCE,
+              deltaY * 0.52,
+            );
+            pullRefreshGesture.lastDistance = distance;
+            setPullRefreshIndicatorState({ distance });
+            event.preventDefault();
+          },
+          { passive: false },
+        );
+
+        window.addEventListener(
+          "touchend",
+          () => {
+            if (!pullRefreshGesture || pullRefreshInProgress) return;
+
+            const touchDistance = Math.max(
+              0,
+              Math.min(
+                PULL_REFRESH_MAX_DISTANCE,
+                (pullRefreshGesture.lastDistance || 0),
+              ),
+            );
+
+            const shouldRefresh =
+              touchDistance >= PULL_REFRESH_TRIGGER_DISTANCE;
+            pullRefreshGesture = null;
+
+            if (!shouldRefresh) {
+              resetPullRefreshIndicator();
+              return;
+            }
+
+            refreshWebAppFromPullGesture();
+          },
+          { passive: true },
+        );
+
+        window.addEventListener(
+          "touchcancel",
+          () => {
+            cancelPullRefreshGesture();
+          },
+          { passive: true },
+        );
       }
 
       function getAndroidBridge() {
@@ -10561,7 +10833,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v37";
+        const SW_VERSION = "rechenguru-lgi-v38";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -11179,6 +11451,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
         document.addEventListener("DOMContentLoaded", () => {
           syncKnownInstalledWebVersion();
+          installWebPullToRefresh();
           const btn = document.getElementById("installBtn");
           if (btn) {
             btn.addEventListener("click", async () => {
@@ -11267,7 +11540,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="37"
+      data-app-version="38"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -11279,7 +11552,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">37</span>
+      <span id="appVersion">38</span>
     </footer>
 
     <!-- ❌ Fehler-Aktionen (Zurücksetzen / Drucken) -->
