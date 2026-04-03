@@ -2685,6 +2685,7 @@
       const APP_STORAGE_PREFIX = "RechenGuruLGI_";
       const APP_NAME_FALLBACK = "Mathe Guru Web";
       const PORTABLE_HTML_MARKER_PREFIX = "__portableBootstrapApplied_";
+      const INSTALLED_WEB_VERSION_STORAGE_KEY = "installedWebVersion";
       const appStorage = {
         getItem(key) {
           return localStorage.getItem(APP_STORAGE_PREFIX + key);
@@ -10556,11 +10557,12 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v31";
+        const SW_VERSION = "rechenguru-lgi-v34";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
           EXTERNAL_BROWSER: "external-browser",
+          INSTALLED: "installed",
           IOS: "ios",
           PROMPT: "prompt",
           ANDROID_MANUAL: "android-manual",
@@ -10774,6 +10776,55 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           return getInstallContext().isApkWebView;
         }
 
+        function normalizeVersionParts(version) {
+          const matches = String(version || "").match(/\d+/g);
+          if (!matches) return [];
+          return matches
+            .map((part) => parseInt(part, 10))
+            .filter((part) => Number.isFinite(part));
+        }
+
+        function compareVersionValues(leftVersion, rightVersion) {
+          const left = normalizeVersionParts(leftVersion);
+          const right = normalizeVersionParts(rightVersion);
+          const maxLength = Math.max(left.length, right.length);
+
+          for (let i = 0; i < maxLength; i++) {
+            const leftPart = left[i] ?? 0;
+            const rightPart = right[i] ?? 0;
+
+            if (leftPart > rightPart) return 1;
+            if (leftPart < rightPart) return -1;
+          }
+
+          const leftText = String(leftVersion || "").trim();
+          const rightText = String(rightVersion || "").trim();
+          if (!left.length && !right.length) {
+            return leftText.localeCompare(rightText, undefined, {
+              numeric: true,
+              sensitivity: "base",
+            });
+          }
+
+          return 0;
+        }
+
+        function getKnownInstalledWebVersion() {
+          return String(
+            appStorage.getItem(INSTALLED_WEB_VERSION_STORAGE_KEY) || "",
+          ).trim();
+        }
+
+        function rememberKnownInstalledWebVersion(version = getCurrentAppVersion()) {
+          const cleanVersion = String(version || "").trim();
+          if (!cleanVersion) return;
+
+          const currentStoredVersion = getKnownInstalledWebVersion();
+          if (currentStoredVersion === cleanVersion) return;
+
+          appStorage.setItem(INSTALLED_WEB_VERSION_STORAGE_KEY, cleanVersion);
+        }
+
         function getInstallContext() {
           const ua = navigator.userAgent || "";
           const maxTouchPoints = Number(navigator.maxTouchPoints || 0);
@@ -10786,14 +10837,28 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             isIOS || isAndroid || /Mobile|Tablet/i.test(ua) || maxTouchPoints > 0;
           const isApkWebView = isAndroidAppWebView();
           const inAppBrowser = !isApkWebView && isInAppBrowser();
+          const currentVersion = getCurrentAppVersion();
+          const installedVersion = getKnownInstalledWebVersion();
+          const hasKnownInstalledVersion = Boolean(installedVersion);
+          const installedVersionComparison = hasKnownInstalledVersion
+            ? compareVersionValues(installedVersion, currentVersion)
+            : null;
 
           return {
+            currentVersion,
+            hasKnownInstalledVersion,
             isAndroid,
             isApkWebView,
             hasInstallPrompt: Boolean(window.__deferredPwaPrompt),
             isIOS,
+            installedVersion,
+            installedVersionComparison,
             isMobile,
             isInAppBrowser: inAppBrowser,
+            isInstalledVersionCurrent:
+              hasKnownInstalledVersion && installedVersionComparison >= 0,
+            isInstallUpdateAvailable:
+              hasKnownInstalledVersion && installedVersionComparison < 0,
             isStandalone: isStandaloneMode(),
             isSafari,
             isIosSafari: isIOS && isSafari,
@@ -10808,16 +10873,50 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           return "Im Browser-Menü „Zum Startbildschirm“ oder „App installieren“ wählen.";
         }
 
+        function getPromptInstallHintText(ctx) {
+          if (ctx.isAndroid) {
+            if (ctx.isInstallUpdateAvailable) {
+              return `Neue Version ${ctx.currentVersion} verfügbar. Bitte über „App installieren“ aktualisieren.`;
+            }
+
+            return "Tipp: Du kannst die App direkt über „App installieren“ hinzufügen.";
+          }
+
+          return "";
+        }
+
+        function getIosUpdateHintText(ctx) {
+          return `Neue Version ${ctx.currentVersion} verfügbar. In Safari öffnen -> Teilen -> Zum Home-Bildschirm.`;
+        }
+
+        function getAndroidManualUpdateHintText(ctx) {
+          return `Neue Version ${ctx.currentVersion} verfügbar. Im Browser-Menü „Zum Startbildschirm“ oder „App installieren“ erneut wählen.`;
+        }
+
         function getExternalBrowserHintText(ctx) {
           if (ctx.isIOS) {
+            if (ctx.isInstallUpdateAvailable) {
+              return `Neue Version ${ctx.currentVersion} verfügbar. Bitte zuerst in Safari öffnen und dort erneut zum Home-Bildschirm hinzufügen.`;
+            }
+
             return "Bitte zuerst in Safari öffnen. Im In-App-Browser funktioniert „Zum Home-Bildschirm“ nicht zuverlässig.";
           }
 
           if (ctx.isAndroid) {
+            if (ctx.isInstallUpdateAvailable) {
+              return `Neue Version ${ctx.currentVersion} verfügbar. Bitte zuerst im normalen Browser öffnen und dort „App installieren“ oder „Zum Startbildschirm“ wählen.`;
+            }
+
             return "Bitte zuerst im normalen Browser öffnen. Im In-App-Browser über das Menü „Im Browser öffnen“ wählen.";
           }
 
           return "Bitte zuerst im normalen Browser öffnen. In-App-Browser unterstützen die Installation nicht zuverlässig.";
+        }
+
+        function syncKnownInstalledWebVersion() {
+          const ctx = getInstallContext();
+          if (!ctx.isStandalone) return;
+          rememberKnownInstalledWebVersion(ctx.currentVersion);
         }
 
         function getInstallUiState() {
@@ -10860,25 +10959,42 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             };
           }
 
+          if (ctx.isInstalledVersionCurrent) {
+            return {
+              ...ctx,
+              mode: INSTALL_UI_MODES.INSTALLED,
+              showButton: false,
+              buttonLabel: "",
+              buttonAriaLabel: "",
+              hintText: "",
+              statusText: "",
+            };
+          }
+
           if (ctx.hasInstallPrompt) {
+            const hintText = getPromptInstallHintText(ctx);
             return {
               ...ctx,
               mode: INSTALL_UI_MODES.PROMPT,
               showButton: true,
               buttonLabel: "📲 App installieren",
               buttonAriaLabel: "App installieren",
-              hintText: "",
+              hintText,
               statusText: "Der Installationsdialog des Browsers wird geöffnet.",
             };
           }
 
           if (ctx.isIOS) {
-            const hintText = getIosInstallHintText();
+            const hintText = ctx.isInstallUpdateAvailable
+              ? getIosUpdateHintText(ctx)
+              : getIosInstallHintText();
             return {
               ...ctx,
               mode: INSTALL_UI_MODES.IOS,
               showButton: true,
-              buttonLabel: "📱 Zum Startbildschirm",
+              buttonLabel: ctx.isInstallUpdateAvailable
+                ? "📱 App aktualisieren"
+                : "📱 Zum Startbildschirm",
               buttonAriaLabel: "Hinweis zum Home-Bildschirm",
               hintText,
               statusText: hintText,
@@ -10886,12 +11002,16 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           }
 
           if (ctx.isAndroid) {
-            const hintText = getAndroidManualInstallHintText();
+            const hintText = ctx.isInstallUpdateAvailable
+              ? getAndroidManualUpdateHintText(ctx)
+              : getAndroidManualInstallHintText();
             return {
               ...ctx,
               mode: INSTALL_UI_MODES.ANDROID_MANUAL,
               showButton: true,
-              buttonLabel: "📱 Zum Startbildschirm",
+              buttonLabel: ctx.isInstallUpdateAvailable
+                ? "📱 App aktualisieren"
+                : "📱 Zum Startbildschirm",
               buttonAriaLabel: "Hinweis zur Browser-Installation",
               hintText,
               statusText: hintText,
@@ -10947,6 +11067,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
         window.addEventListener("appinstalled", () => {
           window.__deferredPwaPrompt = null;
+          rememberKnownInstalledWebVersion();
           updateInstallUi();
           armInstalledFullscreenActivation();
           requestInstalledWebFullscreen();
@@ -10960,6 +11081,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         });
 
         document.addEventListener("DOMContentLoaded", () => {
+          syncKnownInstalledWebVersion();
           const btn = document.getElementById("installBtn");
           if (btn) {
             btn.addEventListener("click", async () => {
@@ -10995,12 +11117,14 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         });
 
         window.addEventListener("pageshow", () => {
+          syncKnownInstalledWebVersion();
           updateInstallUi();
           armInstalledFullscreenActivation();
           requestInstalledWebFullscreen();
         });
         document.addEventListener("visibilitychange", () => {
           if (!document.hidden) {
+            syncKnownInstalledWebVersion();
             updateInstallUi();
             armInstalledFullscreenActivation();
             requestInstalledWebFullscreen();
@@ -11038,7 +11162,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="31"
+      data-app-version="34"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -11050,7 +11174,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">31</span>
+      <span id="appVersion">34</span>
     </footer>
 
     <!-- ❌ Fehler-Aktionen (Zurücksetzen / Drucken) -->
