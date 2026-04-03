@@ -1,0 +1,44 @@
+name: Verify Web Sync
+
+on:
+  pull_request:
+    paths:
+      - "app/src/main/assets/**"
+      - "docs/**"
+      - "sync_web_assets.ps1"
+      - "version.properties"
+      - ".github/workflows/verify-web-sync.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "app/src/main/assets/**"
+      - "docs/**"
+      - "sync_web_assets.ps1"
+      - "version.properties"
+      - ".github/workflows/verify-web-sync.yml"
+
+jobs:
+  verify-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Sync docs from assets
+        shell: pwsh
+        run: ./sync_web_assets.ps1
+
+      - name: Fail if docs are not up to date
+        run: |
+          git diff --exit-code -- \
+            app/src/main/assets/index.html \
+            app/src/main/assets/manifest.webmanifest \
+            app/src/main/assets/sw.js \
+            app/src/main/assets/icons \
+            docs/index.html \
+            docs/manifest.webmanifest \
+            docs/sw.js \
+            docs/icons \
+            docs/.nojekyll \
+            docs/README-GitHub-Pages.txt

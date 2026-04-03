@@ -5,7 +5,10 @@ on:
     branches:
       - main
     paths:
+      - "app/src/main/assets/**"
       - "docs/**"
+      - "sync_web_assets.ps1"
+      - "version.properties"
       - ".github/workflows/deploy-pages.yml"
   workflow_dispatch:
 
@@ -27,6 +30,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+
+      - name: Sync docs from assets
+        shell: pwsh
+        run: ./sync_web_assets.ps1
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
