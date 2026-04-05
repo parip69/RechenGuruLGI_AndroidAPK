@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rechenguru-lgi-v46';
+const CACHE_NAME = 'rechenguru-lgi-v47';
 const PRECACHE_URLS = [
   './',
   './index.html',

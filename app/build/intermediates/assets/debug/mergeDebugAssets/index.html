@@ -7748,7 +7748,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
               ? getMax()
               : getStoredMaxForMode(opt.value);
           const suffix = ` (0–${max})`;
-          opt.textContent = opt.dataset.baseLabel + suffix;
+          opt.textContent = t(opt.dataset.baseLabel) + suffix;
         }
 
         updateViewSelectOverlay();
@@ -7771,7 +7771,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
         const baseEl = ov.querySelector(".viewBase");
         const rngEl = ov.querySelector(".viewRangeInline");
-        if (baseEl) baseEl.textContent = (base || vs.value).trim();
+        if (baseEl) baseEl.textContent = t((base || vs.value).trim());
         if (rngEl) rngEl.textContent = `(0–${max})`;
       }
 
@@ -11384,7 +11384,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v46";
+        const SW_VERSION = "rechenguru-lgi-v47";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -11937,7 +11937,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="46"
+      data-app-version="47"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -11949,7 +11949,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">46</span>
+      <span id="appVersion">47</span>
     </footer>
 
     <!-- ❌ Fehler-Aktionen (Zurücksetzen / Drucken) -->
