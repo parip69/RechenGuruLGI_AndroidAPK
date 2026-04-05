@@ -1960,9 +1960,9 @@
                 class="adventureSelect"
                 onchange="wechselAnsicht()"
               >
+                <option value="plus">Zeilen (+)</option>
                 <option value="pyramide">Plus-Pyramide</option>
                 <option value="traube">Minus-Traube</option>
-                <option value="plus">Zeilen (+)</option>
                 <option value="minus">Zeilen (−)</option>
                 <option value="mix">Zeilen (+/− Mix)</option>
                 <option value="mal">Zeilen (×)</option>
@@ -3130,6 +3130,7 @@
         "Passend ist:": "Potrivit este:",
 
         // ── Footer ──
+        "Entwickelt von:": "Dezvoltat de:",
         "ist jetzt installiert. 🎉": "este acum instalată. 🎉",
 
         // ── Richtig / Falsch (input title) ──
@@ -3409,6 +3410,18 @@
         if (prl) {
           if (!prl._deText) prl._deText = prl.textContent.trim();
           prl.textContent = t(prl._deText);
+        }
+
+        // ── Footer ──
+        const footer = document.getElementById("appFooter");
+        if (footer) {
+          const ver = document.getElementById("appVersion");
+          const verText = ver ? ver.textContent : "";
+          footer.textContent = "";
+          footer.appendChild(document.createTextNode(
+            t("Entwickelt von:") + " Bachner Gerhard & Isabella - Ver. "
+          ));
+          if (ver) { ver.textContent = verText; footer.appendChild(ver); }
         }
       }
 
@@ -11371,7 +11384,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v45";
+        const SW_VERSION = "rechenguru-lgi-v46";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -11924,7 +11937,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="45"
+      data-app-version="46"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -11936,7 +11949,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">45</span>
+      <span id="appVersion">46</span>
     </footer>
 
     <!-- ❌ Fehler-Aktionen (Zurücksetzen / Drucken) -->
