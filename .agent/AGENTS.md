@@ -54,3 +54,6 @@ Before saying a task is done:
 2. Confirm exit status and key output.
 3. Update `<project-root>/docs/plans/task.md`.
 4. Report evidence, then claim completion.
+
+## Workflow Rule: Privat Release
+- After building the APK or running sync scripts, ALWAYS ensure that the new HTML and APK files are copied to the Privat folder so the user has quick access to them. (Note: sync_version_and_build.bat already does this automatically, so prefer using that script.)
