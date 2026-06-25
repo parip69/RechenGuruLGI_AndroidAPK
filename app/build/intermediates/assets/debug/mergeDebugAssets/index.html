@@ -1966,7 +1966,9 @@
                 <option value="minus">Zeilen (−)</option>
                 <option value="mix">Zeilen (+/− Mix)</option>
                 <option value="mal">Zeilen (×)</option>
+                <option value="squareMal">Zeilen (Quadratzahlen ×)</option>
                 <option value="geteilt">Zeilen (÷)</option>
+                <option value="squareDiv">Zeilen (Quadratzahlen ÷)</option>
                 <option value="mixMD">Zeilen (×/÷ Mix)</option>
                 <option value="mixALL">Zeilen (+/−/×/÷ Mix)</option>
                 <option value="double">Verdoppeln</option>
@@ -2831,7 +2833,9 @@
         "Zeilen (−)": "Rânduri (−)",
         "Zeilen (+/− Mix)": "Rânduri (+/− Mixt)",
         "Zeilen (×)": "Rânduri (×)",
+        "Zeilen (Quadratzahlen ×)": "Rânduri (Pătrate perfecte ×)",
         "Zeilen (÷)": "Rânduri (÷)",
+        "Zeilen (Quadratzahlen ÷)": "Rânduri (Pătrate perfecte ÷)",
         "Zeilen (×/÷ Mix)": "Rânduri (×/÷ Mixt)",
         "Zeilen (+/−/×/÷ Mix)": "Rânduri (+/−/×/÷ Mixt)",
         "Verdoppeln": "Dublare",
@@ -7488,7 +7492,9 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           mp.style.display =
             showZeilen &&
             (mode === "mal" ||
+              mode === "squareMal" ||
               mode === "geteilt" ||
+              mode === "squareDiv" ||
               mode === "mixMD" ||
               mode === "mixALL" ||
               mode === "fehler")
@@ -7554,6 +7560,14 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           <option value="compare">Vergleichen (&lt; &gt; =)</option>
         `);
           } else if (mode === "geteilt") {
+            setOptions(`
+          <option value="standard">Standard</option>
+          <option value="faktor">Faktor fehlt</option>
+          <option value="wahrfalsch">Wahr / Falsch</option>
+          <option value="operator">Operator fehlt</option>
+          <option value="compare">Vergleichen (&lt; &gt; =)</option>
+        `);
+          } else if (mode === "squareMal" || mode === "squareDiv") {
             setOptions(`
           <option value="standard">Standard</option>
           <option value="faktor">Faktor fehlt</option>
@@ -7637,7 +7651,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           document.querySelector("#difficultyGroup label").textContent =
             t("Minus");
           document.getElementById("rowGroup").style.display = "none";
-        } else if (mode === "mal" || mode === "geteilt" || mode === "mixMD") {
+        } else if (mode === "mal" || mode === "geteilt" || mode === "squareMal" || mode === "squareDiv" || mode === "mixMD") {
           diff.innerHTML = `
         <option value="standard">${t("Standard (Ergebnis fehlt)")}</option>
         <option value="easy">${t("Einfach")}</option>
@@ -9042,9 +9056,13 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
                 ? ["plus", "minus"]
                 : mode === "mal"
                   ? ["mal"]
-                  : mode === "geteilt"
-                    ? ["geteilt"]
-                    : mode === "mixMD"
+                  : mode === "squareMal"
+                    ? ["squareMal"]
+                    : mode === "geteilt"
+                      ? ["geteilt"]
+                      : mode === "squareDiv"
+                        ? ["squareDiv"]
+                        : mode === "mixMD"
                       ? ["mal", "geteilt"]
                       : mode === "mixALL"
                         ? ["plus", "minus", "mal", "geteilt"]
@@ -9125,7 +9143,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           return makeTrueFalseTask(realOp, max, effDiff, rowTrain, mulProfile);
 
         if (fmt === "faktor") {
-          if (realOp === "mal" || realOp === "geteilt")
+          if (realOp === "mal" || realOp === "geteilt" || realOp === "squareMal" || realOp === "squareDiv")
             return makeFactorMissingTask(
               realOp,
               max,
@@ -9658,7 +9676,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
               }
             }
           }
-        } else {
+        } else if (op === "geteilt") {
           // geteilt
           sym = "÷";
 
@@ -9875,13 +9893,85 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
               a = res * b;
             }
           }
+        } else if (op === "squareMal") {
+          sym = "×";
+          const fixedRow = rowTrain !== "mixed" ? parseInt(rowTrain, 10) : null;
+          if (Number.isFinite(fixedRow)) {
+            a = fixedRow;
+          } else {
+            const aMax = Math.floor(Math.sqrt(max));
+            if (aMax < 1) { a = 1; }
+            else {
+              const profile = mulProfile || "free";
+              const candidates = [];
+              if (profile === "tens") {
+                for(let t=10; t<=aMax; t+=10) candidates.push(t);
+              } else if (profile === "table9") {
+                for(let t=1; t<=Math.min(9, aMax); t++) candidates.push(t);
+              } else if (profile === "table") {
+                for(let t=1; t<=Math.min(10, aMax); t++) candidates.push(t);
+              } else {
+                for(let t=1; t<=aMax; t++) candidates.push(t);
+              }
+              if (candidates.length === 0) a = 1;
+              else {
+                if (diff === "easy") {
+                  const maxIdx = Math.max(0, Math.floor((candidates.length - 1) * 0.4));
+                  a = candidates[zufallszahl(0, maxIdx)];
+                } else if (diff === "hard") {
+                  const minIdx = Math.min(candidates.length - 1, Math.floor((candidates.length - 1) * 0.6));
+                  a = candidates[zufallszahl(minIdx, candidates.length - 1)];
+                } else {
+                  a = candidates[zufallszahl(0, candidates.length - 1)];
+                }
+              }
+            }
+          }
+          b = a;
+          res = a * b;
+        } else if (op === "squareDiv") {
+          sym = "÷";
+          const fixedRow = rowTrain !== "mixed" ? parseInt(rowTrain, 10) : null;
+          if (Number.isFinite(fixedRow)) {
+            res = fixedRow;
+          } else {
+            const maxRes = Math.floor(Math.sqrt(max));
+            if (maxRes < 1) { res = 1; }
+            else {
+              const profile = mulProfile || "free";
+              const candidates = [];
+              if (profile === "tens") {
+                for(let t=10; t<=maxRes; t+=10) candidates.push(t);
+              } else if (profile === "table9") {
+                for(let t=1; t<=Math.min(9, maxRes); t++) candidates.push(t);
+              } else if (profile === "table") {
+                for(let t=1; t<=Math.min(10, maxRes); t++) candidates.push(t);
+              } else {
+                for(let t=1; t<=maxRes; t++) candidates.push(t);
+              }
+              if (candidates.length === 0) res = 1;
+              else {
+                if (diff === "easy") {
+                  const maxIdx = Math.max(0, Math.floor((candidates.length - 1) * 0.4));
+                  res = candidates[zufallszahl(0, maxIdx)];
+                } else if (diff === "hard") {
+                  const minIdx = Math.min(candidates.length - 1, Math.floor((candidates.length - 1) * 0.6));
+                  res = candidates[zufallszahl(minIdx, candidates.length - 1)];
+                } else {
+                  res = candidates[zufallszahl(0, candidates.length - 1)];
+                }
+              }
+            }
+          }
+          b = res;
+          a = res * b;
         }
 
         let missing;
         // Standard-Anzeige: bei +/− ist nur im Modus "Gemischt" eine der drei Stellen zufällig leer.
         // In allen anderen Schwierigkeits-Modi (Standard / (ohne|mit) Übergang / (ohne|mit) Entleihen)
         // wird immer das Ergebnis gesucht – sonst würde man Umkehraufgaben (Minus) brauchen.
-        if (op === "mal" || op === "geteilt") {
+        if (op === "mal" || op === "geteilt" || op === "squareMal" || op === "squareDiv") {
           missing = 2;
         } else if (op === "plus" || op === "minus") {
           missing = diff === "mixed" ? zufallszahl(0, 2) : 2;
@@ -9894,14 +9984,14 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
       function makeFactorMissingTask(op, max, diff, rowTrain, mulProfile) {
         const base = makeStandardTask(op, max, diff, rowTrain, mulProfile);
-        if (op === "mal")
+        if (op === "mal" || op === "squareMal")
           return {
             ...base,
             fmt: "faktor",
             missing: 0,
             key: `${op}|faktor|${base.a}|${base.b}|${base.res}`,
           };
-        if (op === "geteilt")
+        if (op === "geteilt" || op === "squareDiv")
           return {
             ...base,
             fmt: "faktor",
@@ -11385,7 +11475,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v48";
+        const SW_VERSION = "rechenguru-lgi-v49";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -11938,7 +12028,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="48"
+      data-app-version="49"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -11950,7 +12040,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">48</span>
+      <span id="appVersion">49</span>
     </footer>
 
     <!-- ❌ Fehler-Aktionen (Zurücksetzen / Drucken) -->
