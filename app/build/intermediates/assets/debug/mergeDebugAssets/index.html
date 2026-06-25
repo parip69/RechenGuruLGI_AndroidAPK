@@ -1966,9 +1966,9 @@
                 <option value="minus">Zeilen (−)</option>
                 <option value="mix">Zeilen (+/− Mix)</option>
                 <option value="mal">Zeilen (×)</option>
-                <option value="squareMal">Zeilen (Quadratzahlen ×)</option>
+                <option value="squareMal">Quadrat × (z.B. 12×12)</option>
                 <option value="geteilt">Zeilen (÷)</option>
-                <option value="squareDiv">Zeilen (Quadratzahlen ÷)</option>
+                <option value="squareDiv">Quadrat ÷ (z.B. 144÷12)</option>
                 <option value="mixMD">Zeilen (×/÷ Mix)</option>
                 <option value="mixALL">Zeilen (+/−/×/÷ Mix)</option>
                 <option value="double">Verdoppeln</option>
@@ -1999,7 +1999,7 @@
           </div>
 
           <div class="control-group">
-            <label>Zahlbereich (Max)</label>
+            <label>Max. Zahl / Ergebnis</label>
             <input
               type="text"
               inputmode="numeric"
@@ -2027,6 +2027,7 @@
               onchange="initGame(true)"
               onblur="handleMaxWertBlur()"
             />
+            <div class="hintSmall">Bei ×/÷ zählt hier Ergebnis bzw. die große Zahl vor ÷: 22×22 braucht mindestens 484.</div>
           </div>
 
           <div class="control-group" id="onesOnlyGroup">
@@ -2259,12 +2260,12 @@
           </div>
 
           <div class="control-group" id="mulProfileGroup">
-            <label>×/÷ Zahlenart</label>
+            <label>×/÷ Zahlenbereich</label>
             <select id="mulProfile" onchange="initGame(true)">
-              <option value="table9">1×1 (1–9)</option>
-              <option value="table">1×1 (1–10)</option>
-              <option value="tens">Zehner ×/÷ (10er, 20er…)</option>
-              <option value="free">Frei (bis Max)</option>
+              <option value="table9">Kleines 1×1 (1–9)</option>
+              <option value="table">1×1 bis 10</option>
+              <option value="tens">Zehnerzahlen (10, 20, 30…)</option>
+              <option value="free">Frei (auch über 10)</option>
             </select>
           </div>
         </div>
@@ -2834,8 +2835,10 @@
         "Zeilen (+/− Mix)": "Rânduri (+/− Mixt)",
         "Zeilen (×)": "Rânduri (×)",
         "Zeilen (Quadratzahlen ×)": "Rânduri (Pătrate perfecte ×)",
+        "Quadrat × (z.B. 12×12)": "Pătrat × (ex. 12×12)",
         "Zeilen (÷)": "Rânduri (÷)",
         "Zeilen (Quadratzahlen ÷)": "Rânduri (Pătrate perfecte ÷)",
+        "Quadrat ÷ (z.B. 144÷12)": "Pătrat ÷ (ex. 144÷12)",
         "Zeilen (×/÷ Mix)": "Rânduri (×/÷ Mixt)",
         "Zeilen (+/−/×/÷ Mix)": "Rânduri (+/−/×/÷ Mixt)",
         "Verdoppeln": "Dublare",
@@ -2849,6 +2852,8 @@
         "Klasse 3": "Clasa 3",
         "Klasse 4": "Clasa 4",
         "Zahlbereich (Max)": "Interval numere (Max)",
+        "Max. Zahl / Ergebnis": "Număr / rezultat max.",
+        "Bei ×/÷ zählt hier Ergebnis bzw. die große Zahl vor ÷: 22×22 braucht mindestens 484.": "La ×/÷ contează aici rezultatul sau numărul mare dinainte de ÷: 22×22 are nevoie de cel puțin 484.",
         "Einser-Training": "Antrenament unități",
         "Aus (alle Zahlen mehrstell.)": "Oprit (toate nr. multi-cifre)",
         "An (2./3. Zahl nur 0–9)": "Pornit (nr. 2/3 doar 0–9)",
@@ -2882,10 +2887,15 @@
         "Mit Zehnerübergang": "Cu trecere peste zece",
         "Reihe (×/÷)": "Seria (×/÷)",
         "×/÷ Zahlenart": "Tip numere ×/÷",
+        "×/÷ Zahlenbereich": "Interval ×/÷",
         "1×1 (1–9)": "Tabla înm. (1–9)",
         "1×1 (1–10)": "Tabla înm. (1–10)",
         "Zehner ×/÷ (10er, 20er…)": "Zeci ×/÷ (10, 20…)",
         "Frei (bis Max)": "Liber (până la Max)",
+        "Kleines 1×1 (1–9)": "Tabla mică (1–9)",
+        "1×1 bis 10": "Tabla înm. până la 10",
+        "Zehnerzahlen (10, 20, 30…)": "Zeci (10, 20, 30…)",
+        "Frei (auch über 10)": "Liber (și peste 10)",
 
         // ── Scoreboard ──
         "Richtig (kumulativ)": "Corect (cumulativ)",
@@ -11475,7 +11485,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v51";
+        const SW_VERSION = "rechenguru-lgi-v52";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -12028,7 +12038,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="51"
+      data-app-version="52"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -12040,7 +12050,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">51</span>
+      <span id="appVersion">52</span>
     </footer>
 
     <!-- ❌ Fehler-Aktionen (Zurücksetzen / Drucken) -->
