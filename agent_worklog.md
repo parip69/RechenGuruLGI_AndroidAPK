@@ -8,4 +8,6 @@
   - Logik für die Generierung von Quadratzahl-Aufgaben in `makeStandardTask` ergänzt (`a * a` bzw. `(a*a) / a`).
   - Fehlende Faktoren-Suche in `makeFactorMissingTask` für Quadratzahlen freigeschaltet.
   - Übersetzung (Rumänisch) in `translations` hinzugefügt.
-- **Erledigt**: Synchronisation von `docs/index.html` nach `app/src/main/assets/index.html` via `Copy-Item`.
+  - **Neu:** Dropdown-Beschriftungen auf `Zeilen (x²)` und `Zeilen (÷x²)` gekürzt.
+  - **Neu:** Option `2-stellig (10-99)` im Dropdown `mulProfile` hinzugefügt und in `makeStandardTask` für Quadratzahlen (und normale Mal/Geteilt) als Logik implementiert, damit man gezielt den Zahlenbereich einschränken kann.
+- **Erledigt**: Synchronisation von `docs/index.html` nach `app/src/main/assets/index.html` via Skript.
