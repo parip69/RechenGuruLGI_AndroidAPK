@@ -315,6 +315,49 @@
         min-width: 170px;
       }
 
+      /* === Reihe-Chips (Mehrfachauswahl) === */
+      .row-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 4px 0 2px;
+      }
+      .row-chip {
+        padding: 6px 12px;
+        border-radius: 20px;
+        border: 1.5px solid var(--glass-border);
+        background: var(--surface60);
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: var(--textMuted);
+        cursor: pointer;
+        transition: background 0.18s, color 0.18s, border-color 0.18s, transform 0.1s;
+        user-select: none;
+        white-space: nowrap;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+      }
+      .row-chip:active {
+        transform: scale(0.94);
+      }
+      .row-chip.active {
+        background: var(--primary);
+        color: #fff;
+        border-color: var(--primary);
+      }
+      .row-chip.chip-mixed.active {
+        background: var(--secondary, #6c757d);
+        border-color: var(--secondary, #6c757d);
+      }
+      .row-chip.chip-squares.active {
+        background: var(--accent, #e67e22);
+        border-color: var(--accent, #e67e22);
+      }
+      .row-chip[data-disabled="1"] {
+        opacity: 0.35;
+        pointer-events: none;
+      }
+
       label {
         font-size: 0.95rem;
         font-weight: 800;
@@ -2245,18 +2288,22 @@
 
           <div class="control-group" id="rowGroup">
             <label>Reihe (×/÷)</label>
-            <select id="rowTrain" onchange="initGame(true)">
-              <option value="mixed">Gemischt</option>
-              <option value="2">2er</option>
-              <option value="3">3er</option>
-              <option value="4">4er</option>
-              <option value="5">5er</option>
-              <option value="6">6er</option>
-              <option value="7">7er</option>
-              <option value="8">8er</option>
-              <option value="9">9er</option>
-              <option value="10">10er</option>
-            </select>
+            <!-- Hidden input speichert aktuelle Auswahl für saveModeSettings -->
+            <input type="hidden" id="rowTrain" value="mixed" />
+            <div class="row-chips" id="rowChips" role="group" aria-label="Reihe auswählen">
+              <button type="button" class="row-chip chip-mixed active" data-value="mixed" onclick="rowChipClick(this)" aria-pressed="true">Gemischt</button>
+              <button type="button" class="row-chip" data-value="1" onclick="rowChipClick(this)" aria-pressed="false">1er</button>
+              <button type="button" class="row-chip" data-value="2" onclick="rowChipClick(this)" aria-pressed="false">2er</button>
+              <button type="button" class="row-chip" data-value="3" onclick="rowChipClick(this)" aria-pressed="false">3er</button>
+              <button type="button" class="row-chip" data-value="4" onclick="rowChipClick(this)" aria-pressed="false">4er</button>
+              <button type="button" class="row-chip" data-value="5" onclick="rowChipClick(this)" aria-pressed="false">5er</button>
+              <button type="button" class="row-chip" data-value="6" onclick="rowChipClick(this)" aria-pressed="false">6er</button>
+              <button type="button" class="row-chip" data-value="7" onclick="rowChipClick(this)" aria-pressed="false">7er</button>
+              <button type="button" class="row-chip" data-value="8" onclick="rowChipClick(this)" aria-pressed="false">8er</button>
+              <button type="button" class="row-chip" data-value="9" onclick="rowChipClick(this)" aria-pressed="false">9er</button>
+              <button type="button" class="row-chip" data-value="10" onclick="rowChipClick(this)" aria-pressed="false">10er</button>
+              <button type="button" class="row-chip chip-squares" data-value="squares" onclick="rowChipClick(this)" aria-pressed="false">Quadratzahlen</button>
+            </div>
           </div>
 
           <div class="control-group" id="mulProfileGroup">
