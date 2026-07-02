@@ -5650,19 +5650,30 @@
 
       function normalizeMulProfileControls() {
         const mp = document.getElementById("mulProfile");
-        const rt = document.getElementById("rowTrain");
-        if (!mp || !rt) return;
+        if (!mp) return;
 
         const isTable9 = mp.value === "table9";
 
         // 10er-Reihe bei 1×1 (1–9) deaktivieren
-        const opt10 = [...rt.options].find((o) => o.value === "10");
-        if (opt10) {
-          opt10.disabled = isTable9;
-          opt10.hidden = isTable9;
+        const btn10 = document.querySelector('#rowChips .row-chip[data-value="10"]');
+        if (btn10) {
+          if (isTable9) {
+            btn10.setAttribute('data-disabled', '1');
+            btn10.classList.remove('active');
+          } else {
+            btn10.removeAttribute('data-disabled');
+          }
         }
 
-        if (isTable9 && rt.value === "10") rt.value = "9";
+        const mixedBtn = document.querySelector('#rowChips .chip-mixed');
+        const activeCount = document.querySelectorAll('#rowChips .row-chip.active').length;
+        if (activeCount === 0 && mixedBtn) {
+          mixedBtn.classList.add('active');
+        }
+        
+        const rt = getRowTrain();
+        const rtInput = document.getElementById("rowTrain");
+        if (rtInput) rtInput.value = Array.isArray(rt) ? JSON.stringify(rt) : rt;
       }
 
       function mergeModeSettings(mode, patch) {
@@ -9258,6 +9269,13 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       function makeStandardTask(op, max, diff, rowTrain, mulProfile) {
         let a, b, res, sym;
         const onesOnly = getOnesOnlyEnabled();
+        
+        let effRow = pickRow(rowTrain);
+        if (effRow === "squares") {
+           if (op === "mal") op = "squareMal";
+           if (op === "geteilt") op = "squareDiv";
+           effRow = null;
+        }
 
         if (op === "plus") {
           sym = "+";
@@ -9567,8 +9585,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           sym = "×";
 
           if (onesOnly) {
-            const fixedRow =
-              rowTrain !== "mixed" ? parseInt(rowTrain, 10) : null;
+            const fixedRow = typeof effRow === "number" ? effRow : null;
             b = Number.isFinite(fixedRow)
               ? Math.max(1, Math.min(9, fixedRow))
               : zufallszahl(1, 9);
@@ -9580,7 +9597,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             res = a * b;
           } else {
             const profile = mulProfile || "free";
-            const row = rowTrain !== "mixed" ? rowTrain : null;
+            const row = typeof effRow === "number" ? effRow : null;
 
             const pickByDiff = (arr) => {
               if (!arr || !arr.length) return null;
@@ -9738,8 +9755,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           sym = "÷";
 
           if (onesOnly) {
-            const fixedRow =
-              rowTrain !== "mixed" ? parseInt(rowTrain, 10) : null;
+            const fixedRow = typeof effRow === "number" ? effRow : null;
             b = Number.isFinite(fixedRow)
               ? Math.max(1, Math.min(9, fixedRow))
               : zufallszahl(1, 9);
@@ -9751,7 +9767,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             a = res * b;
           } else {
             const profile = mulProfile || "free";
-            const row = rowTrain !== "mixed" ? rowTrain : null;
+            const row = typeof effRow === "number" ? effRow : null;
 
             const pickByDiff = (arr) => {
               if (!arr || !arr.length) return null;
@@ -11532,7 +11548,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v52";
+        const SW_VERSION = "rechenguru-lgi-v54";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -12085,7 +12101,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="52"
+      data-app-version="54"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -12097,7 +12113,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">52</span>
+      <span id="appVersion">54</span>
     </footer>
 
     <!-- ❌ Fehler-Aktionen (Zurücksetzen / Drucken) -->
