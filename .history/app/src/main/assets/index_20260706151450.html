@@ -8011,19 +8011,106 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           return;
         }
 
+        // Aufgabenformat je Modus sinnvoll einschränken (damit z.B. „Faktor fehlt“ nicht bei Plus auftaucht)
         const fmtSel = document.getElementById("taskFormat");
-        const fmtHint = document.getElementById("taskFormatHint");
         if (fmtSel) {
-          const ok = [...fmtSel.options].some((o) => o.value === fmtSel.value);
-          if (!ok) fmtSel.value = "standard";
-        }
-        if (fmtHint) {
-          const isThreeOperandMode =
+          const prevFmt = fmtSel.value;
+          const setOptions = (html) => {
+            fmtSel.innerHTML = html;
+          };
+
+          if (mode === "plus") {
+            setOptions(`
+          <option value="standard">Standard</option>
+          <option value="wahrfalsch">Wahr / Falsch</option>
+          <option value="operator">Operator fehlt</option>
+          <option value="compare">Vergleichen (&lt; &gt; =)</option>
+        `);
+          } else if (mode === "minus") {
+            setOptions(`
+          <option value="standard">Standard</option>
+          <option value="wahrfalsch">Wahr / Falsch</option>
+          <option value="operator">Operator fehlt</option>
+          <option value="compare">Vergleichen (&lt; &gt; =)</option>
+        `);
+          } else if (mode === "mal") {
+            setOptions(`
+          <option value="standard">Standard</option>
+          <option value="faktor">Faktor fehlt</option>
+          <option value="wahrfalsch">Wahr / Falsch</option>
+          <option value="operator">Operator fehlt</option>
+          <option value="compare">Vergleichen (&lt; &gt; =)</option>
+        `);
+          } else if (mode === "geteilt") {
+            setOptions(`
+          <option value="standard">Standard</option>
+          <option value="faktor">Faktor fehlt</option>
+          <option value="wahrfalsch">Wahr / Falsch</option>
+          <option value="operator">Operator fehlt</option>
+          <option value="compare">Vergleichen (&lt; &gt; =)</option>
+        `);
+          } else if (mode === "squareMal" || mode === "squareDiv") {
+            setOptions(`
+          <option value="standard">Standard</option>
+          <option value="faktor">Faktor fehlt</option>
+          <option value="wahrfalsch">Wahr / Falsch</option>
+          <option value="operator">Operator fehlt</option>
+          <option value="compare">Vergleichen (&lt; &gt; =)</option>
+        `);
+          } else if (mode === "mixMD") {
+            setOptions(`
+          <option value="standard">Standard</option>
+          <option value="faktor">Faktor fehlt</option>
+          <option value="wahrfalsch">Wahr / Falsch</option>
+          <option value="operator">Operator fehlt</option>
+          <option value="compare">Vergleichen (&lt; &gt; =)</option>
+        `);
+          } else if (mode === "mixALL") {
+            setOptions(`
+          <option value="standard">Standard</option>
+          <option value="faktor">Faktor fehlt</option>
+          <option value="wahrfalsch">Wahr / Falsch</option>
+          <option value="operator">Operator fehlt</option>
+          <option value="compare">Vergleichen (&lt; &gt; =)</option>
+        `);
+          } else if (mode === "mix") {
+            setOptions(`
+          <option value="standard">Standard</option>
+          <option value="wahrfalsch">Wahr / Falsch</option>
+          <option value="operator">Operator fehlt</option>
+          <option value="compare">Vergleichen (&lt; &gt; =)</option>
+        `);
+          } else {
+            // fehler
+            setOptions(`
+          <option value="standard">Standard</option>
+          <option value="verdoppeln">Verdoppeln</option>
+          <option value="halbieren">Halbieren</option>
+          <option value="faktor">Faktor fehlt</option>
+          <option value="wahrfalsch">Wahr / Falsch</option>
+          <option value="operator">Operator fehlt</option>
+          <option value="compare">Vergleichen (&lt; &gt; =)</option>
+        `);
+          }
+
+          // Auswahl behalten wenn möglich, sonst Standard
+          const ok = [...fmtSel.options].some((o) => o.value === prevFmt);
+          fmtSel.value = ok ? prevFmt : "standard";
+
+          // Bei 3 Operanden nur Standard und Wahr/Falsch erlauben
+          if (
             (mode === "plus" || mode === "minus" || mode === "mix") &&
-            getOperandCount() === 3;
-          fmtHint.textContent = isThreeOperandMode
-            ? "Bei 3 Zahlen bleiben Standard und Wahr/Falsch am direktesten; die anderen Formate werden logisch mitgeführt."
-            : "Das gewählte Format bleibt pro Modus gespeichert.";
+            getOperandCount() === 3
+          ) {
+            for (const opt of [...fmtSel.options]) {
+              if (opt.value !== "standard" && opt.value !== "wahrfalsch")
+                opt.remove();
+            }
+            const ok3 = [...fmtSel.options].some(
+              (o) => o.value === fmtSel.value,
+            );
+            if (!ok3) fmtSel.value = "standard";
+          }
         }
 
         const diff = document.getElementById("difficulty");
@@ -12032,7 +12119,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v62";
+        const SW_VERSION = "rechenguru-lgi-v61";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -12657,7 +12744,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="62"
+      data-app-version="61"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -12669,7 +12756,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">62</span>
+      <span id="appVersion">61</span>
     </footer>
 
     <!-- ❌ Fehler-Aktionen (Zurücksetzen / Drucken) -->
