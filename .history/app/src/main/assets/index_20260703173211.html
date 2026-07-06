@@ -315,6 +315,49 @@
         min-width: 170px;
       }
 
+      /* === Reihe-Chips (Mehrfachauswahl) === */
+      .row-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 4px 0 2px;
+      }
+      .row-chip {
+        padding: 6px 12px;
+        border-radius: 20px;
+        border: 1.5px solid var(--glass-border);
+        background: var(--surface60);
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: var(--textMuted);
+        cursor: pointer;
+        transition: background 0.18s, color 0.18s, border-color 0.18s, transform 0.1s;
+        user-select: none;
+        white-space: nowrap;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+      }
+      .row-chip:active {
+        transform: scale(0.94);
+      }
+      .row-chip.active {
+        background: var(--primary);
+        color: #fff;
+        border-color: var(--primary);
+      }
+      .row-chip.chip-mixed.active {
+        background: var(--secondary, #6c757d);
+        border-color: var(--secondary, #6c757d);
+      }
+      .row-chip.chip-squares.active {
+        background: var(--accent, #e67e22);
+        border-color: var(--accent, #e67e22);
+      }
+      .row-chip[data-disabled="1"] {
+        opacity: 0.35;
+        pointer-events: none;
+      }
+
       label {
         font-size: 0.95rem;
         font-weight: 800;
@@ -1966,9 +2009,9 @@
                 <option value="minus">Zeilen (−)</option>
                 <option value="mix">Zeilen (+/− Mix)</option>
                 <option value="mal">Zeilen (×)</option>
-                <option value="squareMal">Zeilen (Quadratzahlen ×)</option>
+                <option value="squareMal">Quadrat × (z.B. 12×12)</option>
                 <option value="geteilt">Zeilen (÷)</option>
-                <option value="squareDiv">Zeilen (Quadratzahlen ÷)</option>
+                <option value="squareDiv">Quadrat ÷ (z.B. 144÷12)</option>
                 <option value="mixMD">Zeilen (×/÷ Mix)</option>
                 <option value="mixALL">Zeilen (+/−/×/÷ Mix)</option>
                 <option value="double">Verdoppeln</option>
@@ -1999,7 +2042,7 @@
           </div>
 
           <div class="control-group">
-            <label>Zahlbereich (Max)</label>
+            <label>Max. Zahl / Ergebnis</label>
             <input
               type="text"
               inputmode="numeric"
@@ -2027,6 +2070,7 @@
               onchange="initGame(true)"
               onblur="handleMaxWertBlur()"
             />
+            <div class="hintSmall">Bei ×/÷ zählt hier Ergebnis bzw. die große Zahl vor ÷: 22×22 braucht mindestens 484.</div>
           </div>
 
           <div class="control-group" id="onesOnlyGroup">
@@ -2244,27 +2288,31 @@
 
           <div class="control-group" id="rowGroup">
             <label>Reihe (×/÷)</label>
-            <select id="rowTrain" onchange="initGame(true)">
-              <option value="mixed">Gemischt</option>
-              <option value="2">2er</option>
-              <option value="3">3er</option>
-              <option value="4">4er</option>
-              <option value="5">5er</option>
-              <option value="6">6er</option>
-              <option value="7">7er</option>
-              <option value="8">8er</option>
-              <option value="9">9er</option>
-              <option value="10">10er</option>
-            </select>
+            <!-- Hidden input speichert aktuelle Auswahl für saveModeSettings -->
+            <input type="hidden" id="rowTrain" value="mixed" />
+            <div class="row-chips" id="rowChips" role="group" aria-label="Reihe auswählen">
+              <button type="button" class="row-chip chip-mixed active" data-value="mixed" onclick="rowChipClick(this)" aria-pressed="true">Gemischt</button>
+              <button type="button" class="row-chip" data-value="1" onclick="rowChipClick(this)" aria-pressed="false">1er</button>
+              <button type="button" class="row-chip" data-value="2" onclick="rowChipClick(this)" aria-pressed="false">2er</button>
+              <button type="button" class="row-chip" data-value="3" onclick="rowChipClick(this)" aria-pressed="false">3er</button>
+              <button type="button" class="row-chip" data-value="4" onclick="rowChipClick(this)" aria-pressed="false">4er</button>
+              <button type="button" class="row-chip" data-value="5" onclick="rowChipClick(this)" aria-pressed="false">5er</button>
+              <button type="button" class="row-chip" data-value="6" onclick="rowChipClick(this)" aria-pressed="false">6er</button>
+              <button type="button" class="row-chip" data-value="7" onclick="rowChipClick(this)" aria-pressed="false">7er</button>
+              <button type="button" class="row-chip" data-value="8" onclick="rowChipClick(this)" aria-pressed="false">8er</button>
+              <button type="button" class="row-chip" data-value="9" onclick="rowChipClick(this)" aria-pressed="false">9er</button>
+              <button type="button" class="row-chip" data-value="10" onclick="rowChipClick(this)" aria-pressed="false">10er</button>
+              <button type="button" class="row-chip chip-squares" data-value="squares" onclick="rowChipClick(this)" aria-pressed="false">Quadratzahlen</button>
+            </div>
           </div>
 
           <div class="control-group" id="mulProfileGroup">
-            <label>×/÷ Zahlenart</label>
+            <label>×/÷ Zahlenbereich</label>
             <select id="mulProfile" onchange="initGame(true)">
-              <option value="table9">1×1 (1–9)</option>
-              <option value="table">1×1 (1–10)</option>
-              <option value="tens">Zehner ×/÷ (10er, 20er…)</option>
-              <option value="free">Frei (bis Max)</option>
+              <option value="table9">Kleines 1×1 (1–9)</option>
+              <option value="table">1×1 bis 10</option>
+              <option value="tens">Zehnerzahlen (10, 20, 30…)</option>
+              <option value="free">Frei (auch über 10)</option>
             </select>
           </div>
         </div>
@@ -2834,8 +2882,10 @@
         "Zeilen (+/− Mix)": "Rânduri (+/− Mixt)",
         "Zeilen (×)": "Rânduri (×)",
         "Zeilen (Quadratzahlen ×)": "Rânduri (Pătrate perfecte ×)",
+        "Quadrat × (z.B. 12×12)": "Pătrat × (ex. 12×12)",
         "Zeilen (÷)": "Rânduri (÷)",
         "Zeilen (Quadratzahlen ÷)": "Rânduri (Pătrate perfecte ÷)",
+        "Quadrat ÷ (z.B. 144÷12)": "Pătrat ÷ (ex. 144÷12)",
         "Zeilen (×/÷ Mix)": "Rânduri (×/÷ Mixt)",
         "Zeilen (+/−/×/÷ Mix)": "Rânduri (+/−/×/÷ Mixt)",
         "Verdoppeln": "Dublare",
@@ -2849,6 +2899,8 @@
         "Klasse 3": "Clasa 3",
         "Klasse 4": "Clasa 4",
         "Zahlbereich (Max)": "Interval numere (Max)",
+        "Max. Zahl / Ergebnis": "Număr / rezultat max.",
+        "Bei ×/÷ zählt hier Ergebnis bzw. die große Zahl vor ÷: 22×22 braucht mindestens 484.": "La ×/÷ contează aici rezultatul sau numărul mare dinainte de ÷: 22×22 are nevoie de cel puțin 484.",
         "Einser-Training": "Antrenament unități",
         "Aus (alle Zahlen mehrstell.)": "Oprit (toate nr. multi-cifre)",
         "An (2./3. Zahl nur 0–9)": "Pornit (nr. 2/3 doar 0–9)",
@@ -2882,10 +2934,15 @@
         "Mit Zehnerübergang": "Cu trecere peste zece",
         "Reihe (×/÷)": "Seria (×/÷)",
         "×/÷ Zahlenart": "Tip numere ×/÷",
+        "×/÷ Zahlenbereich": "Interval ×/÷",
         "1×1 (1–9)": "Tabla înm. (1–9)",
         "1×1 (1–10)": "Tabla înm. (1–10)",
         "Zehner ×/÷ (10er, 20er…)": "Zeci ×/÷ (10, 20…)",
         "Frei (bis Max)": "Liber (până la Max)",
+        "Kleines 1×1 (1–9)": "Tabla mică (1–9)",
+        "1×1 bis 10": "Tabla înm. până la 10",
+        "Zehnerzahlen (10, 20, 30…)": "Zeci (10, 20, 30…)",
+        "Frei (auch über 10)": "Liber (și peste 10)",
 
         // ── Scoreboard ──
         "Richtig (kumulativ)": "Corect (cumulativ)",
@@ -5593,19 +5650,30 @@
 
       function normalizeMulProfileControls() {
         const mp = document.getElementById("mulProfile");
-        const rt = document.getElementById("rowTrain");
-        if (!mp || !rt) return;
+        if (!mp) return;
 
         const isTable9 = mp.value === "table9";
 
         // 10er-Reihe bei 1×1 (1–9) deaktivieren
-        const opt10 = [...rt.options].find((o) => o.value === "10");
-        if (opt10) {
-          opt10.disabled = isTable9;
-          opt10.hidden = isTable9;
+        const btn10 = document.querySelector('#rowChips .row-chip[data-value="10"]');
+        if (btn10) {
+          if (isTable9) {
+            btn10.setAttribute('data-disabled', '1');
+            btn10.classList.remove('active');
+          } else {
+            btn10.removeAttribute('data-disabled');
+          }
         }
 
-        if (isTable9 && rt.value === "10") rt.value = "9";
+        const mixedBtn = document.querySelector('#rowChips .chip-mixed');
+        const activeCount = document.querySelectorAll('#rowChips .row-chip.active').length;
+        if (activeCount === 0 && mixedBtn) {
+          mixedBtn.classList.add('active');
+        }
+        
+        const rt = getRowTrain();
+        const rtInput = document.getElementById("rowTrain");
+        if (rtInput) rtInput.value = Array.isArray(rt) ? JSON.stringify(rt) : rt;
       }
 
       function mergeModeSettings(mode, patch) {
@@ -9201,6 +9269,13 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       function makeStandardTask(op, max, diff, rowTrain, mulProfile) {
         let a, b, res, sym;
         const onesOnly = getOnesOnlyEnabled();
+        
+        let effRow = pickRow(rowTrain);
+        if (effRow === "squares") {
+           if (op === "mal") op = "squareMal";
+           if (op === "geteilt") op = "squareDiv";
+           effRow = null;
+        }
 
         if (op === "plus") {
           sym = "+";
@@ -9510,8 +9585,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           sym = "×";
 
           if (onesOnly) {
-            const fixedRow =
-              rowTrain !== "mixed" ? parseInt(rowTrain, 10) : null;
+            const fixedRow = typeof effRow === "number" ? effRow : null;
             b = Number.isFinite(fixedRow)
               ? Math.max(1, Math.min(9, fixedRow))
               : zufallszahl(1, 9);
@@ -9523,7 +9597,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             res = a * b;
           } else {
             const profile = mulProfile || "free";
-            const row = rowTrain !== "mixed" ? rowTrain : null;
+            const row = typeof effRow === "number" ? effRow : null;
 
             const pickByDiff = (arr) => {
               if (!arr || !arr.length) return null;
@@ -9681,8 +9755,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           sym = "÷";
 
           if (onesOnly) {
-            const fixedRow =
-              rowTrain !== "mixed" ? parseInt(rowTrain, 10) : null;
+            const fixedRow = typeof effRow === "number" ? effRow : null;
             b = Number.isFinite(fixedRow)
               ? Math.max(1, Math.min(9, fixedRow))
               : zufallszahl(1, 9);
@@ -9694,7 +9767,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             a = res * b;
           } else {
             const profile = mulProfile || "free";
-            const row = rowTrain !== "mixed" ? rowTrain : null;
+            const row = typeof effRow === "number" ? effRow : null;
 
             const pickByDiff = (arr) => {
               if (!arr || !arr.length) return null;
@@ -11475,7 +11548,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v50";
+        const SW_VERSION = "rechenguru-lgi-v57";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -12028,7 +12101,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="50"
+      data-app-version="57"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -12040,7 +12113,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">50</span>
+      <span id="appVersion">57</span>
     </footer>
 
     <!-- ❌ Fehler-Aktionen (Zurücksetzen / Drucken) -->

@@ -227,10 +227,19 @@
         font-size: 1.05rem;
         line-height: 1;
       }
-      .langToggle:hover { background: var(--surface60); }
-      .langToggle:active { transform: scale(0.98); }
+      .langToggle:hover {
+        background: var(--surface60);
+      }
+      .langToggle:active {
+        transform: scale(0.98);
+      }
       @media (max-width: 520px) {
-        .langToggle { top: 10px; left: 10px; padding: 5px 8px; font-size: 0.95rem; }
+        .langToggle {
+          top: 10px;
+          left: 10px;
+          padding: 5px 8px;
+          font-size: 0.95rem;
+        }
       }
 
       .themeDots {
@@ -331,7 +340,11 @@
         font-weight: 700;
         color: var(--textMuted);
         cursor: pointer;
-        transition: background 0.18s, color 0.18s, border-color 0.18s, transform 0.1s;
+        transition:
+          background 0.18s,
+          color 0.18s,
+          border-color 0.18s,
+          transform 0.1s;
         user-select: none;
         white-space: nowrap;
         -webkit-tap-highlight-color: transparent;
@@ -1917,7 +1930,7 @@
         padding: 8px 18px;
         font-size: 13px;
         font-weight: 600;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
         transform: translateY(var(--pullRefreshOffset, -40px));
         transition: transform 0.15s ease;
       }
@@ -1933,7 +1946,7 @@
         display: none;
         width: 16px;
         height: 16px;
-        border: 2px solid rgba(255,255,255,0.3);
+        border: 2px solid rgba(255, 255, 255, 0.3);
         border-top-color: #fff;
         border-radius: 50%;
         animation: pullSpin 0.6s linear infinite;
@@ -1942,7 +1955,9 @@
         display: inline-block;
       }
       @keyframes pullSpin {
-        to { transform: rotate(360deg); }
+        to {
+          transform: rotate(360deg);
+        }
       }
     </style>
   </head>
@@ -1964,7 +1979,9 @@
         onclick="toggleLang()"
         aria-label="Sprache wechseln"
         title="Sprache wechseln"
-      >🇩🇪</button>
+      >
+        🇩🇪
+      </button>
 
       <button
         id="themeToggle"
@@ -2070,7 +2087,10 @@
               onchange="initGame(true)"
               onblur="handleMaxWertBlur()"
             />
-            <div class="hintSmall">Bei ×/÷ zählt hier Ergebnis bzw. die große Zahl vor ÷: 22×22 braucht mindestens 484.</div>
+            <div class="hintSmall">
+              Bei ×/÷ zählt hier Ergebnis bzw. die große Zahl vor ÷: 22×22
+              braucht mindestens 484.
+            </div>
           </div>
 
           <div class="control-group" id="onesOnlyGroup">
@@ -2290,19 +2310,120 @@
             <label>Reihe (×/÷)</label>
             <!-- Hidden input speichert aktuelle Auswahl für saveModeSettings -->
             <input type="hidden" id="rowTrain" value="mixed" />
-            <div class="row-chips" id="rowChips" role="group" aria-label="Reihe auswählen">
-              <button type="button" class="row-chip chip-mixed active" data-value="mixed" onclick="rowChipClick(this)" aria-pressed="true">Gemischt</button>
-              <button type="button" class="row-chip" data-value="1" onclick="rowChipClick(this)" aria-pressed="false">1er</button>
-              <button type="button" class="row-chip" data-value="2" onclick="rowChipClick(this)" aria-pressed="false">2er</button>
-              <button type="button" class="row-chip" data-value="3" onclick="rowChipClick(this)" aria-pressed="false">3er</button>
-              <button type="button" class="row-chip" data-value="4" onclick="rowChipClick(this)" aria-pressed="false">4er</button>
-              <button type="button" class="row-chip" data-value="5" onclick="rowChipClick(this)" aria-pressed="false">5er</button>
-              <button type="button" class="row-chip" data-value="6" onclick="rowChipClick(this)" aria-pressed="false">6er</button>
-              <button type="button" class="row-chip" data-value="7" onclick="rowChipClick(this)" aria-pressed="false">7er</button>
-              <button type="button" class="row-chip" data-value="8" onclick="rowChipClick(this)" aria-pressed="false">8er</button>
-              <button type="button" class="row-chip" data-value="9" onclick="rowChipClick(this)" aria-pressed="false">9er</button>
-              <button type="button" class="row-chip" data-value="10" onclick="rowChipClick(this)" aria-pressed="false">10er</button>
-              <button type="button" class="row-chip chip-squares" data-value="squares" onclick="rowChipClick(this)" aria-pressed="false">Quadratzahlen</button>
+            <div
+              class="row-chips"
+              id="rowChips"
+              role="group"
+              aria-label="Reihe auswählen"
+            >
+              <button
+                type="button"
+                class="row-chip chip-mixed active"
+                data-value="mixed"
+                onclick="rowChipClick(this)"
+                aria-pressed="true"
+              >
+                Gemischt
+              </button>
+              <button
+                type="button"
+                class="row-chip"
+                data-value="1"
+                onclick="rowChipClick(this)"
+                aria-pressed="false"
+              >
+                1er
+              </button>
+              <button
+                type="button"
+                class="row-chip"
+                data-value="2"
+                onclick="rowChipClick(this)"
+                aria-pressed="false"
+              >
+                2er
+              </button>
+              <button
+                type="button"
+                class="row-chip"
+                data-value="3"
+                onclick="rowChipClick(this)"
+                aria-pressed="false"
+              >
+                3er
+              </button>
+              <button
+                type="button"
+                class="row-chip"
+                data-value="4"
+                onclick="rowChipClick(this)"
+                aria-pressed="false"
+              >
+                4er
+              </button>
+              <button
+                type="button"
+                class="row-chip"
+                data-value="5"
+                onclick="rowChipClick(this)"
+                aria-pressed="false"
+              >
+                5er
+              </button>
+              <button
+                type="button"
+                class="row-chip"
+                data-value="6"
+                onclick="rowChipClick(this)"
+                aria-pressed="false"
+              >
+                6er
+              </button>
+              <button
+                type="button"
+                class="row-chip"
+                data-value="7"
+                onclick="rowChipClick(this)"
+                aria-pressed="false"
+              >
+                7er
+              </button>
+              <button
+                type="button"
+                class="row-chip"
+                data-value="8"
+                onclick="rowChipClick(this)"
+                aria-pressed="false"
+              >
+                8er
+              </button>
+              <button
+                type="button"
+                class="row-chip"
+                data-value="9"
+                onclick="rowChipClick(this)"
+                aria-pressed="false"
+              >
+                9er
+              </button>
+              <button
+                type="button"
+                class="row-chip"
+                data-value="10"
+                onclick="rowChipClick(this)"
+                aria-pressed="false"
+              >
+                10er
+              </button>
+              <button
+                type="button"
+                class="row-chip chip-squares"
+                data-value="squares"
+                onclick="rowChipClick(this)"
+                aria-pressed="false"
+              >
+                Quadratzahlen
+              </button>
             </div>
           </div>
 
@@ -2888,8 +3009,8 @@
         "Quadrat ÷ (z.B. 144÷12)": "Pătrat ÷ (ex. 144÷12)",
         "Zeilen (×/÷ Mix)": "Rânduri (×/÷ Mixt)",
         "Zeilen (+/−/×/÷ Mix)": "Rânduri (+/−/×/÷ Mixt)",
-        "Verdoppeln": "Dublare",
-        "Halbieren": "Înjumătățire",
+        Verdoppeln: "Dublare",
+        Halbieren: "Înjumătățire",
         "Fehler üben": "Exersează greșelile",
 
         // ── Einstellungen (labels) ──
@@ -2900,7 +3021,8 @@
         "Klasse 4": "Clasa 4",
         "Zahlbereich (Max)": "Interval numere (Max)",
         "Max. Zahl / Ergebnis": "Număr / rezultat max.",
-        "Bei ×/÷ zählt hier Ergebnis bzw. die große Zahl vor ÷: 22×22 braucht mindestens 484.": "La ×/÷ contează aici rezultatul sau numărul mare dinainte de ÷: 22×22 are nevoie de cel puțin 484.",
+        "Bei ×/÷ zählt hier Ergebnis bzw. die große Zahl vor ÷: 22×22 braucht mindestens 484.":
+          "La ×/÷ contează aici rezultatul sau numărul mare dinainte de ÷: 22×22 are nevoie de cel puțin 484.",
         "Einser-Training": "Antrenament unități",
         "Aus (alle Zahlen mehrstell.)": "Oprit (toate nr. multi-cifre)",
         "An (2./3. Zahl nur 0–9)": "Pornit (nr. 2/3 doar 0–9)",
@@ -2912,27 +3034,28 @@
         "3. Zahl": "Nr. 3",
         "Einser (0–9)": "Unități (0–9)",
         "Zehner (10–99)": "Zeci (10–99)",
-        "Frei": "Liber",
+        Frei: "Liber",
         "Kopfrechnen (Blitz)": "Calcul mental (Fulger)",
-        "Aus": "Oprit",
+        Aus: "Oprit",
         "Ein (Zahlen blenden aus)": "Pornit (numerele dispar)",
         "Anzeige (s)": "Afișare (s)",
         "Nochmal (s)": "Din nou (s)",
         "⏱ Zeitlimit pro Runde (Sek.)": "⏱ Limită de timp pe rundă (sec.)",
         "0 = aus (wie bisher)": "0 = oprit (ca înainte)",
         "Aufgaben pro Runde": "Exerciții pe rundă",
-        "Aufgabenformat": "Format exercițiu",
-        "Standard": "Standard",
+        Aufgabenformat: "Format exercițiu",
+        Standard: "Standard",
         "Faktor fehlt": "Factor lipsă",
         "Wahr / Falsch": "Adevărat / Fals",
         "Operator fehlt": "Operator lipsă",
         "Vergleichen (< > =)": "Comparare (< > =)",
-        "Schwierigkeit": "Dificultate",
+        Schwierigkeit: "Dificultate",
         "Standard (Ergebnis fehlt)": "Standard (rezultat lipsă)",
-        "Gemischt": "Mixt",
+        Gemischt: "Mixt",
         "Ohne Zehnerübergang": "Fără trecere peste zece",
         "Mit Zehnerübergang": "Cu trecere peste zece",
         "Reihe (×/÷)": "Seria (×/÷)",
+        Quadratzahlen: "Pătrate perfecte",
         "×/÷ Zahlenart": "Tip numere ×/÷",
         "×/÷ Zahlenbereich": "Interval ×/÷",
         "1×1 (1–9)": "Tabla înm. (1–9)",
@@ -2948,11 +3071,13 @@
         "Richtig (kumulativ)": "Corect (cumulativ)",
         "✅ Stand zurücksetzen": "✅ Resetare contor",
         "🎯 Ziel-Fortschritt neu starten": "🎯 Resetare progres obiectiv",
-        "Falsch": "Greșit",
+        Falsch: "Greșit",
         "❌ Fehler zurücksetzen": "❌ Resetare greșeli",
-        "Serie (wie viele richtige hintereinander)": "Serie (câte corecte la rând)",
+        "Serie (wie viele richtige hintereinander)":
+          "Serie (câte corecte la rând)",
         "🔥 Serie zurücksetzen": "🔥 Resetare serie",
-        "Level (steigt bei vielen richtigen Aufgaben)": "Nivel (crește cu exerciții corecte)",
+        "Level (steigt bei vielen richtigen Aufgaben)":
+          "Nivel (crește cu exerciții corecte)",
         "🏅 Level zurücksetzen": "🏅 Resetare nivel",
         "Menü (Legende & Eltern)": "Meniu (Legendă și Părinți)",
         "Fehler üben (klick!)": "Exersează greșelile (click!)",
@@ -2969,9 +3094,11 @@
         "🔄 Neue Aufgaben": "🔄 Exerciții noi",
         "Neue Aufgaben laden": "Încarcă exerciții noi",
         "💡 Tipp": "💡 Indiciu",
-        "Tipp zur aktuellen Aufgabe anzeigen": "Arată indiciu pentru exercițiul curent",
-        "Werkseinstellungen": "Setări din fabrică",
-        "App auf Werkseinstellungen zurücksetzen": "Resetare aplicație la setări din fabrică",
+        "Tipp zur aktuellen Aufgabe anzeigen":
+          "Arată indiciu pentru exercițiul curent",
+        Werkseinstellungen: "Setări din fabrică",
+        "App auf Werkseinstellungen zurücksetzen":
+          "Resetare aplicație la setări din fabrică",
         "🧽 Fehlerpool": "🧽 Lista greșeli",
         "Fehlerpool löschen": "Șterge lista de greșeli",
         "Arbeitsblatt drucken": "Tipărire fișă de lucru",
@@ -2979,57 +3106,68 @@
         "App installieren": "Instalează aplicația",
 
         // ── Legende ──
-        "Schließen": "Închide",
+        Schließen: "Închide",
         "Legende (oben)": "Legendă (sus)",
-        "Richtig": "Corect",
-        "– Anzahl der richtig gelösten Aufgaben.": "– Numărul exercițiilor rezolvate corect.",
+        Richtig: "Corect",
+        "– Anzahl der richtig gelösten Aufgaben.":
+          "– Numărul exercițiilor rezolvate corect.",
         "– Anzahl der falschen Antworten.": "– Numărul răspunsurilor greșite.",
-        "Serie": "Serie",
-        "– wie viele Aufgaben hintereinander richtig waren (bei Fehler wieder\n            0).": "– câte exerciții au fost corecte la rând (la greșeală revine la 0).",
-        "Level": "Nivel",
-        "– steigt automatisch, je mehr richtig gelöst wurde.": "– crește automat, cu cât mai multe exerciții rezolvate corect.",
-        "Üben": "Exersează",
-        "– springt direkt in \u201EFehler üben\u201C (nimmt Aufgaben aus dem\n            Fehlerpool).": "– sare direct la \u201EExersează gre\u0219elile\u201C (ia exerci\u021Bii din lista de gre\u0219eli).",
-        "Reset": "Resetare",
-        "– setzt Punkte + Fehlerpool zurück.": "– resetează punctele și lista de greșeli.",
+        Serie: "Serie",
+        "– wie viele Aufgaben hintereinander richtig waren (bei Fehler wieder\n            0).":
+          "– câte exerciții au fost corecte la rând (la greșeală revine la 0).",
+        Level: "Nivel",
+        "– steigt automatisch, je mehr richtig gelöst wurde.":
+          "– crește automat, cu cât mai multe exerciții rezolvate corect.",
+        Üben: "Exersează",
+        "– springt direkt in \u201EFehler üben\u201C (nimmt Aufgaben aus dem\n            Fehlerpool).":
+          "– sare direct la \u201EExersează gre\u0219elile\u201C (ia exerci\u021Bii din lista de gre\u0219eli).",
+        Reset: "Resetare",
+        "– setzt Punkte + Fehlerpool zurück.":
+          "– resetează punctele și lista de greșeli.",
 
         // ── Eltern-Bereich ──
         "Eltern (PIN & Ziel)": "Părinți (PIN și Obiectiv)",
         "Ziel (✅ richtig)": "Obiectiv (✅ corecte)",
-        "Ziel für richtig gelöste Aufgaben": "Obiectiv pentru exerciții corecte",
+        "Ziel für richtig gelöste Aufgaben":
+          "Obiectiv pentru exerciții corecte",
         "🎯 Ziel resetten": "🎯 Resetare obiectiv",
-        "Speichern": "Salvează",
+        Speichern: "Salvează",
         "0 = aus": "0 = oprit",
         "Aktueller Ziel-Stand (🎯):": "Progres curent obiectiv (🎯):",
-        "\u201E🎯 Ziel resetten\u201C setzt nur die Zahl nach dem / auf 0 (✅ bleibt)": "\u201E🎯 Resetare obiectiv\u201C resetează doar nr. de după / la 0 (✅ rămâne)",
+        "\u201E🎯 Ziel resetten\u201C setzt nur die Zahl nach dem / auf 0 (✅ bleibt)":
+          "\u201E🎯 Resetare obiectiv\u201C resetează doar nr. de după / la 0 (✅ rămâne)",
         "Neue PIN setzen": "Setare PIN nou",
         "Neue Eltern-PIN setzen": "Setare PIN nou pentru părinți",
         "PIN setzen": "Setează PIN",
-        "Standard-PIN \u201E0000\u201C bedeutet offen: kein Schutz aktiv.": "PIN-ul standard \u201E0000\u201C înseamnă deschis: fără protecție activă.",
+        "Standard-PIN \u201E0000\u201C bedeutet offen: kein Schutz aktiv.":
+          "PIN-ul standard \u201E0000\u201C înseamnă deschis: fără protecție activă.",
         "PIN (aktuell)": "PIN (actual)",
         "Aktuelle Eltern-PIN": "PIN actual părinți",
         "Neue PIN": "PIN nou",
         "Neue Eltern-PIN": "PIN nou părinți",
-        "Ändern": "Modifică",
-        "Tipp: Neue PIN \u201E0000\u201C = Schutz aus": "Indiciu: PIN nou \u201E0000\u201C = protecție oprită",
+        Ändern: "Modifică",
+        "Tipp: Neue PIN \u201E0000\u201C = Schutz aus":
+          "Indiciu: PIN nou \u201E0000\u201C = protecție oprită",
         "Reset (Punkte + Fehlerpool)": "Resetare (Puncte + Lista greșeli)",
         "♻️ Reset": "♻️ Resetare",
-        "Konfetti": "Confetti",
-        "Export": "Export",
+        Konfetti: "Confetti",
+        Export: "Export",
         "Index HTML exportieren": "Exportă Index HTML",
-        "Speichert die originale App-HTML mit portablem localStorage-Stand.": "Salvează HTML-ul original cu starea portabilă localStorage.",
+        "Speichert die originale App-HTML mit portablem localStorage-Stand.":
+          "Salvează HTML-ul original cu starea portabilă localStorage.",
 
         // ── Fehler-Overlay ──
         "❌ Fehler": "❌ Greșeli",
         "Gespeicherte Üben-Aufgaben:": "Exerciții salvate pentru exersare:",
-        "Abbrechen": "Anulare",
-        "Drucken": "Tipărire",
+        Abbrechen: "Anulare",
+        Drucken: "Tipărire",
         "OK zurücksetzen": "OK resetare",
         "Arbeitsblatt – Mathe": "Fișă de lucru – Mate",
         "Modus auswählen": "Selectează modul",
 
         // ── Pull-to-Refresh ──
-        "Nach unten ziehen zum Aktualisieren": "Trage în jos pentru actualizare",
+        "Nach unten ziehen zum Aktualisieren":
+          "Trage în jos pentru actualizare",
         "Loslassen zum Aktualisieren": "Eliberează pentru actualizare",
         "Aktualisiere…": "Se actualizează…",
 
@@ -3057,38 +3195,52 @@
         "Keine Fehler.": "Fără greșeli.",
         "Zurückgesetzt.": "Resetat.",
         "✅ Stand zurückgesetzt.": "✅ Contor resetat.",
-        "❌ Fehler zurückgesetzt (Üben-Liste gelöscht).": "❌ Greșeli resetate (lista de exersare ștearsă).",
+        "❌ Fehler zurückgesetzt (Üben-Liste gelöscht).":
+          "❌ Greșeli resetate (lista de exersare ștearsă).",
         "🔥 Serie zurückgesetzt.": "🔥 Serie resetată.",
         "🏅 Level neu gestartet.": "🏅 Nivel resetat.",
         "🎯 Ziel-Fortschritt neu gestartet.": "🎯 Progres obiectiv resetat.",
         "Kein Ziel aktiv.": "Niciun obiectiv activ.",
-        "Werkseinstellungen wiederhergestellt!": "Setări din fabrică restaurate!",
+        "Werkseinstellungen wiederhergestellt!":
+          "Setări din fabrică restaurate!",
 
         // ── Confirm / Alert / Prompt ──
-        "✅ Stand wirklich auf 0 setzen?\n(🎯 Ziel bleibt)": "Chiar resetezi contorul ✅ la 0?\n(🎯 Obiectivul rămâne)",
+        "✅ Stand wirklich auf 0 setzen?\n(🎯 Ziel bleibt)":
+          "Chiar resetezi contorul ✅ la 0?\n(🎯 Obiectivul rămâne)",
         "🔥 Serie wirklich auf 0 setzen?": "🔥 Chiar resetezi seria la 0?",
         "🏅 Level wirklich neu starten?": "🏅 Chiar repornești nivelul?",
-        "🎯 Ziel-Fortschritt wirklich auf 0 setzen?\n(✅ bleibt, Ziel bleibt)": "🎯 Chiar resetezi progresul obiectivului la 0?\n(✅ rămâne, obiectivul rămâne)",
-        "Punktestand und Fehler wirklich löschen?": "Chiar ștergi punctajul și greșelile?",
-        "Ziel-Fortschritt (🎯) wirklich auf 0 setzen?\n(✅ bleibt)": "Chiar resetezi progresul obiectivului (🎯) la 0?\n(✅ rămâne)",
+        "🎯 Ziel-Fortschritt wirklich auf 0 setzen?\n(✅ bleibt, Ziel bleibt)":
+          "🎯 Chiar resetezi progresul obiectivului la 0?\n(✅ rămâne, obiectivul rămâne)",
+        "Punktestand und Fehler wirklich löschen?":
+          "Chiar ștergi punctajul și greșelile?",
+        "Ziel-Fortschritt (🎯) wirklich auf 0 setzen?\n(✅ bleibt)":
+          "Chiar resetezi progresul obiectivului (🎯) la 0?\n(✅ rămâne)",
         "PIN eingeben, um zurückzusetzen:": "Introdu PIN-ul pentru resetare:",
-        "PIN eingeben, um den Stand zurückzusetzen:": "Introdu PIN-ul pentru resetarea contorului:",
+        "PIN eingeben, um den Stand zurückzusetzen:":
+          "Introdu PIN-ul pentru resetarea contorului:",
         "PIN eingeben, um zu löschen:": "Introdu PIN-ul pentru ștergere:",
         "Falsche PIN.": "PIN greșit.",
         "Drucken nicht möglich.": "Tipărirea nu este posibilă.",
-        "Alle Modus-Einstellungen auf Werkseinstellungen zurücksetzen?\n\n(Punkte und Fehlerpool bleiben erhalten)": "Resetezi toate setările modului la setări din fabrică?\n\n(Punctele și lista de greșeli rămân)",
-        "App wirklich komplett zurücksetzen (Werkseinstellung)?\n\nPIN ist danach wieder 0000 (offen).": "Chiar resetezi complet aplicația (setări din fabrică)?\n\nPIN-ul va fi din nou 0000 (deschis).",
+        "Alle Modus-Einstellungen auf Werkseinstellungen zurücksetzen?\n\n(Punkte und Fehlerpool bleiben erhalten)":
+          "Resetezi toate setările modului la setări din fabrică?\n\n(Punctele și lista de greșeli rămân)",
+        "App wirklich komplett zurücksetzen (Werkseinstellung)?\n\nPIN ist danach wieder 0000 (offen).":
+          "Chiar resetezi complet aplicația (setări din fabrică)?\n\nPIN-ul va fi din nou 0000 (deschis).",
 
         // ── Eltern-Nachrichten ──
-        "Ziel-Fortschritt zurückgesetzt (🎯=0).": "Progres obiectiv resetat (🎯=0).",
+        "Ziel-Fortschritt zurückgesetzt (🎯=0).":
+          "Progres obiectiv resetat (🎯=0).",
         "Ziel ausgeschaltet.": "Obiectiv dezactivat.",
-        "Bitte eine 4-stellige PIN eingeben.": "Te rog introdu un PIN de 4 cifre.",
-        "PIN bleibt offen (0000): kein Schutz aktiv.": "PIN-ul rămâne deschis (0000): fără protecție activă.",
+        "Bitte eine 4-stellige PIN eingeben.":
+          "Te rog introdu un PIN de 4 cifre.",
+        "PIN bleibt offen (0000): kein Schutz aktiv.":
+          "PIN-ul rămâne deschis (0000): fără protecție activă.",
         "PIN gespeichert.": "PIN salvat.",
-        "Bitte eine 4-stellige neue PIN eingeben.": "Te rog introdu un PIN nou de 4 cifre.",
+        "Bitte eine 4-stellige neue PIN eingeben.":
+          "Te rog introdu un PIN nou de 4 cifre.",
         "PIN deaktiviert (0000).": "PIN dezactivat (0000).",
         "PIN geändert.": "PIN modificat.",
-        "PIN: offen (0000) – kein Schutz aktiv, Resets ohne PIN": "PIN: deschis (0000) – fără protecție activă, resetare fără PIN",
+        "PIN: offen (0000) – kein Schutz aktiv, Resets ohne PIN":
+          "PIN: deschis (0000) – fără protecție activă, resetare fără PIN",
         "PIN: aktiv – Resets nur mit PIN": "PIN: activ – resetare doar cu PIN",
 
         // ── Flash / Kopfrechnen ──
@@ -3096,13 +3248,17 @@
         "Nochmal anzeigen": "Arată din nou",
 
         // ── Presets ──
-        "Preset Klasse 1 aktiviert (Max 20, +/− ohne Zehnerübergang, optional ×/÷ nur 1×1 bis 9).": "Presetare Clasa 1 activată (Max 20, +/− fără trecere, opțional ×/÷ doar tabla înm. până la 9).",
-        "Preset Klasse 2 aktiviert (Max 100, ± ohne Zehnerübergang, ×/÷ 1×1 bis 9).": "Presetare Clasa 2 activată (Max 100, ± fără trecere, ×/÷ tabla înm. până la 9).",
-        "Preset Klasse 3 aktiviert (Max 100, ± gemischt, ×/÷ 1×1 bis 10).": "Presetare Clasa 3 activată (Max 100, ± mixt, ×/÷ tabla înm. până la 10).",
-        "Preset Klasse 4 aktiviert (Max 1000, gemischt).": "Presetare Clasa 4 activată (Max 1000, mixt).",
+        "Preset Klasse 1 aktiviert (Max 20, +/− ohne Zehnerübergang, optional ×/÷ nur 1×1 bis 9).":
+          "Presetare Clasa 1 activată (Max 20, +/− fără trecere, opțional ×/÷ doar tabla înm. până la 9).",
+        "Preset Klasse 2 aktiviert (Max 100, ± ohne Zehnerübergang, ×/÷ 1×1 bis 9).":
+          "Presetare Clasa 2 activată (Max 100, ± fără trecere, ×/÷ tabla înm. până la 9).",
+        "Preset Klasse 3 aktiviert (Max 100, ± gemischt, ×/÷ 1×1 bis 10).":
+          "Presetare Clasa 3 activată (Max 100, ± mixt, ×/÷ tabla înm. până la 10).",
+        "Preset Klasse 4 aktiviert (Max 1000, gemischt).":
+          "Presetare Clasa 4 activată (Max 1000, mixt).",
 
         // ── Drucken ──
-        "Mathe": "Mate",
+        Mathe: "Mate",
 
         // ── Ziel erreicht ──
         "Ziel erreicht:": "Obiectiv atins:",
@@ -3120,41 +3276,60 @@
         "Plus-Pyramide": "Piramida plus",
         "Minus-Traube": "Ciorchine minus",
         "Kein Tipp nötig": "Nu e nevoie de indiciu",
-        "Diese Runde ist schon fertig gelöst.": "Această rundă este deja rezolvată.",
-        "Du kannst direkt neue Aufgaben laden.": "Poți încărca direct exerciții noi.",
+        "Diese Runde ist schon fertig gelöst.":
+          "Această rundă este deja rezolvată.",
+        "Du kannst direkt neue Aufgaben laden.":
+          "Poți încărca direct exerciții noi.",
         "Allgemeiner Tipp": "Indiciu general",
         "Rechne langsam Schritt für Schritt.": "Calculează încet, pas cu pas.",
         "Zuerst verstehen, dann rechnen.": "Întâi înțelege, apoi calculează.",
-        "Nimm die Zahl einfach zweimal.": "Ia numărul pur și simplu de două ori.",
-        "Merksatz: verdoppeln = die gleiche Zahl noch einmal dazu.": "Regulă: dublare = același număr încă o dată.",
-        "Erst Zehner, dann Einer verdoppeln.": "Întâi zecile, apoi unitățile dublează.",
-        "Halbieren heißt: durch 2 teilen.": "A înjumătăți înseamnă: împărțire la 2.",
-        "Die Hälfte ist ein gleich großer Teil von zwei Teilen.": "Jumătatea este o parte egală din două părți.",
-        "Erst Zehner, dann Einer halbieren.": "Întâi zecile, apoi unitățile înjumătățește.",
+        "Nimm die Zahl einfach zweimal.":
+          "Ia numărul pur și simplu de două ori.",
+        "Merksatz: verdoppeln = die gleiche Zahl noch einmal dazu.":
+          "Regulă: dublare = același număr încă o dată.",
+        "Erst Zehner, dann Einer verdoppeln.":
+          "Întâi zecile, apoi unitățile dublează.",
+        "Halbieren heißt: durch 2 teilen.":
+          "A înjumătăți înseamnă: împărțire la 2.",
+        "Die Hälfte ist ein gleich großer Teil von zwei Teilen.":
+          "Jumătatea este o parte egală din două părți.",
+        "Erst Zehner, dann Einer halbieren.":
+          "Întâi zecile, apoi unitățile înjumătățește.",
         "Wahr oder falsch?": "Adevărat sau fals?",
-        "Immer erst rechnen, dann vergleichen.": "Mereu calculează mai întâi, apoi compară.",
+        "Immer erst rechnen, dann vergleichen.":
+          "Mereu calculează mai întâi, apoi compară.",
         "Operator fehlt": "Operator lipsă",
-        "Probiere nacheinander alle Zeichen.": "Încearcă pe rând toate semnele.",
-        "Vergleiche jedes Ergebnis mit dem Ziel.": "Compară fiecare rezultat cu obiectivul.",
-        "Vergleichen": "Comparare",
-        "Links und rechts immer getrennt rechnen.": "Mereu calculează stânga și dreapta separat.",
-        "Plus": "Plus",
-        "Bei kleinen Zahlen hilft Weiterzählen.": "La numere mici ajută numărarea mai departe.",
+        "Probiere nacheinander alle Zeichen.":
+          "Încearcă pe rând toate semnele.",
+        "Vergleiche jedes Ergebnis mit dem Ziel.":
+          "Compară fiecare rezultat cu obiectivul.",
+        Vergleichen: "Comparare",
+        "Links und rechts immer getrennt rechnen.":
+          "Mereu calculează stânga și dreapta separat.",
+        Plus: "Plus",
+        "Bei kleinen Zahlen hilft Weiterzählen.":
+          "La numere mici ajută numărarea mai departe.",
         "Plus mit Zehnerübergang": "Plus cu trecere peste zece",
-        "Merksatz: zuerst bis 10, dann den Rest.": "Regulă: mai întâi până la 10, apoi restul.",
+        "Merksatz: zuerst bis 10, dann den Rest.":
+          "Regulă: mai întâi până la 10, apoi restul.",
         "Plus ohne Zehnerübergang": "Plus fără trecere peste zece",
         "Erst Zehner, dann Einer.": "Întâi zecile, apoi unitățile.",
-        "Minus": "Minus",
-        "Bei kleinen Zahlen hilft Rückwärtszählen.": "La numere mici ajută numărarea înapoi.",
+        Minus: "Minus",
+        "Bei kleinen Zahlen hilft Rückwärtszählen.":
+          "La numere mici ajută numărarea înapoi.",
         "Minus mit Entleihen": "Minus cu împrumut",
-        "Merksatz: zuerst bis zum Zehner zurück, dann den Rest.": "Regulă: mai întâi înapoi la zece, apoi restul.",
+        "Merksatz: zuerst bis zum Zehner zurück, dann den Rest.":
+          "Regulă: mai întâi înapoi la zece, apoi restul.",
         "Minus ohne Entleihen": "Minus fără împrumut",
         "Erst Einer, dann Zehner.": "Întâi unitățile, apoi zecile.",
-        "Mal": "Înmulțire",
-        "Einmaleins-Reihen helfen sehr schnell.": "Tabla înmulțirii ajută foarte rapid.",
-        "Große Zahl zerlegen und beide Teile multiplizieren.": "Descompune numărul mare și înmulțește ambele părți.",
-        "Geteilt": "Împărțire",
-        "Teilen ist die Umkehraufgabe von Mal.": "Împărțirea este operația inversă a înmulțirii.",
+        Mal: "Înmulțire",
+        "Einmaleins-Reihen helfen sehr schnell.":
+          "Tabla înmulțirii ajută foarte rapid.",
+        "Große Zahl zerlegen und beide Teile multiplizieren.":
+          "Descompune numărul mare și înmulțește ambele părți.",
+        Geteilt: "Împărțire",
+        "Teilen ist die Umkehraufgabe von Mal.":
+          "Împărțirea este operația inversă a înmulțirii.",
 
         // ── Tipp-Bausteine (dynamisch zusammengesetzt) ──
         "Starte bei": "Începe de la",
@@ -3165,12 +3340,13 @@
         "Rückwärtsschritte:": "Pași înapoi:",
         "Ergebnis:": "Rezultat:",
         "zerlegen in": "descompune în",
-        "und": "și",
+        und: "și",
         "Zusammen:": "Împreună:",
         "Zuerst bis zum nächsten Zehner:": "Mai întâi până la următoarea zece:",
         "Dann den Rest dazu:": "Apoi adaugă restul:",
         "Zahlenweg:": "Calea numerelor:",
-        "Zuerst bis zum vorherigen Zehner:": "Mai întâi până la zecea anterioară:",
+        "Zuerst bis zum vorherigen Zehner:":
+          "Mai întâi până la zecea anterioară:",
         "Dann den Rest abziehen:": "Apoi scade restul:",
         "Zusammen ergibt das": "Împreună dă",
         "Zehner:": "Zeci:",
@@ -3179,7 +3355,8 @@
         "er-Reihe": " – tabla de înmulțire",
         "Also:": "Deci:",
         "Rechne zuerst selbst:": "Calculează mai întâi singur:",
-        "Vergleiche dann mit der angezeigten Zahl:": "Apoi compară cu numărul afișat:",
+        "Vergleiche dann mit der angezeigten Zahl:":
+          "Apoi compară cu numărul afișat:",
         "Links ausrechnen:": "Calculează stânga:",
         "Rechts ausrechnen:": "Calculează dreapta:",
         "Dann vergleichen:": "Apoi compară:",
@@ -3195,29 +3372,31 @@
         "ist jetzt installiert. 🎉": "este acum instalată. 🎉",
 
         // ── Richtig / Falsch (input title) ──
-        "Richtig": "Corect",
+        Richtig: "Corect",
 
         // ── Accessibility – getTaskInputA11yLabel ──
         "Ergebnis für Verdoppeln von": "Rezultat pentru dublarea lui",
         "Ergebnis für Halbieren von": "Rezultat pentru înjumătățirea lui",
-        "eingeben": "introdu",
-        "Ersten Faktor für Aufgabe mit Ergebnis": "Primul factor pentru exercițiu cu rezultat",
-        "Zweiten Faktor oder Teiler für Aufgabe mit Ergebnis": "Al doilea factor sau împărțitor pentru exercițiu cu rezultat",
+        eingeben: "introdu",
+        "Ersten Faktor für Aufgabe mit Ergebnis":
+          "Primul factor pentru exercițiu cu rezultat",
+        "Zweiten Faktor oder Teiler für Aufgabe mit Ergebnis":
+          "Al doilea factor sau împărțitor pentru exercițiu cu rezultat",
         "Erste Zahl für": "Primul număr pentru",
         "Zweite Zahl für": "Al doilea număr pentru",
-        "gleich": "egal",
+        gleich: "egal",
         "Ergebnis für": "Rezultat pentru",
 
         // ── Accessibility – setControlValidationState ──
-        "Eingabe": "Intrare",
-        "richtig": "corect",
-        "falsch": "greșit",
+        Eingabe: "Intrare",
+        richtig: "corect",
+        falsch: "greșit",
 
         // ── Accessibility – applyTaskAccessibility ──
         "Wahr oder falsch:": "Adevărat sau fals:",
         "Operator suchen:": "Caută operator:",
         "Operator für": "Operator pentru",
-        "auswählen": "selectează",
+        auswählen: "selectează",
         "Vergleich:": "Comparare:",
         "im Vergleich zu": "în comparație cu",
         "Vergleichszeichen zwischen": "Semn de comparare între",
@@ -3237,20 +3416,20 @@
         "obere Reihe Mitte": "rândul de sus mijloc",
         "obere Reihe rechts": "rândul de sus dreapta",
         "unterer Stein": "piatra de jos",
-        "Eingabefeld": "Câmp de intrare",
+        Eingabefeld: "Câmp de intrare",
         "im Raster": "în grilă",
 
         // ── getQuickHint ──
         "Rechne nach: ": "Verifică: ",
-        "nicht": "nu",
+        nicht: "nu",
         "Rechne: ": "Calculează: ",
-        "verdoppeln": "dublează",
-        "halbieren": "înjumătățește",
+        verdoppeln: "dublează",
+        halbieren: "înjumătățește",
         "Probiere: ": "Încearcă: ",
         "Links=": "Stânga=",
         "Rechts=": "Dreapta=",
         "Zehnerübergang: ": "Trecere peste zece: ",
-        "dann": "apoi",
+        dann: "apoi",
         "Entleihen: ": "Împrumut: ",
         "Denk an die ": "Gândește-te la ",
         "er-Reihe: ": " – seria: ",
@@ -3264,17 +3443,19 @@
         "Gemischt (+/−)": "Mixt (+/−)",
         "Gemischt (×/÷)": "Mixt (×/÷)",
         "Gemischt (+/−/×/÷)": "Mixt (+/−/×/÷)",
-        "Arbeitsblatt": "Fișă de lucru",
+        Arbeitsblatt: "Fișă de lucru",
         "Reihe:": "Seria:",
-        "Zehner": "Zeci",
-        "Print-Bereich fehlt in der HTML-Datei (printArea/printGrid).": "Zona de tipărire lipsește în fișierul HTML (printArea/printGrid).",
+        Zehner: "Zeci",
+        "Print-Bereich fehlt in der HTML-Datei (printArea/printGrid).":
+          "Zona de tipărire lipsește în fișierul HTML (printArea/printGrid).",
 
         // ── updateControlsVisibility ──
-        "Einfach": "Ușor",
-        "Schwer": "Greu",
+        Einfach: "Ușor",
+        Schwer: "Greu",
 
         // ── Tipp: Traube-Hinweis ──
-        "Tipp: Links − Rechts = Unten (umgekehrt: Unten + Rechts = Links)": "Indiciu: Stânga − Dreapta = Jos (invers: Jos + Dreapta = Stânga)",
+        "Tipp: Links − Rechts = Unten (umgekehrt: Unten + Rechts = Links)":
+          "Indiciu: Stânga − Dreapta = Jos (invers: Jos + Dreapta = Stânga)",
 
         // ── Gesamt/Bestwert etc. ──
         "Gesamt:": "Total:",
@@ -3283,8 +3464,10 @@
         "Aufgaben:": "Exerciții:",
 
         // ── wrongActionsOverlay Details ──
-        "Drucken erstellt ein DIN\u2011A4\u2011Blatt (3 Spalten) nur mit den\n          gespeicherten Üben\u2011Aufgaben – ohne Lösungen.": "Tipărirea creează o fișă A4 (3 coloane) doar cu exercițiile salvate – fără soluții.",
-        "\u201EOK zurücksetzen\u201C setzt den Fehlerzähler auf 0 und löscht die\n          Üben\u2011Liste.": "\u201EOK resetare\u201C pune contorul de greșeli pe 0 și șterge lista de exersare.",
+        "Drucken erstellt ein DIN\u2011A4\u2011Blatt (3 Spalten) nur mit den\n          gespeicherten Üben\u2011Aufgaben – ohne Lösungen.":
+          "Tipărirea creează o fișă A4 (3 coloane) doar cu exercițiile salvate – fără soluții.",
+        "\u201EOK zurücksetzen\u201C setzt den Fehlerzähler auf 0 und löscht die\n          Üben\u2011Liste.":
+          "\u201EOK resetare\u201C pune contorul de greșeli pe 0 și șterge lista de exersare.",
       };
 
       let currentLang = "de";
@@ -3302,7 +3485,9 @@
         currentLang = currentLang === "de" ? "ro" : "de";
         appStorage.setItem("mathLang", currentLang);
         applyLanguage();
-        try { updateViewSelectLabels(); } catch (e) {}
+        try {
+          updateViewSelectLabels();
+        } catch (e) {}
       }
 
       function applyLanguage() {
@@ -3325,7 +3510,7 @@
         // ── ViewSelect Optionen ──
         const vs = document.getElementById("viewSelect");
         if (vs) {
-          Array.from(vs.options).forEach(opt => {
+          Array.from(vs.options).forEach((opt) => {
             const de = opt.getAttribute("data-de") || opt.textContent.trim();
             if (!opt.getAttribute("data-de")) opt.setAttribute("data-de", de);
             opt.textContent = t(de);
@@ -3358,14 +3543,19 @@
         _tqAll("#scoreArea .menuItem", "aria-label");
 
         // Üben-Text in Score
-        const übenEl = document.querySelector("#scoreRowBottom .score-item.clickable:last-child");
+        const übenEl = document.querySelector(
+          "#scoreRowBottom .score-item.clickable:last-child",
+        );
         if (übenEl) {
           übenEl.title = t("Fehler üben (klick!)");
           übenEl.setAttribute("aria-label", t("Fehler üben öffnen"));
           // Text "🎯 Üben" – nur den Text-Teil
-          const textNodes = Array.from(übenEl.childNodes).filter(n => n.nodeType === 3);
-          textNodes.forEach(n => {
-            if (n.textContent.trim()) n.textContent = " " + t("🎯 Üben").replace("🎯 ", "");
+          const textNodes = Array.from(übenEl.childNodes).filter(
+            (n) => n.nodeType === 3,
+          );
+          textNodes.forEach((n) => {
+            if (n.textContent.trim())
+              n.textContent = " " + t("🎯 Üben").replace("🎯 ", "");
           });
         }
 
@@ -3380,14 +3570,20 @@
         _tEl("installBtn", "aria-label", "App installieren");
 
         // Factory/Print buttons (by aria-label)
-        document.querySelectorAll("#buttonRow2 button").forEach(b => {
-          if (b.getAttribute("aria-label")?.includes("Werkseinstellung") || b.getAttribute("data-de-aria")?.includes("Werkseinstellung")) {
+        document.querySelectorAll("#buttonRow2 button").forEach((b) => {
+          if (
+            b.getAttribute("aria-label")?.includes("Werkseinstellung") ||
+            b.getAttribute("data-de-aria")?.includes("Werkseinstellung")
+          ) {
             const deAria = "App auf Werkseinstellungen zurücksetzen";
             b.title = t("Werkseinstellungen");
             b.setAttribute("aria-label", t(deAria));
             b.setAttribute("data-de-aria", deAria);
           }
-          if (b.getAttribute("aria-label")?.includes("drucken") || b.getAttribute("data-de-aria")?.includes("drucken")) {
+          if (
+            b.getAttribute("aria-label")?.includes("drucken") ||
+            b.getAttribute("data-de-aria")?.includes("drucken")
+          ) {
             const deAria = "Arbeitsblatt drucken";
             b.title = t(deAria);
             b.setAttribute("aria-label", t(deAria));
@@ -3413,44 +3609,55 @@
         _tqAll("#legendOverlay input", "aria-label");
 
         // Legend Stat-Texte (die nach den <b>-Tags)
-        document.querySelectorAll("#legendOverlay .legendRow > div").forEach(div => {
-          Array.from(div.childNodes).forEach(node => {
-            if (node.nodeType === 3 && node.textContent.trim().startsWith("–")) {
-              const deTxt = node.textContent.trim();
-              const de = node.getAttribute ? null : null;
-              // Text zwischen <span> und nächstem Element
-              if (!node._deText) node._deText = deTxt;
-              const lookup = node._deText;
-              node.textContent = "\n            " + t(lookup) + "\n          ";
-            }
+        document
+          .querySelectorAll("#legendOverlay .legendRow > div")
+          .forEach((div) => {
+            Array.from(div.childNodes).forEach((node) => {
+              if (
+                node.nodeType === 3 &&
+                node.textContent.trim().startsWith("–")
+              ) {
+                const deTxt = node.textContent.trim();
+                const de = node.getAttribute ? null : null;
+                // Text zwischen <span> und nächstem Element
+                if (!node._deText) node._deText = deTxt;
+                const lookup = node._deText;
+                node.textContent =
+                  "\n            " + t(lookup) + "\n          ";
+              }
+            });
           });
-        });
 
         // Legend stat labels
-        document.querySelectorAll("#legendOverlay .legendStat").forEach(stat => {
-          Array.from(stat.childNodes).forEach(node => {
-            if (node.nodeType === 3) {
-              let txt = node.textContent;
-              if (!node._deText) node._deText = txt;
-              let translated = node._deText;
-              translated = translated.replace("Gesamt:", t("Gesamt:"));
-              translated = translated.replace("Bestwert:", t("Bestwert:"));
-              translated = translated.replace("Max:", t("Max:"));
-              translated = translated.replace("Aufgaben:", t("Aufgaben:"));
-              node.textContent = translated;
-            }
+        document
+          .querySelectorAll("#legendOverlay .legendStat")
+          .forEach((stat) => {
+            Array.from(stat.childNodes).forEach((node) => {
+              if (node.nodeType === 3) {
+                let txt = node.textContent;
+                if (!node._deText) node._deText = txt;
+                let translated = node._deText;
+                translated = translated.replace("Gesamt:", t("Gesamt:"));
+                translated = translated.replace("Bestwert:", t("Bestwert:"));
+                translated = translated.replace("Max:", t("Max:"));
+                translated = translated.replace("Aufgaben:", t("Aufgaben:"));
+                node.textContent = translated;
+              }
+            });
           });
-        });
 
         // PIN status
         const pinStatus = document.getElementById("parentPinStatus");
         if (pinStatus && pinStatus.textContent.trim()) {
-          if (!pinStatus._deText) pinStatus._deText = pinStatus.textContent.trim();
+          if (!pinStatus._deText)
+            pinStatus._deText = pinStatus.textContent.trim();
           pinStatus.textContent = t(pinStatus._deText);
         }
 
         // Target progress label
-        const tgtLabel = document.querySelector("#legendOverlay .parentGrid .parentLabel");
+        const tgtLabel = document.querySelector(
+          "#legendOverlay .parentGrid .parentLabel",
+        );
         // Already handled by _tqAll
 
         // ── Wrong Actions Overlay ──
@@ -3480,28 +3687,38 @@
           const ver = document.getElementById("appVersion");
           const verText = ver ? ver.textContent : "";
           footer.textContent = "";
-          footer.appendChild(document.createTextNode(
-            t("Entwickelt von:") + " Bachner Gerhard & Isabella - Ver. "
-          ));
-          if (ver) { ver.textContent = verText; footer.appendChild(ver); }
+          footer.appendChild(
+            document.createTextNode(
+              t("Entwickelt von:") + " Bachner Gerhard & Isabella - Ver. ",
+            ),
+          );
+          if (ver) {
+            ver.textContent = verText;
+            footer.appendChild(ver);
+          }
         }
       }
 
       // Hilfs-Funktionen für applyLanguage()
       function _tqAll(selector, attr) {
-        document.querySelectorAll(selector).forEach(el => {
+        document.querySelectorAll(selector).forEach((el) => {
           const prop = attr === "aria-label" ? null : attr;
           if (attr === "aria-label") {
-            const de = el.getAttribute("data-de-aria") || el.getAttribute("aria-label");
-            if (!el.getAttribute("data-de-aria")) el.setAttribute("data-de-aria", de);
+            const de =
+              el.getAttribute("data-de-aria") || el.getAttribute("aria-label");
+            if (!el.getAttribute("data-de-aria"))
+              el.setAttribute("data-de-aria", de);
             el.setAttribute("aria-label", t(de));
           } else if (attr === "title") {
             const de = el.getAttribute("data-de-title") || el.title;
-            if (de && !el.getAttribute("data-de-title")) el.setAttribute("data-de-title", de);
+            if (de && !el.getAttribute("data-de-title"))
+              el.setAttribute("data-de-title", de);
             if (de) el.title = t(de);
           } else if (attr === "textContent") {
             // Nur reine Text-Elemente (keine Kinder mit eigenem Text)
-            const hasChildElements = el.querySelector("span, b, div, a, input, select, button");
+            const hasChildElements = el.querySelector(
+              "span, b, div, a, input, select, button",
+            );
             if (!hasChildElements) {
               const de = el.getAttribute("data-de") || el.textContent.trim();
               if (!el.getAttribute("data-de")) el.setAttribute("data-de", de);
@@ -3540,8 +3757,8 @@
         const androidBridge = getAndroidBridge();
         return Boolean(
           androidBridge &&
-            typeof androidBridge.getBundledIndexHtml === "function" &&
-            typeof androidBridge.saveTextFile === "function",
+          typeof androidBridge.getBundledIndexHtml === "function" &&
+          typeof androidBridge.saveTextFile === "function",
         );
       }
 
@@ -3635,8 +3852,7 @@
         const red = parseInt(rgbHex.slice(0, 2), 16);
         const green = parseInt(rgbHex.slice(2, 4), 16);
         const blue = parseInt(rgbHex.slice(4, 6), 16);
-        const luminance =
-          (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255;
+        const luminance = (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255;
         return luminance < 0.5;
       }
 
@@ -3666,7 +3882,9 @@
           document.body.style.backgroundImage = gradient;
         }
 
-        const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+        const themeColorMeta = document.querySelector(
+          'meta[name="theme-color"]',
+        );
         if (themeColorMeta) {
           themeColorMeta.setAttribute("content", bottomColor);
         }
@@ -3827,17 +4045,11 @@
           `<\/script>`;
 
         if (safeHtmlText.includes("</head>")) {
-          return safeHtmlText.replace(
-            "</head>",
-            `${bootstrapScript}\n</head>`,
-          );
+          return safeHtmlText.replace("</head>", `${bootstrapScript}\n</head>`);
         }
 
         if (safeHtmlText.includes("</body>")) {
-          return safeHtmlText.replace(
-            "</body>",
-            `${bootstrapScript}\n</body>`,
-          );
+          return safeHtmlText.replace("</body>", `${bootstrapScript}\n</body>`);
         }
 
         return `${safeHtmlText}\n${bootstrapScript}`;
@@ -3920,10 +4132,7 @@
         const mimeType = resolveMimeTypeForFilename(safeFilename);
         const androidBridge = getAndroidBridge();
 
-        if (
-          androidBridge &&
-          typeof androidBridge.saveTextFile === "function"
-        ) {
+        if (androidBridge && typeof androidBridge.saveTextFile === "function") {
           try {
             const result = androidBridge.saveTextFile(safeFilename, safeText);
             if (result !== false) return true;
@@ -3932,10 +4141,7 @@
           }
         }
 
-        const attempts = [
-          { useBlob: true },
-          { useBlob: false },
-        ];
+        const attempts = [{ useBlob: true }, { useBlob: false }];
 
         for (const attempt of attempts) {
           try {
@@ -3995,7 +4201,10 @@
             const result = androidBridge.shareTextFile(safeFilename, safeText);
             return result !== false;
           } catch (error) {
-            console.warn("AndroidInterface.shareTextFile fehlgeschlagen", error);
+            console.warn(
+              "AndroidInterface.shareTextFile fehlgeschlagen",
+              error,
+            );
           }
         }
 
@@ -5193,27 +5402,56 @@
             r2c0: t("unterer Stein"),
           },
         };
-        const modeText = kind === "pyramide" ? t("Plus-Pyramide") : t("Minus-Traube");
+        const modeText =
+          kind === "pyramide" ? t("Plus-Pyramide") : t("Minus-Traube");
         return `${modeText}, ${t("Eingabefeld")} ${parts[kind]?.[cellId] || t("im Raster")}`;
       }
 
       function getTaskInputA11yLabel(task) {
         if (!task) return t("Antwort eingeben");
         if (task.fmt === "verdoppeln")
-          return t("Ergebnis für Verdoppeln von") + ` ${task.a} ` + t("eingeben");
+          return (
+            t("Ergebnis für Verdoppeln von") + ` ${task.a} ` + t("eingeben")
+          );
         if (task.fmt === "halbieren")
-          return t("Ergebnis für Halbieren von") + ` ${task.a} ` + t("eingeben");
+          return (
+            t("Ergebnis für Halbieren von") + ` ${task.a} ` + t("eingeben")
+          );
         if (task.fmt === "faktor") {
           if (task.missing === 0)
-            return t("Ersten Faktor für Aufgabe mit Ergebnis") + ` ${task.res} ` + t("eingeben");
+            return (
+              t("Ersten Faktor für Aufgabe mit Ergebnis") +
+              ` ${task.res} ` +
+              t("eingeben")
+            );
           if (task.missing === 1)
-            return t("Zweiten Faktor oder Teiler für Aufgabe mit Ergebnis") + ` ${task.res} ` + t("eingeben");
+            return (
+              t("Zweiten Faktor oder Teiler für Aufgabe mit Ergebnis") +
+              ` ${task.res} ` +
+              t("eingeben")
+            );
         }
         if (task.missing === 0)
-          return t("Erste Zahl für") + ` ${task.a} ${task.sym} ${task.b} ` + t("gleich") + ` ${task.res} ` + t("eingeben");
+          return (
+            t("Erste Zahl für") +
+            ` ${task.a} ${task.sym} ${task.b} ` +
+            t("gleich") +
+            ` ${task.res} ` +
+            t("eingeben")
+          );
         if (task.missing === 1)
-          return t("Zweite Zahl für") + ` ${task.a} ${task.sym} ${task.b} ` + t("gleich") + ` ${task.res} ` + t("eingeben");
-        return t("Ergebnis für") + ` ${task.a} ${task.sym} ${task.b} ` + t("eingeben");
+          return (
+            t("Zweite Zahl für") +
+            ` ${task.a} ${task.sym} ${task.b} ` +
+            t("gleich") +
+            ` ${task.res} ` +
+            t("eingeben")
+          );
+        return (
+          t("Ergebnis für") +
+          ` ${task.a} ${task.sym} ${task.b} ` +
+          t("eingeben")
+        );
       }
 
       function setControlValidationState(control, state) {
@@ -5244,7 +5482,8 @@
         if (task.fmt === "wahrfalsch") {
           aufg.setAttribute(
             "aria-label",
-            t("Wahr oder falsch:") + ` ${task.a} ${task.sym} ${task.b} = ${task.shownRes}`,
+            t("Wahr oder falsch:") +
+              ` ${task.a} ${task.sym} ${task.b} = ${task.shownRes}`,
           );
           const buttons = aufg.querySelectorAll("button");
           if (buttons[0])
@@ -5261,7 +5500,10 @@
           );
           const sel = aufg.querySelector("select.inlineSelect");
           if (sel) {
-            const label = t("Operator für") + ` ${task.a} ? ${task.b} = ${task.res} ` + t("auswählen");
+            const label =
+              t("Operator für") +
+              ` ${task.a} ? ${task.b} = ${task.res} ` +
+              t("auswählen");
             sel.dataset.baseAriaLabel = label;
             sel.setAttribute("aria-label", label);
           }
@@ -5271,11 +5513,19 @@
         if (task.fmt === "compare") {
           aufg.setAttribute(
             "aria-label",
-            t("Vergleich:") + ` ${task.leftTxt} ` + t("im Vergleich zu") + ` ${task.rightTxt}`,
+            t("Vergleich:") +
+              ` ${task.leftTxt} ` +
+              t("im Vergleich zu") +
+              ` ${task.rightTxt}`,
           );
           const sel = aufg.querySelector("select.inlineSelect");
           if (sel) {
-            const label = t("Vergleichszeichen zwischen") + ` ${task.leftTxt} ` + t("und") + ` ${task.rightTxt} ` + t("auswählen");
+            const label =
+              t("Vergleichszeichen zwischen") +
+              ` ${task.leftTxt} ` +
+              t("und") +
+              ` ${task.rightTxt} ` +
+              t("auswählen");
             sel.dataset.baseAriaLabel = label;
             sel.setAttribute("aria-label", label);
           }
@@ -5304,7 +5554,9 @@
         if (flashBtn)
           flashBtn.setAttribute(
             "aria-label",
-            t("Zahlen für") + ` ${task.a} ${task.sym} ${task.b} ` + t("kurz anzeigen"),
+            t("Zahlen für") +
+              ` ${task.a} ${task.sym} ${task.b} ` +
+              t("kurz anzeigen"),
           );
       }
 
@@ -5320,9 +5572,10 @@
             pin === DEFAULT_PARENT_PIN
               ? t("PIN: offen (0000) – kein Schutz aktiv, Resets ohne PIN")
               : t("PIN: aktiv – Resets nur mit PIN");
-          pinStatus._deText = pin === DEFAULT_PARENT_PIN
-            ? "PIN: offen (0000) – kein Schutz aktiv, Resets ohne PIN"
-            : "PIN: aktiv – Resets nur mit PIN";
+          pinStatus._deText =
+            pin === DEFAULT_PARENT_PIN
+              ? "PIN: offen (0000) – kein Schutz aktiv, Resets ohne PIN"
+              : "PIN: aktiv – Resets nur mit PIN";
         }
 
         const tgt = document.getElementById("parentTargetInput");
@@ -5364,7 +5617,10 @@
         if (targetProgress === targetCorrect && !goalLockActive) {
           goalLockActive = true;
           try {
-            showMotivation(`🎉 ${t("Ziel erreicht:")} ${targetCorrect} ${t("richtig!")}`, 2600);
+            showMotivation(
+              `🎉 ${t("Ziel erreicht:")} ${targetCorrect} ${t("richtig!")}`,
+              2600,
+            );
           } catch (e) {}
           try {
             createConfetti();
@@ -5411,7 +5667,9 @@
         }
 
         if (
-          !confirm(t("Ziel-Fortschritt (🎯) wirklich auf 0 setzen?\n(✅ bleibt)"))
+          !confirm(
+            t("Ziel-Fortschritt (🎯) wirklich auf 0 setzen?\n(✅ bleibt)"),
+          )
         )
           return;
 
@@ -5451,7 +5709,11 @@
 
         setParentMsg(
           targetCorrect > 0
-            ? t("Ziel gespeichert:") + " " + targetCorrect + " " + t("richtige.")
+            ? t("Ziel gespeichert:") +
+                " " +
+                targetCorrect +
+                " " +
+                t("richtige.")
             : t("Ziel ausgeschaltet."),
           true,
         );
@@ -5648,6 +5910,136 @@
         }
       }
 
+      function normalizeRowSelection(raw) {
+        const normalizeNumbers = (values) => {
+          const rows = [];
+          const seen = new Set();
+          values.forEach((value) => {
+            const n =
+              typeof value === "number"
+                ? value
+                : Number(String(value ?? "").trim());
+            if (!Number.isInteger(n) || n < 1 || n > 10 || seen.has(n))
+              return;
+            rows.push(n);
+            seen.add(n);
+          });
+          if (rows.length === 0) return "mixed";
+          if (rows.length === 1) return rows[0];
+          return rows;
+        };
+
+        if (Array.isArray(raw)) return normalizeNumbers(raw);
+
+        const value = String(raw ?? "mixed").trim();
+        if (!value || value === "mixed") return "mixed";
+        if (value === "squares") return "squares";
+
+        if (value.startsWith("[") && value.endsWith("]")) {
+          try {
+            const parsed = JSON.parse(value);
+            if (Array.isArray(parsed)) return normalizeNumbers(parsed);
+          } catch (e) {}
+        }
+
+        if (value.includes(",")) {
+          return normalizeNumbers(value.split(","));
+        }
+
+        return normalizeNumbers([value]);
+      }
+
+      function serializeRowTrainValue(selection) {
+        const normalized = normalizeRowSelection(selection);
+        return Array.isArray(normalized)
+          ? JSON.stringify(normalized)
+          : String(normalized);
+      }
+
+      function pickRowTrainValue(selection) {
+        const normalized = normalizeRowSelection(selection);
+        if (!Array.isArray(normalized)) return normalized;
+        return normalized[zufallszahl(0, normalized.length - 1)];
+      }
+
+      function formatRowTrainLabel(selection) {
+        const normalized = normalizeRowSelection(selection);
+        if (normalized === "mixed") return t("Gemischt");
+        if (normalized === "squares") return t("Quadratzahlen");
+        if (Array.isArray(normalized))
+          return normalized.map((row) => row + "er").join(", ");
+        return normalized + "er";
+      }
+
+      function setRowChipPressed(chip, active) {
+        if (!chip) return;
+        chip.classList.toggle("active", !!active);
+        chip.setAttribute("aria-pressed", active ? "true" : "false");
+      }
+
+      function syncRowTrainInputFromChips() {
+        const chips = [...document.querySelectorAll("#rowChips .row-chip")];
+        const rowTrainInput = document.getElementById("rowTrain");
+        const active = chips.filter(
+          (chip) =>
+            chip.classList.contains("active") &&
+            chip.getAttribute("data-disabled") !== "1",
+        );
+        const special = active.find((chip) => {
+          const value = chip.dataset.value;
+          return value === "mixed" || value === "squares";
+        });
+
+        let selection = "mixed";
+        if (special) {
+          selection = special.dataset.value;
+          chips.forEach((chip) => setRowChipPressed(chip, chip === special));
+        } else {
+          selection = normalizeRowSelection(
+            active.map((chip) => chip.dataset.value),
+          );
+          if (selection === "mixed") {
+            const mixedBtn = document.querySelector("#rowChips .chip-mixed");
+            chips.forEach((chip) =>
+              setRowChipPressed(chip, chip === mixedBtn),
+            );
+          }
+        }
+
+        if (rowTrainInput)
+          rowTrainInput.value = serializeRowTrainValue(selection);
+        return normalizeRowSelection(selection);
+      }
+
+      function syncRowChipsFromValue(raw) {
+        const chips = [...document.querySelectorAll("#rowChips .row-chip")];
+        const rowTrainInput = document.getElementById("rowTrain");
+        const selection = normalizeRowSelection(
+          raw ?? rowTrainInput?.value ?? "mixed",
+        );
+        const selectedValues = new Set(
+          Array.isArray(selection)
+            ? selection.map(String)
+            : [String(selection)],
+        );
+
+        let hasActive = false;
+        chips.forEach((chip) => {
+          const active =
+            chip.getAttribute("data-disabled") !== "1" &&
+            selectedValues.has(chip.dataset.value);
+          setRowChipPressed(chip, active);
+          if (active) hasActive = true;
+        });
+
+        if (!hasActive) {
+          const mixedBtn = document.querySelector("#rowChips .chip-mixed");
+          setRowChipPressed(mixedBtn, true);
+        }
+
+        return syncRowTrainInputFromChips();
+      }
+
       function normalizeMulProfileControls() {
         const mp = document.getElementById("mulProfile");
         if (!mp) return;
@@ -5655,25 +6047,19 @@
         const isTable9 = mp.value === "table9";
 
         // 10er-Reihe bei 1×1 (1–9) deaktivieren
-        const btn10 = document.querySelector('#rowChips .row-chip[data-value="10"]');
+        const btn10 = document.querySelector(
+          '#rowChips .row-chip[data-value="10"]',
+        );
         if (btn10) {
           if (isTable9) {
-            btn10.setAttribute('data-disabled', '1');
-            btn10.classList.remove('active');
+            btn10.setAttribute("data-disabled", "1");
+            btn10.classList.remove("active");
           } else {
-            btn10.removeAttribute('data-disabled');
+            btn10.removeAttribute("data-disabled");
           }
         }
 
-        const mixedBtn = document.querySelector('#rowChips .chip-mixed');
-        const activeCount = document.querySelectorAll('#rowChips .row-chip.active').length;
-        if (activeCount === 0 && mixedBtn) {
-          mixedBtn.classList.add('active');
-        }
-        
-        const rt = getRowTrain();
-        const rtInput = document.getElementById("rowTrain");
-        if (rtInput) rtInput.value = Array.isArray(rt) ? JSON.stringify(rt) : rt;
+        syncRowChipsFromValue();
       }
 
       function mergeModeSettings(mode, patch) {
@@ -5832,8 +6218,9 @@
             mulProfile: "table9",
           });
 
-          msg =
-            t("Preset Klasse 2 aktiviert (Max 100, ± ohne Zehnerübergang, ×/÷ 1×1 bis 9).");
+          msg = t(
+            "Preset Klasse 2 aktiviert (Max 100, ± ohne Zehnerübergang, ×/÷ 1×1 bis 9).",
+          );
         } else if (g === "3") {
           mergeModeSettings("pyramide", { maxWert: "100" });
           mergeModeSettings("traube", { maxWert: "100" });
@@ -5902,8 +6289,9 @@
             mulProfile: "table",
           });
 
-          msg =
-            t("Preset Klasse 3 aktiviert (Max 100, ± gemischt, ×/÷ 1×1 bis 10).");
+          msg = t(
+            "Preset Klasse 3 aktiviert (Max 100, ± gemischt, ×/÷ 1×1 bis 10).",
+          );
         } else if (g === "4") {
           mergeModeSettings("pyramide", { maxWert: "1000" });
           mergeModeSettings("traube", { maxWert: "1000" });
@@ -6018,6 +6406,7 @@
           }
         });
 
+        normalizeMulProfileControls();
         updateViewSelectLabels();
         updateOperandDigitsVisibility();
         updateParentConfettiButton();
@@ -7450,10 +7839,16 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         if (streakCount === 5) {
           showMotivation("🔥 " + t("5er-Serie! Fantastisch!") + " 🔥", 2000);
         } else if (streakCount === 10) {
-          showMotivation("🔥🔥 " + t("10 richtig hintereinander!") + " 🔥🔥", 2500);
+          showMotivation(
+            "🔥🔥 " + t("10 richtig hintereinander!") + " 🔥🔥",
+            2500,
+          );
           createConfetti();
         } else if (streakCount === 20) {
-          showMotivation("🔥🔥🔥 " + t("20er-Serie! Unglaublich!") + " 🔥🔥🔥", 3000);
+          showMotivation(
+            "🔥🔥🔥 " + t("20er-Serie! Unglaublich!") + " 🔥🔥🔥",
+            3000,
+          );
           createConfetti();
         } else if (streakCount % 10 === 0 && streakCount > 0) {
           showMotivation(`🔥 ${streakCount}${t("er-Serie! Wow!")} 🔥`, 2000);
@@ -7462,7 +7857,10 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
       // Level-Up feiern
       function celebrateLevelUp(newLevel) {
-        showMotivation(`🏅 ${t("Level {n} erreicht!").replace("{n}", newLevel)} 🏅`, 2500);
+        showMotivation(
+          `🏅 ${t("Level {n} erreicht!").replace("{n}", newLevel)} 🏅`,
+          2500,
+        );
         createConfetti();
       }
 
@@ -7475,7 +7873,10 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         if (removedCount > 0) {
           const msg = document.getElementById("statusMessage");
           if (msg) {
-            msg.textContent = currentLang === "ro" ? `Lista greșeli plină: ${removedCount} exerciții vechi eliminate.` : `Fehlerpool voll: ${removedCount} älteste Aufgabe${removedCount === 1 ? "" : "n"} entfernt.`;
+            msg.textContent =
+              currentLang === "ro"
+                ? `Lista greșeli plină: ${removedCount} exerciții vechi eliminate.`
+                : `Fehlerpool voll: ${removedCount} älteste Aufgabe${removedCount === 1 ? "" : "n"} entfernt.`;
             msg.style.color = "#6b705c";
           }
         }
@@ -7486,7 +7887,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           wrongPool = [];
           saveWrongPool();
           document.getElementById("statusMessage").textContent =
-          msg.textContent = t("Fehlerpool gelöscht.");
+            msg.textContent = t("Fehlerpool gelöscht.");
           document.getElementById("statusMessage").style.color = "#2d6a4f";
         }
       }
@@ -7494,7 +7895,9 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       function resetModeSettingsToDefault() {
         if (
           confirm(
-            t("Alle Modus-Einstellungen auf Werkseinstellungen zurücksetzen?\n\n(Punkte und Fehlerpool bleiben erhalten)"),
+            t(
+              "Alle Modus-Einstellungen auf Werkseinstellungen zurücksetzen?\n\n(Punkte und Fehlerpool bleiben erhalten)",
+            ),
           )
         ) {
           // Lösche alle Modi-spezifischen Einstellungen
@@ -7522,8 +7925,9 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           appStorage.removeItem("mathLastMode");
 
           // Lade Seite neu, um Standardwerte zu laden
-          document.getElementById("statusMessage").textContent =
-            t("Werkseinstellungen wiederhergestellt!");
+          document.getElementById("statusMessage").textContent = t(
+            "Werkseinstellungen wiederhergestellt!",
+          );
           document.getElementById("statusMessage").style.color = "#2d6a4f";
 
           setTimeout(() => {
@@ -7708,7 +8112,8 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         <option value="mixed">${t("Gemischt")}</option>
         <option value="noCarry">${t("Ohne Zehnerübergang")}</option>
         <option value="carry">${t("Mit Zehnerübergang")}</option>`;
-          document.querySelector("#difficultyGroup label").textContent = t("Plus");
+          document.querySelector("#difficultyGroup label").textContent =
+            t("Plus");
           document.getElementById("rowGroup").style.display = "none";
         } else if (mode === "minus") {
           diff.innerHTML = `
@@ -7719,7 +8124,13 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           document.querySelector("#difficultyGroup label").textContent =
             t("Minus");
           document.getElementById("rowGroup").style.display = "none";
-        } else if (mode === "mal" || mode === "geteilt" || mode === "squareMal" || mode === "squareDiv" || mode === "mixMD") {
+        } else if (
+          mode === "mal" ||
+          mode === "geteilt" ||
+          mode === "squareMal" ||
+          mode === "squareDiv" ||
+          mode === "mixMD"
+        ) {
           diff.innerHTML = `
         <option value="standard">${t("Standard (Ergebnis fehlt)")}</option>
         <option value="easy">${t("Einfach")}</option>
@@ -7905,8 +8316,9 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         return document.getElementById("taskFormat").value || "standard";
       }
       function getRowTrain() {
-        const v = document.getElementById("rowTrain").value;
-        return v === "mixed" ? "mixed" : parseInt(v, 10);
+        return normalizeRowSelection(
+          document.getElementById("rowTrain")?.value || "mixed",
+        );
       }
       function getDifficulty() {
         return document.getElementById("difficulty").value || "mixed";
@@ -8036,7 +8448,9 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
               task.c +
               " = " +
               task.res +
-              (task.isTrue ? " → ✅" : " (" + t("nicht") + " " + task.shownRes + ") → ❌")
+              (task.isTrue
+                ? " → ✅"
+                : " (" + t("nicht") + " " + task.shownRes + ") → ❌")
             );
           return (
             t("Rechne: ") +
@@ -8056,7 +8470,9 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         if (task.fmt === "verdoppeln")
           return (
             task.a +
-            " " + t("verdoppeln") + " = " +
+            " " +
+            t("verdoppeln") +
+            " = " +
             task.a +
             " + " +
             task.a +
@@ -8064,7 +8480,15 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             task.res
           );
         if (task.fmt === "halbieren")
-          return task.a + " " + t("halbieren") + " = " + task.a + " ÷ 2 = " + task.res;
+          return (
+            task.a +
+            " " +
+            t("halbieren") +
+            " = " +
+            task.a +
+            " ÷ 2 = " +
+            task.res
+          );
         if (task.fmt === "wahrfalsch")
           return (
             t("Rechne nach: ") +
@@ -8075,7 +8499,9 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             task.b +
             " = " +
             task.res +
-            (task.isTrue ? " → ✅" : " (" + t("nicht") + " " + task.shownRes + ") → ❌")
+            (task.isTrue
+              ? " → ✅"
+              : " (" + t("nicht") + " " + task.shownRes + ") → ❌")
           );
         if (task.fmt === "operator")
           return (
@@ -8085,7 +8511,8 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           return (
             t("Links=") +
             task.leftVal +
-            ", " + t("Rechts=") +
+            ", " +
+            t("Rechts=") +
             task.rightVal +
             " → " +
             task.correct
@@ -8102,7 +8529,9 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
               bis +
               "=" +
               (task.a + bis) +
-              ", " + t("dann") + " +" +
+              ", " +
+              t("dann") +
+              " +" +
               (task.b - bis) +
               "=" +
               task.res
@@ -8121,7 +8550,9 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
               bis +
               "=" +
               (task.a - bis) +
-              ", " + t("dann") + " −" +
+              ", " +
+              t("dann") +
+              " −" +
               (task.b - bis) +
               "=" +
               task.res
@@ -8143,7 +8574,9 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           );
         }
         if (task.sym === "÷") {
-          return t("Umkehr: ") + "? × " + task.b + " = " + task.a + " → " + task.res;
+          return (
+            t("Umkehr: ") + "? × " + task.b + " = " + task.a + " → " + task.res
+          );
         }
         return "";
       }
@@ -8218,7 +8651,9 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         const title = document.getElementById("printSheetTitle");
 
         if (!printArea || !grid || !title) {
-          alert(t("Print-Bereich fehlt in der HTML-Datei (printArea/printGrid)."));
+          alert(
+            t("Print-Bereich fehlt in der HTML-Datei (printArea/printGrid)."),
+          );
           return;
         }
 
@@ -8261,8 +8696,10 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         if (meta) {
           const rowTxt =
             mode === "mal" || mode === "geteilt"
-              ? " · " + t("Reihe:") + " " +
-                (rowTrain === "mixed" ? t("Gemischt") : rowTrain + "er")
+              ? " · " +
+                t("Reihe:") +
+                " " +
+                formatRowTrainLabel(rowTrain)
               : "";
           const profTxt =
             mode === "mal" || mode === "geteilt"
@@ -8531,6 +8968,56 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
         return `${ma} ${task.sym} ${mb} = ${mr}`;
       }
+
+      function rowChipClick(btn) {
+        if (btn.hasAttribute('data-disabled') && btn.getAttribute('data-disabled') === '1') {
+          return;
+        }
+
+        const value = String(btn.dataset.value || "mixed");
+        const chips = [...document.querySelectorAll("#rowChips .row-chip")];
+
+        if (value === "mixed" || value === "squares") {
+          chips.forEach((chip) => setRowChipPressed(chip, chip === btn));
+        } else {
+          const wasActive = btn.classList.contains("active");
+          chips.forEach((chip) => {
+            if (
+              chip.dataset.value === "mixed" ||
+              chip.dataset.value === "squares"
+            ) {
+              setRowChipPressed(chip, false);
+            }
+          });
+          setRowChipPressed(btn, !wasActive);
+
+          const anyNumericActive = chips.some((chip) => {
+            const chipValue = chip.dataset.value;
+            return (
+              chip.classList.contains("active") &&
+              chip.getAttribute("data-disabled") !== "1" &&
+              chipValue !== "mixed" &&
+              chipValue !== "squares"
+            );
+          });
+          if (!anyNumericActive) {
+            const mixedBtn = document.querySelector("#rowChips .chip-mixed");
+            setRowChipPressed(mixedBtn, true);
+          }
+        }
+
+        syncRowTrainInputFromChips();
+
+        const modeSelect = document.getElementById('viewSelect');
+        if (modeSelect && typeof saveModeSettings === 'function') {
+          saveModeSettings(modeSelect.value);
+        }
+        
+        if (typeof initGame === 'function') {
+          initGame(true);
+        }
+      }
+
       function initGame(shouldScroll = true, fromRefresh = false) {
         if (window._autoNextTimeout) {
           clearTimeout(window._autoNextTimeout);
@@ -8552,7 +9039,11 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         if (mode === "pyramide") generierePyramide();
         else if (mode === "traube") {
           document.getElementById("statusMessage").innerHTML =
-            '<small style="opacity:0.7">' + t("Tipp: Links − Rechts = Unten (umgekehrt: Unten + Rechts = Links)") + '</small>';
+            '<small style="opacity:0.7">' +
+            t(
+              "Tipp: Links − Rechts = Unten (umgekehrt: Unten + Rechts = Links)",
+            ) +
+            "</small>";
           generiereTraube();
         } else {
           generiereZeilen(mode);
@@ -9131,12 +9622,12 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
                       : mode === "squareDiv"
                         ? ["squareDiv"]
                         : mode === "mixMD"
-                      ? ["mal", "geteilt"]
-                      : mode === "mixALL"
-                        ? ["plus", "minus", "mal", "geteilt"]
-                        : mode === "fehler"
-                          ? ["plus", "minus", "mal", "geteilt"]
-                          : ["plus", "minus", "mal", "geteilt"];
+                          ? ["mal", "geteilt"]
+                          : mode === "mixALL"
+                            ? ["plus", "minus", "mal", "geteilt"]
+                            : mode === "fehler"
+                              ? ["plus", "minus", "mal", "geteilt"]
+                              : ["plus", "minus", "mal", "geteilt"];
 
         // Tatsächlichen Operator wählen (bei Mix/Fehler)
         const chooseOp = () => {
@@ -9211,7 +9702,12 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           return makeTrueFalseTask(realOp, max, effDiff, rowTrain, mulProfile);
 
         if (fmt === "faktor") {
-          if (realOp === "mal" || realOp === "geteilt" || realOp === "squareMal" || realOp === "squareDiv")
+          if (
+            realOp === "mal" ||
+            realOp === "geteilt" ||
+            realOp === "squareMal" ||
+            realOp === "squareDiv"
+          )
             return makeFactorMissingTask(
               realOp,
               max,
@@ -9269,12 +9765,12 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       function makeStandardTask(op, max, diff, rowTrain, mulProfile) {
         let a, b, res, sym;
         const onesOnly = getOnesOnlyEnabled();
-        
-        let effRow = pickRow(rowTrain);
+
+        let effRow = pickRowTrainValue(rowTrain);
         if (effRow === "squares") {
-           if (op === "mal") op = "squareMal";
-           if (op === "geteilt") op = "squareDiv";
-           effRow = null;
+          if (op === "mal") op = "squareMal";
+          if (op === "geteilt") op = "squareDiv";
+          effRow = null;
         }
 
         if (op === "plus") {
@@ -9968,31 +10464,39 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           }
         } else if (op === "squareMal") {
           sym = "×";
-          const fixedRow = rowTrain !== "mixed" ? parseInt(rowTrain, 10) : null;
+          const fixedRow = typeof effRow === "number" ? effRow : null;
           if (Number.isFinite(fixedRow)) {
             a = fixedRow;
           } else {
             const aMax = Math.floor(Math.sqrt(max));
-            if (aMax < 1) { a = 1; }
-            else {
+            if (aMax < 1) {
+              a = 1;
+            } else {
               const profile = mulProfile || "free";
               const candidates = [];
               if (profile === "tens") {
-                for(let t=10; t<=aMax; t+=10) candidates.push(t);
+                for (let t = 10; t <= aMax; t += 10) candidates.push(t);
               } else if (profile === "table9") {
-                for(let t=1; t<=Math.min(9, aMax); t++) candidates.push(t);
+                for (let t = 1; t <= Math.min(9, aMax); t++) candidates.push(t);
               } else if (profile === "table") {
-                for(let t=1; t<=Math.min(10, aMax); t++) candidates.push(t);
+                for (let t = 1; t <= Math.min(10, aMax); t++)
+                  candidates.push(t);
               } else {
-                for(let t=1; t<=aMax; t++) candidates.push(t);
+                for (let t = 1; t <= aMax; t++) candidates.push(t);
               }
               if (candidates.length === 0) a = 1;
               else {
                 if (diff === "easy") {
-                  const maxIdx = Math.max(0, Math.floor((candidates.length - 1) * 0.4));
+                  const maxIdx = Math.max(
+                    0,
+                    Math.floor((candidates.length - 1) * 0.4),
+                  );
                   a = candidates[zufallszahl(0, maxIdx)];
                 } else if (diff === "hard") {
-                  const minIdx = Math.min(candidates.length - 1, Math.floor((candidates.length - 1) * 0.6));
+                  const minIdx = Math.min(
+                    candidates.length - 1,
+                    Math.floor((candidates.length - 1) * 0.6),
+                  );
                   a = candidates[zufallszahl(minIdx, candidates.length - 1)];
                 } else {
                   a = candidates[zufallszahl(0, candidates.length - 1)];
@@ -10004,31 +10508,40 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           res = a * b;
         } else if (op === "squareDiv") {
           sym = "÷";
-          const fixedRow = rowTrain !== "mixed" ? parseInt(rowTrain, 10) : null;
+          const fixedRow = typeof effRow === "number" ? effRow : null;
           if (Number.isFinite(fixedRow)) {
             res = fixedRow;
           } else {
             const maxRes = Math.floor(Math.sqrt(max));
-            if (maxRes < 1) { res = 1; }
-            else {
+            if (maxRes < 1) {
+              res = 1;
+            } else {
               const profile = mulProfile || "free";
               const candidates = [];
               if (profile === "tens") {
-                for(let t=10; t<=maxRes; t+=10) candidates.push(t);
+                for (let t = 10; t <= maxRes; t += 10) candidates.push(t);
               } else if (profile === "table9") {
-                for(let t=1; t<=Math.min(9, maxRes); t++) candidates.push(t);
+                for (let t = 1; t <= Math.min(9, maxRes); t++)
+                  candidates.push(t);
               } else if (profile === "table") {
-                for(let t=1; t<=Math.min(10, maxRes); t++) candidates.push(t);
+                for (let t = 1; t <= Math.min(10, maxRes); t++)
+                  candidates.push(t);
               } else {
-                for(let t=1; t<=maxRes; t++) candidates.push(t);
+                for (let t = 1; t <= maxRes; t++) candidates.push(t);
               }
               if (candidates.length === 0) res = 1;
               else {
                 if (diff === "easy") {
-                  const maxIdx = Math.max(0, Math.floor((candidates.length - 1) * 0.4));
+                  const maxIdx = Math.max(
+                    0,
+                    Math.floor((candidates.length - 1) * 0.4),
+                  );
                   res = candidates[zufallszahl(0, maxIdx)];
                 } else if (diff === "hard") {
-                  const minIdx = Math.min(candidates.length - 1, Math.floor((candidates.length - 1) * 0.6));
+                  const minIdx = Math.min(
+                    candidates.length - 1,
+                    Math.floor((candidates.length - 1) * 0.6),
+                  );
                   res = candidates[zufallszahl(minIdx, candidates.length - 1)];
                 } else {
                   res = candidates[zufallszahl(0, candidates.length - 1)];
@@ -10044,7 +10557,12 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         // Standard-Anzeige: bei +/− ist nur im Modus "Gemischt" eine der drei Stellen zufällig leer.
         // In allen anderen Schwierigkeits-Modi (Standard / (ohne|mit) Übergang / (ohne|mit) Entleihen)
         // wird immer das Ergebnis gesucht – sonst würde man Umkehraufgaben (Minus) brauchen.
-        if (op === "mal" || op === "geteilt" || op === "squareMal" || op === "squareDiv") {
+        if (
+          op === "mal" ||
+          op === "geteilt" ||
+          op === "squareMal" ||
+          op === "squareDiv"
+        ) {
           missing = 2;
         } else if (op === "plus" || op === "minus") {
           missing = diff === "mixed" ? zufallszahl(0, 2) : 2;
@@ -10148,7 +10666,14 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             : ["plus", "minus", "mal", "geteilt"];
         const realOp = ops[zufallszahl(0, ops.length - 1)];
         const base = makeStandardTask(realOp, max, diff, rowTrain, mulProfile);
-        const symbolMap = { plus: "+", minus: "−", mal: "×", geteilt: "÷" };
+        const symbolMap = {
+          plus: "+",
+          minus: "−",
+          mal: "×",
+          geteilt: "÷",
+          squareMal: "×",
+          squareDiv: "÷",
+        };
         const key = `opmiss|${base.a}|${base.b}|${base.res}|${realOp}`;
         return {
           op: "operator",
@@ -10629,7 +11154,11 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           if (msg) {
             if (modeNow === "traube") {
               msg.innerHTML =
-                '<small style="opacity:0.7">' + t("Tipp: Links − Rechts = Unten (umgekehrt: Unten + Rechts = Links)") + '</small>';
+                '<small style="opacity:0.7">' +
+                t(
+                  "Tipp: Links − Rechts = Unten (umgekehrt: Unten + Rechts = Links)",
+                ) +
+                "</small>";
               msg.style.color = "";
             } else {
               msg.textContent = "";
@@ -10742,13 +11271,22 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         ["Unten zwei Nachbarn zusammenrechnen: ", "Adună doi vecini de jos: "],
         ["Die Summe kommt immer in den Stein ", "Suma vine mereu în piatra "],
         ["darüber", "de deasupra"],
-        ["Fehlt unten eine Zahl, rechne zurück: ", "Lipsește un număr jos, calculează invers: "],
+        [
+          "Fehlt unten eine Zahl, rechne zurück: ",
+          "Lipsește un număr jos, calculează invers: ",
+        ],
         ["Oben links minus oben rechts: ", "Stânga sus minus dreapta sus: "],
         ["Das Ergebnis steht immer ", "Rezultatul este mereu "],
         ["darunter", "dedesubt"],
-        ["Fehlt oben links eine Zahl, rechne zurück: ", "Lipsește un număr stânga sus, calculează invers: "],
+        [
+          "Fehlt oben links eine Zahl, rechne zurück: ",
+          "Lipsește un număr stânga sus, calculează invers: ",
+        ],
         // Allgemein
-        ["Diese Runde ist schon fertig gelöst.", "Această rundă este deja rezolvată."],
+        [
+          "Diese Runde ist schon fertig gelöst.",
+          "Această rundă este deja rezolvată.",
+        ],
         ["Rechne langsam Schritt für Schritt.", "Calculează încet pas cu pas."],
         // Verdoppeln / Halbieren
         ["Nimm die Zahl einfach ", "Ia pur și simplu numărul "],
@@ -10760,13 +11298,19 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         ["Zusammen ergibt das ", "Rezultatul este "],
         // Wahr/Falsch
         ["Rechne zuerst selbst: ", "Calculează mai întâi singur: "],
-        ["Vergleiche dann mit der angezeigten Zahl: ", "Compară apoi cu numărul afișat: "],
+        [
+          "Vergleiche dann mit der angezeigten Zahl: ",
+          "Compară apoi cu numărul afișat: ",
+        ],
         ["Ist beides gleich? Dann ", "Sunt egale? Atunci "],
         ["✅ wahr", "✅ adevărat"],
         [", sonst ", ", altfel "],
         ["❌ falsch", "❌ fals"],
         // Operator
-        ["Probiere nacheinander alle Zeichen.", "Încearcă pe rând toate semnele."],
+        [
+          "Probiere nacheinander alle Zeichen.",
+          "Încearcă pe rând toate semnele.",
+        ],
         ["Gesucht ist das Zeichen, das ", "Se caută semnul care dă "],
         [" ergibt.", "."],
         // Compare
@@ -10783,20 +11327,29 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         ["Ergebnis: ", "Rezultat: "],
         [" zerlegen in ", " descompune în "],
         [" und ", " și "],
-        ["Zuerst bis zum nächsten Zehner: ", "Mai întâi până la zecimala următoare: "],
+        [
+          "Zuerst bis zum nächsten Zehner: ",
+          "Mai întâi până la zecimala următoare: ",
+        ],
         ["Dann den Rest dazu: ", "Apoi adaugă restul: "],
         ["Zahlenweg: ", "Drum numeric: "],
         ["Zehner: ", "Zecimale: "],
         ["Einer: ", "Unități: "],
         // Minus
-        ["Zuerst bis zum vorherigen Zehner: ", "Mai întâi până la zecimala anterioară: "],
+        [
+          "Zuerst bis zum vorherigen Zehner: ",
+          "Mai întâi până la zecimala anterioară: ",
+        ],
         ["Dann den Rest abziehen: ", "Apoi scade restul: "],
         // Mal
         ["Denk an die ", "Gândește-te la "],
         ["er-Reihe", " înmulțire"],
         ["Also: ", "Deci: "],
         ["Die größere Zahl zerlegen: ", "Descompune numărul mai mare: "],
-        ["Einmaleins-Reihen helfen sehr schnell.", "Tabla înmulțirii ajută foarte rapid."],
+        [
+          "Einmaleins-Reihen helfen sehr schnell.",
+          "Tabla înmulțirii ajută foarte rapid.",
+        ],
         // Geteilt
         ["Frage dich: ", "Întreabă-te: "],
         ["Wie oft passt ", "De câte ori încape "],
@@ -10804,8 +11357,14 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         ["Denk an die Umkehraufgabe: ", "Gândește-te la operația inversă: "],
         ["Passend ist: ", "Potrivit este: "],
         // Erst Zehner / Einer
-        ["Erst Zehner, dann Einer verdoppeln.", "Mai întâi zecimalele, apoi unitățile dublează."],
-        ["Erst Zehner, dann Einer halbieren.", "Mai întâi zecimalele, apoi unitățile înjumătățește."],
+        [
+          "Erst Zehner, dann Einer verdoppeln.",
+          "Mai întâi zecimalele, apoi unitățile dublează.",
+        ],
+        [
+          "Erst Zehner, dann Einer halbieren.",
+          "Mai întâi zecimalele, apoi unitățile înjumătățește.",
+        ],
         ["Erst Zehner, dann Einer.", "Mai întâi zecimalele, apoi unitățile."],
         ["Erst Einer, dann Zehner.", "Mai întâi unitățile, apoi zecimalele."],
       ];
@@ -11533,7 +12092,9 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       function factoryReset() {
         if (
           confirm(
-            t("App wirklich komplett zurücksetzen (Werkseinstellung)?\n\nPIN ist danach wieder 0000 (offen)."),
+            t(
+              "App wirklich komplett zurücksetzen (Werkseinstellung)?\n\nPIN ist danach wieder 0000 (offen).",
+            ),
           )
         ) {
           appStorage.clear();
@@ -11548,7 +12109,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v57";
+        const SW_VERSION = "rechenguru-lgi-v61";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -11614,8 +12175,8 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         function isDocumentFullscreen() {
           return Boolean(
             document.fullscreenElement ||
-              document.webkitFullscreenElement ||
-              document.msFullscreenElement,
+            document.webkitFullscreenElement ||
+            document.msFullscreenElement,
           );
         }
 
@@ -11752,14 +12313,22 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
               capture: true,
             },
           );
-          window.addEventListener("click", installedFullscreenActivationHandler, {
-            once: true,
-            capture: true,
-          });
-          window.addEventListener("keydown", installedFullscreenActivationHandler, {
-            once: true,
-            capture: true,
-          });
+          window.addEventListener(
+            "click",
+            installedFullscreenActivationHandler,
+            {
+              once: true,
+              capture: true,
+            },
+          );
+          window.addEventListener(
+            "keydown",
+            installedFullscreenActivationHandler,
+            {
+              once: true,
+              capture: true,
+            },
+          );
         }
 
         function shouldSuppressWebInstallUi() {
@@ -11775,7 +12344,10 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             !/CriOS|FxiOS|EdgiOS|OPiOS|OPT|YaBrowser|DuckDuckGo/i.test(ua);
           const isAndroid = isAndroidDevice();
           const isMobile =
-            isIOS || isAndroid || /Mobile|Tablet/i.test(ua) || maxTouchPoints > 0;
+            isIOS ||
+            isAndroid ||
+            /Mobile|Tablet/i.test(ua) ||
+            maxTouchPoints > 0;
           const isApkWebView = isAndroidAppWebView();
           const inAppBrowser = !isApkWebView && isInAppBrowser();
 
@@ -11955,7 +12527,8 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           // ── Pull-to-Refresh (nur Web/PWA, nicht Android-WebView) ──
           (function initPullToRefresh() {
             if (isAndroidAppWebView()) return;
-            if (!(navigator.maxTouchPoints > 0 || "ontouchstart" in window)) return;
+            if (!(navigator.maxTouchPoints > 0 || "ontouchstart" in window))
+              return;
 
             const PULL_MAX = 108;
             const PULL_TRIGGER = 72;
@@ -11963,12 +12536,20 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             let refreshing = false;
 
             function getScrollTop() {
-              return Math.max(window.scrollY || 0, document.documentElement?.scrollTop || 0, document.body?.scrollTop || 0);
+              return Math.max(
+                window.scrollY || 0,
+                document.documentElement?.scrollTop || 0,
+                document.body?.scrollTop || 0,
+              );
             }
 
             function isBlocked(target) {
               if (!(target instanceof Element)) return false;
-              return Boolean(target.closest("button, input, textarea, select, summary, .overlay, .overlayCard"));
+              return Boolean(
+                target.closest(
+                  "button, input, textarea, select, summary, .overlay, .overlayCard",
+                ),
+              );
             }
 
             function setIndicator(distance, isRefreshing) {
@@ -11978,49 +12559,101 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
               const d = Math.max(0, Math.min(PULL_MAX, Math.round(distance)));
               const ready = d >= PULL_TRIGGER;
               const visible = isRefreshing || d > 0;
-              el.style.setProperty("--pullRefreshOffset", (isRefreshing ? 0 : d - PULL_TRIGGER) + "px");
+              el.style.setProperty(
+                "--pullRefreshOffset",
+                (isRefreshing ? 0 : d - PULL_TRIGGER) + "px",
+              );
               el.classList.toggle("visible", visible);
               el.classList.toggle("ready", ready && !isRefreshing);
               el.classList.toggle("refreshing", isRefreshing);
-              label.textContent = isRefreshing ? t("Aktualisiere…") : ready ? t("Loslassen zum Aktualisieren") : t("Nach unten ziehen zum Aktualisieren");
+              label.textContent = isRefreshing
+                ? t("Aktualisiere…")
+                : ready
+                  ? t("Loslassen zum Aktualisieren")
+                  : t("Nach unten ziehen zum Aktualisieren");
             }
 
-            function reset() { setIndicator(0, false); }
+            function reset() {
+              setIndicator(0, false);
+            }
 
-            function cancel() { gesture = null; if (!refreshing) reset(); }
-
-            window.addEventListener("touchstart", function(e) {
-              if (refreshing || e.touches.length !== 1) return;
-              if (getScrollTop() > 0) return;
-              if (isBlocked(e.target)) return;
-              gesture = { startY: e.touches[0].clientY, startX: e.touches[0].clientX, lastDist: 0 };
-            }, { passive: true });
-
-            window.addEventListener("touchmove", function(e) {
-              if (!gesture || refreshing || e.touches.length !== 1) { if (!refreshing) cancel(); return; }
-              var t = e.touches[0];
-              var dy = t.clientY - gesture.startY;
-              var dx = t.clientX - gesture.startX;
-              if (getScrollTop() > 0) { cancel(); return; }
-              if (dy <= 0) { reset(); return; }
-              if (Math.abs(dx) > dy + 12) { cancel(); return; }
-              var dist = Math.min(PULL_MAX, dy * 0.52);
-              gesture.lastDist = dist;
-              setIndicator(dist, false);
-              e.preventDefault();
-            }, { passive: false });
-
-            window.addEventListener("touchend", function() {
-              if (!gesture || refreshing) return;
-              var dist = Math.max(0, Math.min(PULL_MAX, gesture.lastDist || 0));
+            function cancel() {
               gesture = null;
-              if (dist < PULL_TRIGGER) { reset(); return; }
-              refreshing = true;
-              setIndicator(PULL_TRIGGER, true);
-              window.location.reload();
-            }, { passive: true });
+              if (!refreshing) reset();
+            }
 
-            window.addEventListener("touchcancel", function() { cancel(); }, { passive: true });
+            window.addEventListener(
+              "touchstart",
+              function (e) {
+                if (refreshing || e.touches.length !== 1) return;
+                if (getScrollTop() > 0) return;
+                if (isBlocked(e.target)) return;
+                gesture = {
+                  startY: e.touches[0].clientY,
+                  startX: e.touches[0].clientX,
+                  lastDist: 0,
+                };
+              },
+              { passive: true },
+            );
+
+            window.addEventListener(
+              "touchmove",
+              function (e) {
+                if (!gesture || refreshing || e.touches.length !== 1) {
+                  if (!refreshing) cancel();
+                  return;
+                }
+                var t = e.touches[0];
+                var dy = t.clientY - gesture.startY;
+                var dx = t.clientX - gesture.startX;
+                if (getScrollTop() > 0) {
+                  cancel();
+                  return;
+                }
+                if (dy <= 0) {
+                  reset();
+                  return;
+                }
+                if (Math.abs(dx) > dy + 12) {
+                  cancel();
+                  return;
+                }
+                var dist = Math.min(PULL_MAX, dy * 0.52);
+                gesture.lastDist = dist;
+                setIndicator(dist, false);
+                e.preventDefault();
+              },
+              { passive: false },
+            );
+
+            window.addEventListener(
+              "touchend",
+              function () {
+                if (!gesture || refreshing) return;
+                var dist = Math.max(
+                  0,
+                  Math.min(PULL_MAX, gesture.lastDist || 0),
+                );
+                gesture = null;
+                if (dist < PULL_TRIGGER) {
+                  reset();
+                  return;
+                }
+                refreshing = true;
+                setIndicator(PULL_TRIGGER, true);
+                window.location.reload();
+              },
+              { passive: true },
+            );
+
+            window.addEventListener(
+              "touchcancel",
+              function () {
+                cancel();
+              },
+              { passive: true },
+            );
           })();
 
           const btn = document.getElementById("installBtn");
@@ -12101,7 +12734,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="57"
+      data-app-version="61"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -12113,7 +12746,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">57</span>
+      <span id="appVersion">61</span>
     </footer>
 
     <!-- ❌ Fehler-Aktionen (Zurücksetzen / Drucken) -->

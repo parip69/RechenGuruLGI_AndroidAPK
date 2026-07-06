@@ -206,6 +206,42 @@
         transform: scale(0.98);
       }
 
+      /* Sprachumschalter (oben links) */
+      .langToggle {
+        position: absolute;
+        top: 14px;
+        left: 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--glass-border);
+        background: var(--glass);
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        user-select: none;
+        z-index: 20;
+        color: var(--text);
+        font-weight: 700;
+        font-size: 1.05rem;
+        line-height: 1;
+      }
+      .langToggle:hover {
+        background: var(--surface60);
+      }
+      .langToggle:active {
+        transform: scale(0.98);
+      }
+      @media (max-width: 520px) {
+        .langToggle {
+          top: 10px;
+          left: 10px;
+          padding: 5px 8px;
+          font-size: 0.95rem;
+        }
+      }
+
       .themeDots {
         display: inline-flex;
         gap: 4px;
@@ -286,6 +322,53 @@
         display: flex;
         flex-direction: column;
         min-width: 170px;
+      }
+
+      /* === Reihe-Chips (Mehrfachauswahl) === */
+      .row-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 4px 0 2px;
+      }
+      .row-chip {
+        padding: 6px 12px;
+        border-radius: 20px;
+        border: 1.5px solid var(--glass-border);
+        background: var(--surface60);
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: var(--textMuted);
+        cursor: pointer;
+        transition:
+          background 0.18s,
+          color 0.18s,
+          border-color 0.18s,
+          transform 0.1s;
+        user-select: none;
+        white-space: nowrap;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+      }
+      .row-chip:active {
+        transform: scale(0.94);
+      }
+      .row-chip.active {
+        background: var(--primary);
+        color: #fff;
+        border-color: var(--primary);
+      }
+      .row-chip.chip-mixed.active {
+        background: var(--secondary, #6c757d);
+        border-color: var(--secondary, #6c757d);
+      }
+      .row-chip.chip-squares.active {
+        background: var(--accent, #e67e22);
+        border-color: var(--accent, #e67e22);
+      }
+      .row-chip[data-disabled="1"] {
+        opacity: 0.35;
+        pointer-events: none;
       }
 
       label {
@@ -1847,7 +1930,7 @@
         padding: 8px 18px;
         font-size: 13px;
         font-weight: 600;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
         transform: translateY(var(--pullRefreshOffset, -40px));
         transition: transform 0.15s ease;
       }
@@ -1863,7 +1946,7 @@
         display: none;
         width: 16px;
         height: 16px;
-        border: 2px solid rgba(255,255,255,0.3);
+        border: 2px solid rgba(255, 255, 255, 0.3);
         border-top-color: #fff;
         border-radius: 50%;
         animation: pullSpin 0.6s linear infinite;
@@ -1872,7 +1955,9 @@
         display: inline-block;
       }
       @keyframes pullSpin {
-        to { transform: rotate(360deg); }
+        to {
+          transform: rotate(360deg);
+        }
       }
     </style>
   </head>
@@ -1886,6 +1971,17 @@
     </div>
     <div class="container">
       <h1>Mathe LGI</h1>
+
+      <button
+        id="langToggle"
+        class="langToggle"
+        type="button"
+        onclick="toggleLang()"
+        aria-label="Sprache wechseln"
+        title="Sprache wechseln"
+      >
+        🇩🇪
+      </button>
 
       <button
         id="themeToggle"
@@ -1924,13 +2020,15 @@
                 class="adventureSelect"
                 onchange="wechselAnsicht()"
               >
+                <option value="plus">Zeilen (+)</option>
                 <option value="pyramide">Plus-Pyramide</option>
                 <option value="traube">Minus-Traube</option>
-                <option value="plus">Zeilen (+)</option>
                 <option value="minus">Zeilen (−)</option>
                 <option value="mix">Zeilen (+/− Mix)</option>
                 <option value="mal">Zeilen (×)</option>
+                <option value="squareMal">Quadrat × (z.B. 12×12)</option>
                 <option value="geteilt">Zeilen (÷)</option>
+                <option value="squareDiv">Quadrat ÷ (z.B. 144÷12)</option>
                 <option value="mixMD">Zeilen (×/÷ Mix)</option>
                 <option value="mixALL">Zeilen (+/−/×/÷ Mix)</option>
                 <option value="double">Verdoppeln</option>
@@ -1961,7 +2059,7 @@
           </div>
 
           <div class="control-group">
-            <label>Zahlbereich (Max)</label>
+            <label>Max. Zahl / Ergebnis</label>
             <input
               type="text"
               inputmode="numeric"
@@ -1989,6 +2087,10 @@
               onchange="initGame(true)"
               onblur="handleMaxWertBlur()"
             />
+            <div class="hintSmall">
+              Bei ×/÷ zählt hier Ergebnis bzw. die große Zahl vor ÷: 22×22
+              braucht mindestens 484.
+            </div>
           </div>
 
           <div class="control-group" id="onesOnlyGroup">
@@ -2206,27 +2308,132 @@
 
           <div class="control-group" id="rowGroup">
             <label>Reihe (×/÷)</label>
-            <select id="rowTrain" onchange="initGame(true)">
-              <option value="mixed">Gemischt</option>
-              <option value="2">2er</option>
-              <option value="3">3er</option>
-              <option value="4">4er</option>
-              <option value="5">5er</option>
-              <option value="6">6er</option>
-              <option value="7">7er</option>
-              <option value="8">8er</option>
-              <option value="9">9er</option>
-              <option value="10">10er</option>
-            </select>
+            <!-- Hidden input speichert aktuelle Auswahl für saveModeSettings -->
+            <input type="hidden" id="rowTrain" value="mixed" />
+            <div
+              class="row-chips"
+              id="rowChips"
+              role="group"
+              aria-label="Reihe auswählen"
+            >
+              <button
+                type="button"
+                class="row-chip chip-mixed active"
+                data-value="mixed"
+                onclick="rowChipClick(this)"
+                aria-pressed="true"
+              >
+                Gemischt
+              </button>
+              <button
+                type="button"
+                class="row-chip"
+                data-value="1"
+                onclick="rowChipClick(this)"
+                aria-pressed="false"
+              >
+                1er
+              </button>
+              <button
+                type="button"
+                class="row-chip"
+                data-value="2"
+                onclick="rowChipClick(this)"
+                aria-pressed="false"
+              >
+                2er
+              </button>
+              <button
+                type="button"
+                class="row-chip"
+                data-value="3"
+                onclick="rowChipClick(this)"
+                aria-pressed="false"
+              >
+                3er
+              </button>
+              <button
+                type="button"
+                class="row-chip"
+                data-value="4"
+                onclick="rowChipClick(this)"
+                aria-pressed="false"
+              >
+                4er
+              </button>
+              <button
+                type="button"
+                class="row-chip"
+                data-value="5"
+                onclick="rowChipClick(this)"
+                aria-pressed="false"
+              >
+                5er
+              </button>
+              <button
+                type="button"
+                class="row-chip"
+                data-value="6"
+                onclick="rowChipClick(this)"
+                aria-pressed="false"
+              >
+                6er
+              </button>
+              <button
+                type="button"
+                class="row-chip"
+                data-value="7"
+                onclick="rowChipClick(this)"
+                aria-pressed="false"
+              >
+                7er
+              </button>
+              <button
+                type="button"
+                class="row-chip"
+                data-value="8"
+                onclick="rowChipClick(this)"
+                aria-pressed="false"
+              >
+                8er
+              </button>
+              <button
+                type="button"
+                class="row-chip"
+                data-value="9"
+                onclick="rowChipClick(this)"
+                aria-pressed="false"
+              >
+                9er
+              </button>
+              <button
+                type="button"
+                class="row-chip"
+                data-value="10"
+                onclick="rowChipClick(this)"
+                aria-pressed="false"
+              >
+                10er
+              </button>
+              <button
+                type="button"
+                class="row-chip chip-squares"
+                data-value="squares"
+                onclick="rowChipClick(this)"
+                aria-pressed="false"
+              >
+                Quadratzahlen
+              </button>
+            </div>
           </div>
 
           <div class="control-group" id="mulProfileGroup">
-            <label>×/÷ Zahlenart</label>
+            <label>×/÷ Zahlenbereich</label>
             <select id="mulProfile" onchange="initGame(true)">
-              <option value="table9">1×1 (1–9)</option>
-              <option value="table">1×1 (1–10)</option>
-              <option value="tens">Zehner ×/÷ (10er, 20er…)</option>
-              <option value="free">Frei (bis Max)</option>
+              <option value="table9">Kleines 1×1 (1–9)</option>
+              <option value="table">1×1 bis 10</option>
+              <option value="tens">Zehnerzahlen (10, 20, 30…)</option>
+              <option value="free">Frei (auch über 10)</option>
             </select>
           </div>
         </div>
@@ -2778,6 +2985,756 @@
         },
       };
 
+      /* ═══════════════════════════════════════════════════════
+         i18n – Deutsch / Rumänisch Sprachumschaltung
+         ═══════════════════════════════════════════════════════ */
+      const I18N_RO = {
+        // ── Titel & Allgemein ──
+        "Mathe LGI": "Mate LGI",
+        "Mathe Guru Web": "Mate Guru Web",
+        "Sprache wechseln": "Schimbă limba",
+        "Farbstil wechseln": "Schimbă stilul de culoare",
+
+        // ── Modus-Auswahl (viewSelect options) ──
+        "Plus-Pyramide": "Piramida plus",
+        "Minus-Traube": "Ciorchine minus",
+        "Zeilen (+)": "Rânduri (+)",
+        "Zeilen (−)": "Rânduri (−)",
+        "Zeilen (+/− Mix)": "Rânduri (+/− Mixt)",
+        "Zeilen (×)": "Rânduri (×)",
+        "Zeilen (Quadratzahlen ×)": "Rânduri (Pătrate perfecte ×)",
+        "Quadrat × (z.B. 12×12)": "Pătrat × (ex. 12×12)",
+        "Zeilen (÷)": "Rânduri (÷)",
+        "Zeilen (Quadratzahlen ÷)": "Rânduri (Pătrate perfecte ÷)",
+        "Quadrat ÷ (z.B. 144÷12)": "Pătrat ÷ (ex. 144÷12)",
+        "Zeilen (×/÷ Mix)": "Rânduri (×/÷ Mixt)",
+        "Zeilen (+/−/×/÷ Mix)": "Rânduri (+/−/×/÷ Mixt)",
+        Verdoppeln: "Dublare",
+        Halbieren: "Înjumătățire",
+        "Fehler üben": "Exersează greșelile",
+
+        // ── Einstellungen (labels) ──
+        "1-Klick Presets": "Presetări rapide",
+        "Klasse 1": "Clasa 1",
+        "Klasse 2": "Clasa 2",
+        "Klasse 3": "Clasa 3",
+        "Klasse 4": "Clasa 4",
+        "Zahlbereich (Max)": "Interval numere (Max)",
+        "Max. Zahl / Ergebnis": "Număr / rezultat max.",
+        "Bei ×/÷ zählt hier Ergebnis bzw. die große Zahl vor ÷: 22×22 braucht mindestens 484.":
+          "La ×/÷ contează aici rezultatul sau numărul mare dinainte de ÷: 22×22 are nevoie de cel puțin 484.",
+        "Einser-Training": "Antrenament unități",
+        "Aus (alle Zahlen mehrstell.)": "Oprit (toate nr. multi-cifre)",
+        "An (2./3. Zahl nur 0–9)": "Pornit (nr. 2/3 doar 0–9)",
+        "Anzahl Zahlen": "Cantitate numere",
+        "2 Zahlen (Standard)": "2 numere (Standard)",
+        "3 Zahlen (z.B. 5 + 3 + 2)": "3 numere (ex. 5 + 3 + 2)",
+        "1. Zahl": "Nr. 1",
+        "2. Zahl": "Nr. 2",
+        "3. Zahl": "Nr. 3",
+        "Einser (0–9)": "Unități (0–9)",
+        "Zehner (10–99)": "Zeci (10–99)",
+        Frei: "Liber",
+        "Kopfrechnen (Blitz)": "Calcul mental (Fulger)",
+        Aus: "Oprit",
+        "Ein (Zahlen blenden aus)": "Pornit (numerele dispar)",
+        "Anzeige (s)": "Afișare (s)",
+        "Nochmal (s)": "Din nou (s)",
+        "⏱ Zeitlimit pro Runde (Sek.)": "⏱ Limită de timp pe rundă (sec.)",
+        "0 = aus (wie bisher)": "0 = oprit (ca înainte)",
+        "Aufgaben pro Runde": "Exerciții pe rundă",
+        Aufgabenformat: "Format exercițiu",
+        Standard: "Standard",
+        "Faktor fehlt": "Factor lipsă",
+        "Wahr / Falsch": "Adevărat / Fals",
+        "Operator fehlt": "Operator lipsă",
+        "Vergleichen (< > =)": "Comparare (< > =)",
+        Schwierigkeit: "Dificultate",
+        "Standard (Ergebnis fehlt)": "Standard (rezultat lipsă)",
+        Gemischt: "Mixt",
+        "Ohne Zehnerübergang": "Fără trecere peste zece",
+        "Mit Zehnerübergang": "Cu trecere peste zece",
+        "Reihe (×/÷)": "Seria (×/÷)",
+        "×/÷ Zahlenart": "Tip numere ×/÷",
+        "×/÷ Zahlenbereich": "Interval ×/÷",
+        "1×1 (1–9)": "Tabla înm. (1–9)",
+        "1×1 (1–10)": "Tabla înm. (1–10)",
+        "Zehner ×/÷ (10er, 20er…)": "Zeci ×/÷ (10, 20…)",
+        "Frei (bis Max)": "Liber (până la Max)",
+        "Kleines 1×1 (1–9)": "Tabla mică (1–9)",
+        "1×1 bis 10": "Tabla înm. până la 10",
+        "Zehnerzahlen (10, 20, 30…)": "Zeci (10, 20, 30…)",
+        "Frei (auch über 10)": "Liber (și peste 10)",
+
+        // ── Scoreboard ──
+        "Richtig (kumulativ)": "Corect (cumulativ)",
+        "✅ Stand zurücksetzen": "✅ Resetare contor",
+        "🎯 Ziel-Fortschritt neu starten": "🎯 Resetare progres obiectiv",
+        Falsch: "Greșit",
+        "❌ Fehler zurücksetzen": "❌ Resetare greșeli",
+        "Serie (wie viele richtige hintereinander)":
+          "Serie (câte corecte la rând)",
+        "🔥 Serie zurücksetzen": "🔥 Resetare serie",
+        "Level (steigt bei vielen richtigen Aufgaben)":
+          "Nivel (crește cu exerciții corecte)",
+        "🏅 Level zurücksetzen": "🏅 Resetare nivel",
+        "Menü (Legende & Eltern)": "Meniu (Legendă și Părinți)",
+        "Fehler üben (klick!)": "Exersează greșelile (click!)",
+        "🎯 Üben": "🎯 Exersează",
+        "Richtig-Zähler zurücksetzen": "Resetare contor corect",
+        "Ziel-Fortschritt zurücksetzen": "Resetare progres obiectiv",
+        "Fehler-Zähler zurücksetzen": "Resetare contor greșeli",
+        "Serie zurücksetzen": "Resetare serie",
+        "Level zurücksetzen": "Resetare nivel",
+        "Legende und Eltern-Menü öffnen": "Deschide legenda și meniul părinți",
+        "Fehler üben öffnen": "Deschide exersarea greșelilor",
+
+        // ── Buttons ──
+        "🔄 Neue Aufgaben": "🔄 Exerciții noi",
+        "Neue Aufgaben laden": "Încarcă exerciții noi",
+        "💡 Tipp": "💡 Indiciu",
+        "Tipp zur aktuellen Aufgabe anzeigen":
+          "Arată indiciu pentru exercițiul curent",
+        Werkseinstellungen: "Setări din fabrică",
+        "App auf Werkseinstellungen zurücksetzen":
+          "Resetare aplicație la setări din fabrică",
+        "🧽 Fehlerpool": "🧽 Lista greșeli",
+        "Fehlerpool löschen": "Șterge lista de greșeli",
+        "Arbeitsblatt drucken": "Tipărire fișă de lucru",
+        "📲 App installieren": "📲 Instalează aplicația",
+        "App installieren": "Instalează aplicația",
+
+        // ── Legende ──
+        Schließen: "Închide",
+        "Legende (oben)": "Legendă (sus)",
+        Richtig: "Corect",
+        "– Anzahl der richtig gelösten Aufgaben.":
+          "– Numărul exercițiilor rezolvate corect.",
+        "– Anzahl der falschen Antworten.": "– Numărul răspunsurilor greșite.",
+        Serie: "Serie",
+        "– wie viele Aufgaben hintereinander richtig waren (bei Fehler wieder\n            0).":
+          "– câte exerciții au fost corecte la rând (la greșeală revine la 0).",
+        Level: "Nivel",
+        "– steigt automatisch, je mehr richtig gelöst wurde.":
+          "– crește automat, cu cât mai multe exerciții rezolvate corect.",
+        Üben: "Exersează",
+        "– springt direkt in \u201EFehler üben\u201C (nimmt Aufgaben aus dem\n            Fehlerpool).":
+          "– sare direct la \u201EExersează gre\u0219elile\u201C (ia exerci\u021Bii din lista de gre\u0219eli).",
+        Reset: "Resetare",
+        "– setzt Punkte + Fehlerpool zurück.":
+          "– resetează punctele și lista de greșeli.",
+
+        // ── Eltern-Bereich ──
+        "Eltern (PIN & Ziel)": "Părinți (PIN și Obiectiv)",
+        "Ziel (✅ richtig)": "Obiectiv (✅ corecte)",
+        "Ziel für richtig gelöste Aufgaben":
+          "Obiectiv pentru exerciții corecte",
+        "🎯 Ziel resetten": "🎯 Resetare obiectiv",
+        Speichern: "Salvează",
+        "0 = aus": "0 = oprit",
+        "Aktueller Ziel-Stand (🎯):": "Progres curent obiectiv (🎯):",
+        "\u201E🎯 Ziel resetten\u201C setzt nur die Zahl nach dem / auf 0 (✅ bleibt)":
+          "\u201E🎯 Resetare obiectiv\u201C resetează doar nr. de după / la 0 (✅ rămâne)",
+        "Neue PIN setzen": "Setare PIN nou",
+        "Neue Eltern-PIN setzen": "Setare PIN nou pentru părinți",
+        "PIN setzen": "Setează PIN",
+        "Standard-PIN \u201E0000\u201C bedeutet offen: kein Schutz aktiv.":
+          "PIN-ul standard \u201E0000\u201C înseamnă deschis: fără protecție activă.",
+        "PIN (aktuell)": "PIN (actual)",
+        "Aktuelle Eltern-PIN": "PIN actual părinți",
+        "Neue PIN": "PIN nou",
+        "Neue Eltern-PIN": "PIN nou părinți",
+        Ändern: "Modifică",
+        "Tipp: Neue PIN \u201E0000\u201C = Schutz aus":
+          "Indiciu: PIN nou \u201E0000\u201C = protecție oprită",
+        "Reset (Punkte + Fehlerpool)": "Resetare (Puncte + Lista greșeli)",
+        "♻️ Reset": "♻️ Resetare",
+        Konfetti: "Confetti",
+        Export: "Export",
+        "Index HTML exportieren": "Exportă Index HTML",
+        "Speichert die originale App-HTML mit portablem localStorage-Stand.":
+          "Salvează HTML-ul original cu starea portabilă localStorage.",
+
+        // ── Fehler-Overlay ──
+        "❌ Fehler": "❌ Greșeli",
+        "Gespeicherte Üben-Aufgaben:": "Exerciții salvate pentru exersare:",
+        Abbrechen: "Anulare",
+        Drucken: "Tipărire",
+        "OK zurücksetzen": "OK resetare",
+        "Arbeitsblatt – Mathe": "Fișă de lucru – Mate",
+        "Modus auswählen": "Selectează modul",
+
+        // ── Pull-to-Refresh ──
+        "Nach unten ziehen zum Aktualisieren":
+          "Trage în jos pentru actualizare",
+        "Loslassen zum Aktualisieren": "Eliberează pentru actualizare",
+        "Aktualisiere…": "Se actualizează…",
+
+        // ── Motivations-Nachrichten ──
+        "Super! 🌟": "Super! 🌟",
+        "Klasse! 👏": "Excelent! 👏",
+        "Weiter so! 💪": "Continuă tot așa! 💪",
+        "Toll gemacht! ⭐": "Foarte bine! ⭐",
+        "Prima! 🎉": "Bravo! 🎉",
+        "Spitze! 🚀": "Fantastic! 🚀",
+        "Super gemacht! 🌟": "Foarte bine! 🌟",
+        "Noch nicht ganz richtig...": "Nu este încă corect...",
+        "⏱ Zeit abgelaufen.": "⏱ Timpul a expirat.",
+
+        // ── Streak / Level ──
+        "5er-Serie! Fantastisch!": "Serie de 5! Fantastic!",
+        "10 richtig hintereinander!": "10 corecte la rând!",
+        "20er-Serie! Unglaublich!": "Serie de 20! Incredibil!",
+        "er-Serie! Wow!": " – serie! Wow!",
+        "Level {n} erreicht!": "Nivel {n} atins!",
+
+        // ── Status-Nachrichten ──
+        "Fehlerpool gelöscht.": "Lista greșeli ștearsă.",
+        "Fehlerpool wirklich löschen?": "Chiar ștergi lista de greșeli?",
+        "Keine Fehler.": "Fără greșeli.",
+        "Zurückgesetzt.": "Resetat.",
+        "✅ Stand zurückgesetzt.": "✅ Contor resetat.",
+        "❌ Fehler zurückgesetzt (Üben-Liste gelöscht).":
+          "❌ Greșeli resetate (lista de exersare ștearsă).",
+        "🔥 Serie zurückgesetzt.": "🔥 Serie resetată.",
+        "🏅 Level neu gestartet.": "🏅 Nivel resetat.",
+        "🎯 Ziel-Fortschritt neu gestartet.": "🎯 Progres obiectiv resetat.",
+        "Kein Ziel aktiv.": "Niciun obiectiv activ.",
+        "Werkseinstellungen wiederhergestellt!":
+          "Setări din fabrică restaurate!",
+
+        // ── Confirm / Alert / Prompt ──
+        "✅ Stand wirklich auf 0 setzen?\n(🎯 Ziel bleibt)":
+          "Chiar resetezi contorul ✅ la 0?\n(🎯 Obiectivul rămâne)",
+        "🔥 Serie wirklich auf 0 setzen?": "🔥 Chiar resetezi seria la 0?",
+        "🏅 Level wirklich neu starten?": "🏅 Chiar repornești nivelul?",
+        "🎯 Ziel-Fortschritt wirklich auf 0 setzen?\n(✅ bleibt, Ziel bleibt)":
+          "🎯 Chiar resetezi progresul obiectivului la 0?\n(✅ rămâne, obiectivul rămâne)",
+        "Punktestand und Fehler wirklich löschen?":
+          "Chiar ștergi punctajul și greșelile?",
+        "Ziel-Fortschritt (🎯) wirklich auf 0 setzen?\n(✅ bleibt)":
+          "Chiar resetezi progresul obiectivului (🎯) la 0?\n(✅ rămâne)",
+        "PIN eingeben, um zurückzusetzen:": "Introdu PIN-ul pentru resetare:",
+        "PIN eingeben, um den Stand zurückzusetzen:":
+          "Introdu PIN-ul pentru resetarea contorului:",
+        "PIN eingeben, um zu löschen:": "Introdu PIN-ul pentru ștergere:",
+        "Falsche PIN.": "PIN greșit.",
+        "Drucken nicht möglich.": "Tipărirea nu este posibilă.",
+        "Alle Modus-Einstellungen auf Werkseinstellungen zurücksetzen?\n\n(Punkte und Fehlerpool bleiben erhalten)":
+          "Resetezi toate setările modului la setări din fabrică?\n\n(Punctele și lista de greșeli rămân)",
+        "App wirklich komplett zurücksetzen (Werkseinstellung)?\n\nPIN ist danach wieder 0000 (offen).":
+          "Chiar resetezi complet aplicația (setări din fabrică)?\n\nPIN-ul va fi din nou 0000 (deschis).",
+
+        // ── Eltern-Nachrichten ──
+        "Ziel-Fortschritt zurückgesetzt (🎯=0).":
+          "Progres obiectiv resetat (🎯=0).",
+        "Ziel ausgeschaltet.": "Obiectiv dezactivat.",
+        "Bitte eine 4-stellige PIN eingeben.":
+          "Te rog introdu un PIN de 4 cifre.",
+        "PIN bleibt offen (0000): kein Schutz aktiv.":
+          "PIN-ul rămâne deschis (0000): fără protecție activă.",
+        "PIN gespeichert.": "PIN salvat.",
+        "Bitte eine 4-stellige neue PIN eingeben.":
+          "Te rog introdu un PIN nou de 4 cifre.",
+        "PIN deaktiviert (0000).": "PIN dezactivat (0000).",
+        "PIN geändert.": "PIN modificat.",
+        "PIN: offen (0000) – kein Schutz aktiv, Resets ohne PIN":
+          "PIN: deschis (0000) – fără protecție activă, resetare fără PIN",
+        "PIN: aktiv – Resets nur mit PIN": "PIN: activ – resetare doar cu PIN",
+
+        // ── Flash / Kopfrechnen ──
+        "Zahlen anzeigen": "Arată numerele",
+        "Nochmal anzeigen": "Arată din nou",
+
+        // ── Presets ──
+        "Preset Klasse 1 aktiviert (Max 20, +/− ohne Zehnerübergang, optional ×/÷ nur 1×1 bis 9).":
+          "Presetare Clasa 1 activată (Max 20, +/− fără trecere, opțional ×/÷ doar tabla înm. până la 9).",
+        "Preset Klasse 2 aktiviert (Max 100, ± ohne Zehnerübergang, ×/÷ 1×1 bis 9).":
+          "Presetare Clasa 2 activată (Max 100, ± fără trecere, ×/÷ tabla înm. până la 9).",
+        "Preset Klasse 3 aktiviert (Max 100, ± gemischt, ×/÷ 1×1 bis 10).":
+          "Presetare Clasa 3 activată (Max 100, ± mixt, ×/÷ tabla înm. până la 10).",
+        "Preset Klasse 4 aktiviert (Max 1000, gemischt).":
+          "Presetare Clasa 4 activată (Max 1000, mixt).",
+
+        // ── Drucken ──
+        Mathe: "Mate",
+
+        // ── Ziel erreicht ──
+        "Ziel erreicht:": "Obiectiv atins:",
+        "richtig!": "corecte!",
+        "Ziel erreicht": "Obiectiv atins",
+        "Ziel gespeichert:": "Obiectiv salvat:",
+        "richtige.": "corecte.",
+
+        // ── Accessibility ──
+        "Antwort eingeben": "Introdu răspunsul",
+        "Aussage ist wahr": "Afirmația este adevărată",
+        "Aussage ist falsch": "Afirmația este falsă",
+
+        // ── Tipps ──
+        "Plus-Pyramide": "Piramida plus",
+        "Minus-Traube": "Ciorchine minus",
+        "Kein Tipp nötig": "Nu e nevoie de indiciu",
+        "Diese Runde ist schon fertig gelöst.":
+          "Această rundă este deja rezolvată.",
+        "Du kannst direkt neue Aufgaben laden.":
+          "Poți încărca direct exerciții noi.",
+        "Allgemeiner Tipp": "Indiciu general",
+        "Rechne langsam Schritt für Schritt.": "Calculează încet, pas cu pas.",
+        "Zuerst verstehen, dann rechnen.": "Întâi înțelege, apoi calculează.",
+        "Nimm die Zahl einfach zweimal.":
+          "Ia numărul pur și simplu de două ori.",
+        "Merksatz: verdoppeln = die gleiche Zahl noch einmal dazu.":
+          "Regulă: dublare = același număr încă o dată.",
+        "Erst Zehner, dann Einer verdoppeln.":
+          "Întâi zecile, apoi unitățile dublează.",
+        "Halbieren heißt: durch 2 teilen.":
+          "A înjumătăți înseamnă: împărțire la 2.",
+        "Die Hälfte ist ein gleich großer Teil von zwei Teilen.":
+          "Jumătatea este o parte egală din două părți.",
+        "Erst Zehner, dann Einer halbieren.":
+          "Întâi zecile, apoi unitățile înjumătățește.",
+        "Wahr oder falsch?": "Adevărat sau fals?",
+        "Immer erst rechnen, dann vergleichen.":
+          "Mereu calculează mai întâi, apoi compară.",
+        "Operator fehlt": "Operator lipsă",
+        "Probiere nacheinander alle Zeichen.":
+          "Încearcă pe rând toate semnele.",
+        "Vergleiche jedes Ergebnis mit dem Ziel.":
+          "Compară fiecare rezultat cu obiectivul.",
+        Vergleichen: "Comparare",
+        "Links und rechts immer getrennt rechnen.":
+          "Mereu calculează stânga și dreapta separat.",
+        Plus: "Plus",
+        "Bei kleinen Zahlen hilft Weiterzählen.":
+          "La numere mici ajută numărarea mai departe.",
+        "Plus mit Zehnerübergang": "Plus cu trecere peste zece",
+        "Merksatz: zuerst bis 10, dann den Rest.":
+          "Regulă: mai întâi până la 10, apoi restul.",
+        "Plus ohne Zehnerübergang": "Plus fără trecere peste zece",
+        "Erst Zehner, dann Einer.": "Întâi zecile, apoi unitățile.",
+        Minus: "Minus",
+        "Bei kleinen Zahlen hilft Rückwärtszählen.":
+          "La numere mici ajută numărarea înapoi.",
+        "Minus mit Entleihen": "Minus cu împrumut",
+        "Merksatz: zuerst bis zum Zehner zurück, dann den Rest.":
+          "Regulă: mai întâi înapoi la zece, apoi restul.",
+        "Minus ohne Entleihen": "Minus fără împrumut",
+        "Erst Einer, dann Zehner.": "Întâi unitățile, apoi zecile.",
+        Mal: "Înmulțire",
+        "Einmaleins-Reihen helfen sehr schnell.":
+          "Tabla înmulțirii ajută foarte rapid.",
+        "Große Zahl zerlegen und beide Teile multiplizieren.":
+          "Descompune numărul mare și înmulțește ambele părți.",
+        Geteilt: "Împărțire",
+        "Teilen ist die Umkehraufgabe von Mal.":
+          "Împărțirea este operația inversă a înmulțirii.",
+
+        // ── Tipp-Bausteine (dynamisch zusammengesetzt) ──
+        "Starte bei": "Începe de la",
+        "und zähle": "și numără",
+        "weiter.": "mai departe.",
+        "zurück.": "înapoi.",
+        "Zahlenschritte:": "Pașii numerelor:",
+        "Rückwärtsschritte:": "Pași înapoi:",
+        "Ergebnis:": "Rezultat:",
+        "zerlegen in": "descompune în",
+        und: "și",
+        "Zusammen:": "Împreună:",
+        "Zuerst bis zum nächsten Zehner:": "Mai întâi până la următoarea zece:",
+        "Dann den Rest dazu:": "Apoi adaugă restul:",
+        "Zahlenweg:": "Calea numerelor:",
+        "Zuerst bis zum vorherigen Zehner:":
+          "Mai întâi până la zecea anterioară:",
+        "Dann den Rest abziehen:": "Apoi scade restul:",
+        "Zusammen ergibt das": "Împreună dă",
+        "Zehner:": "Zeci:",
+        "Einer:": "Unități:",
+        "Denk an die": "Gândește-te la",
+        "er-Reihe": " – tabla de înmulțire",
+        "Also:": "Deci:",
+        "Rechne zuerst selbst:": "Calculează mai întâi singur:",
+        "Vergleiche dann mit der angezeigten Zahl:":
+          "Apoi compară cu numărul afișat:",
+        "Links ausrechnen:": "Calculează stânga:",
+        "Rechts ausrechnen:": "Calculează dreapta:",
+        "Dann vergleichen:": "Apoi compară:",
+        "Gesucht ist das Zeichen, das": "Se caută semnul care dă",
+        "ergibt.": ".",
+        "Probe:": "Verificare:",
+        "Frage dich:": "Întreabă-te:",
+        "Denk an die Umkehraufgabe:": "Gândește-te la operația inversă:",
+        "Passend ist:": "Potrivit este:",
+
+        // ── Footer ──
+        "Entwickelt von:": "Dezvoltat de:",
+        "ist jetzt installiert. 🎉": "este acum instalată. 🎉",
+
+        // ── Richtig / Falsch (input title) ──
+        Richtig: "Corect",
+
+        // ── Accessibility – getTaskInputA11yLabel ──
+        "Ergebnis für Verdoppeln von": "Rezultat pentru dublarea lui",
+        "Ergebnis für Halbieren von": "Rezultat pentru înjumătățirea lui",
+        eingeben: "introdu",
+        "Ersten Faktor für Aufgabe mit Ergebnis":
+          "Primul factor pentru exercițiu cu rezultat",
+        "Zweiten Faktor oder Teiler für Aufgabe mit Ergebnis":
+          "Al doilea factor sau împărțitor pentru exercițiu cu rezultat",
+        "Erste Zahl für": "Primul număr pentru",
+        "Zweite Zahl für": "Al doilea număr pentru",
+        gleich: "egal",
+        "Ergebnis für": "Rezultat pentru",
+
+        // ── Accessibility – setControlValidationState ──
+        Eingabe: "Intrare",
+        richtig: "corect",
+        falsch: "greșit",
+
+        // ── Accessibility – applyTaskAccessibility ──
+        "Wahr oder falsch:": "Adevărat sau fals:",
+        "Operator suchen:": "Caută operator:",
+        "Operator für": "Operator pentru",
+        auswählen: "selectează",
+        "Vergleich:": "Comparare:",
+        "im Vergleich zu": "în comparație cu",
+        "Vergleichszeichen zwischen": "Semn de comparare între",
+        "Verdoppeln von": "Dublarea lui",
+        "Halbieren von": "Înjumătățirea lui",
+        "Zahlen für": "Numere pentru",
+        "kurz anzeigen": "arată scurt",
+
+        // ── Accessibility – getGridCellA11yLabel ──
+        "oberer Stein": "piatra de sus",
+        "mittlere Reihe links": "rândul din mijloc stânga",
+        "mittlere Reihe rechts": "rândul din mijloc dreapta",
+        "untere Reihe links": "rândul de jos stânga",
+        "untere Reihe Mitte": "rândul de jos mijloc",
+        "untere Reihe rechts": "rândul de jos dreapta",
+        "obere Reihe links": "rândul de sus stânga",
+        "obere Reihe Mitte": "rândul de sus mijloc",
+        "obere Reihe rechts": "rândul de sus dreapta",
+        "unterer Stein": "piatra de jos",
+        Eingabefeld: "Câmp de intrare",
+        "im Raster": "în grilă",
+
+        // ── getQuickHint ──
+        "Rechne nach: ": "Verifică: ",
+        nicht: "nu",
+        "Rechne: ": "Calculează: ",
+        verdoppeln: "dublează",
+        halbieren: "înjumătățește",
+        "Probiere: ": "Încearcă: ",
+        "Links=": "Stânga=",
+        "Rechts=": "Dreapta=",
+        "Zehnerübergang: ": "Trecere peste zece: ",
+        dann: "apoi",
+        "Entleihen: ": "Împrumut: ",
+        "Denk an die ": "Gândește-te la ",
+        "er-Reihe: ": " – seria: ",
+        "Umkehr: ": "Invers: ",
+
+        // ── Print-Modus-Labels ──
+        "Plus (+)": "Plus (+)",
+        "Minus (−)": "Minus (−)",
+        "Mal (×)": "Înmulțire (×)",
+        "Geteilt (÷)": "Împărțire (÷)",
+        "Gemischt (+/−)": "Mixt (+/−)",
+        "Gemischt (×/÷)": "Mixt (×/÷)",
+        "Gemischt (+/−/×/÷)": "Mixt (+/−/×/÷)",
+        Arbeitsblatt: "Fișă de lucru",
+        "Reihe:": "Seria:",
+        Zehner: "Zeci",
+        "Print-Bereich fehlt in der HTML-Datei (printArea/printGrid).":
+          "Zona de tipărire lipsește în fișierul HTML (printArea/printGrid).",
+
+        // ── updateControlsVisibility ──
+        Einfach: "Ușor",
+        Schwer: "Greu",
+
+        // ── Tipp: Traube-Hinweis ──
+        "Tipp: Links − Rechts = Unten (umgekehrt: Unten + Rechts = Links)":
+          "Indiciu: Stânga − Dreapta = Jos (invers: Jos + Dreapta = Stânga)",
+
+        // ── Gesamt/Bestwert etc. ──
+        "Gesamt:": "Total:",
+        "Bestwert:": "Cel mai bun:",
+        "Max:": "Max:",
+        "Aufgaben:": "Exerciții:",
+
+        // ── wrongActionsOverlay Details ──
+        "Drucken erstellt ein DIN\u2011A4\u2011Blatt (3 Spalten) nur mit den\n          gespeicherten Üben\u2011Aufgaben – ohne Lösungen.":
+          "Tipărirea creează o fișă A4 (3 coloane) doar cu exercițiile salvate – fără soluții.",
+        "\u201EOK zurücksetzen\u201C setzt den Fehlerzähler auf 0 und löscht die\n          Üben\u2011Liste.":
+          "\u201EOK resetare\u201C pune contorul de greșeli pe 0 și șterge lista de exersare.",
+      };
+
+      let currentLang = "de";
+      try {
+        const saved = appStorage.getItem("mathLang");
+        if (saved === "ro") currentLang = "ro";
+      } catch (e) {}
+
+      function t(deText) {
+        if (currentLang === "de") return deText;
+        return I18N_RO[deText] !== undefined ? I18N_RO[deText] : deText;
+      }
+
+      function toggleLang() {
+        currentLang = currentLang === "de" ? "ro" : "de";
+        appStorage.setItem("mathLang", currentLang);
+        applyLanguage();
+        try {
+          updateViewSelectLabels();
+        } catch (e) {}
+      }
+
+      function applyLanguage() {
+        // Flag-Button aktualisieren
+        const btn = document.getElementById("langToggle");
+        if (btn) {
+          btn.textContent = currentLang === "de" ? "🇩🇪" : "🇷🇴";
+          btn.title = t("Sprache wechseln");
+          btn.setAttribute("aria-label", t("Sprache wechseln"));
+        }
+
+        // HTML lang
+        document.documentElement.lang = currentLang === "de" ? "de" : "ro";
+
+        // Titel
+        document.title = t("Mathe Guru Web");
+        const h1 = document.querySelector(".container > h1");
+        if (h1) h1.textContent = t("Mathe LGI");
+
+        // ── ViewSelect Optionen ──
+        const vs = document.getElementById("viewSelect");
+        if (vs) {
+          Array.from(vs.options).forEach((opt) => {
+            const de = opt.getAttribute("data-de") || opt.textContent.trim();
+            if (!opt.getAttribute("data-de")) opt.setAttribute("data-de", de);
+            opt.textContent = t(de);
+          });
+        }
+
+        // ViewSelectOverlay Label aktualisieren
+        const baseEl = document.querySelector(".viewBase");
+        if (baseEl) {
+          const selOpt = vs && vs.options[vs.selectedIndex];
+          if (selOpt) baseEl.textContent = selOpt.textContent.trim();
+        }
+
+        // ── Einstellungen ──
+        _tqAll("#controlsArea label", "textContent");
+        _tqAll("#controlsArea .miniLabel", "textContent");
+        _tqAll("#controlsArea .hintSmall", "textContent");
+        _tqAll("#controlsArea select option", "textContent");
+        _tqAll("#controlsArea .btn-mini", "textContent");
+
+        // ── Scoreboard titles & aria-labels ──
+        _tqAll("#scoreArea .score-item", "title");
+        _tqAll("#scoreArea .correctTap", "title");
+        _tqAll("#scoreArea .correctTap", "aria-label");
+        _tqAll("#scoreArea .tapIcon", "title");
+        _tqAll("#scoreArea .tapIcon", "aria-label");
+        _tqAll("#scoreArea .targetHint", "title");
+        _tqAll("#scoreArea .targetHint", "aria-label");
+        _tqAll("#scoreArea .menuItem", "title");
+        _tqAll("#scoreArea .menuItem", "aria-label");
+
+        // Üben-Text in Score
+        const übenEl = document.querySelector(
+          "#scoreRowBottom .score-item.clickable:last-child",
+        );
+        if (übenEl) {
+          übenEl.title = t("Fehler üben (klick!)");
+          übenEl.setAttribute("aria-label", t("Fehler üben öffnen"));
+          // Text "🎯 Üben" – nur den Text-Teil
+          const textNodes = Array.from(übenEl.childNodes).filter(
+            (n) => n.nodeType === 3,
+          );
+          textNodes.forEach((n) => {
+            if (n.textContent.trim())
+              n.textContent = " " + t("🎯 Üben").replace("🎯 ", "");
+          });
+        }
+
+        // ── Buttons ──
+        _tEl("refreshBtn", "textContent", "🔄 Neue Aufgaben");
+        _tEl("refreshBtn", "aria-label", "Neue Aufgaben laden");
+        _tEl("tipBtn", "textContent", "💡 Tipp");
+        _tEl("tipBtn", "aria-label", "Tipp zur aktuellen Aufgabe anzeigen");
+        _tEl("wrongBtn", "textContent", "🧽 Fehlerpool");
+        _tEl("wrongBtn", "aria-label", "Fehlerpool löschen");
+        _tEl("installBtn", "textContent", "📲 App installieren");
+        _tEl("installBtn", "aria-label", "App installieren");
+
+        // Factory/Print buttons (by aria-label)
+        document.querySelectorAll("#buttonRow2 button").forEach((b) => {
+          if (
+            b.getAttribute("aria-label")?.includes("Werkseinstellung") ||
+            b.getAttribute("data-de-aria")?.includes("Werkseinstellung")
+          ) {
+            const deAria = "App auf Werkseinstellungen zurücksetzen";
+            b.title = t("Werkseinstellungen");
+            b.setAttribute("aria-label", t(deAria));
+            b.setAttribute("data-de-aria", deAria);
+          }
+          if (
+            b.getAttribute("aria-label")?.includes("drucken") ||
+            b.getAttribute("data-de-aria")?.includes("drucken")
+          ) {
+            const deAria = "Arbeitsblatt drucken";
+            b.title = t(deAria);
+            b.setAttribute("aria-label", t(deAria));
+            b.setAttribute("data-de-aria", deAria);
+          }
+        });
+
+        // ── Themetoggle ──
+        const tt = document.getElementById("themeToggle");
+        if (tt) {
+          tt.setAttribute("aria-label", t("Farbstil wechseln"));
+          tt.title = t("Farbstil wechseln");
+        }
+
+        // ── Legend Overlay ──
+        _tqAll("#legendOverlay h2", "textContent");
+        _tqAll("#legendOverlay h3", "textContent");
+        _tqAll("#legendOverlay .overlayCloseX", "aria-label");
+        _tqAll("#legendOverlay .parentLabel", "textContent");
+        _tqAll("#legendOverlay .parentHint", "textContent");
+        _tqAll("#legendOverlay .btn-mini", "textContent");
+        _tqAll("#legendOverlay .legendRow b", "textContent");
+        _tqAll("#legendOverlay input", "aria-label");
+
+        // Legend Stat-Texte (die nach den <b>-Tags)
+        document
+          .querySelectorAll("#legendOverlay .legendRow > div")
+          .forEach((div) => {
+            Array.from(div.childNodes).forEach((node) => {
+              if (
+                node.nodeType === 3 &&
+                node.textContent.trim().startsWith("–")
+              ) {
+                const deTxt = node.textContent.trim();
+                const de = node.getAttribute ? null : null;
+                // Text zwischen <span> und nächstem Element
+                if (!node._deText) node._deText = deTxt;
+                const lookup = node._deText;
+                node.textContent =
+                  "\n            " + t(lookup) + "\n          ";
+              }
+            });
+          });
+
+        // Legend stat labels
+        document
+          .querySelectorAll("#legendOverlay .legendStat")
+          .forEach((stat) => {
+            Array.from(stat.childNodes).forEach((node) => {
+              if (node.nodeType === 3) {
+                let txt = node.textContent;
+                if (!node._deText) node._deText = txt;
+                let translated = node._deText;
+                translated = translated.replace("Gesamt:", t("Gesamt:"));
+                translated = translated.replace("Bestwert:", t("Bestwert:"));
+                translated = translated.replace("Max:", t("Max:"));
+                translated = translated.replace("Aufgaben:", t("Aufgaben:"));
+                node.textContent = translated;
+              }
+            });
+          });
+
+        // PIN status
+        const pinStatus = document.getElementById("parentPinStatus");
+        if (pinStatus && pinStatus.textContent.trim()) {
+          if (!pinStatus._deText)
+            pinStatus._deText = pinStatus.textContent.trim();
+          pinStatus.textContent = t(pinStatus._deText);
+        }
+
+        // Target progress label
+        const tgtLabel = document.querySelector(
+          "#legendOverlay .parentGrid .parentLabel",
+        );
+        // Already handled by _tqAll
+
+        // ── Wrong Actions Overlay ──
+        _tqAll("#wrongActionsOverlay h2", "textContent");
+        _tqAll("#wrongActionsOverlay .overlayCloseX", "aria-label");
+        _tqAll("#wrongActionsOverlay .btnGhost", "textContent");
+        _tqAll("#wrongActionsOverlay .btnSoft", "textContent");
+        _tqAll("#wrongActionsOverlay .btnDanger", "textContent");
+
+        // ── Print ──
+        _tEl("printSheetTitle", "textContent", "Arbeitsblatt – Mathe");
+
+        // ── ViewSelect Popup ──
+        _tqAll("#viewSelectPopup h2", "textContent");
+        _tqAll("#viewSelectPopup .overlayCloseX", "aria-label");
+
+        // ── Pull-to-Refresh ──
+        const prl = document.getElementById("pullRefreshLabel");
+        if (prl) {
+          if (!prl._deText) prl._deText = prl.textContent.trim();
+          prl.textContent = t(prl._deText);
+        }
+
+        // ── Footer ──
+        const footer = document.getElementById("appFooter");
+        if (footer) {
+          const ver = document.getElementById("appVersion");
+          const verText = ver ? ver.textContent : "";
+          footer.textContent = "";
+          footer.appendChild(
+            document.createTextNode(
+              t("Entwickelt von:") + " Bachner Gerhard & Isabella - Ver. ",
+            ),
+          );
+          if (ver) {
+            ver.textContent = verText;
+            footer.appendChild(ver);
+          }
+        }
+      }
+
+      // Hilfs-Funktionen für applyLanguage()
+      function _tqAll(selector, attr) {
+        document.querySelectorAll(selector).forEach((el) => {
+          const prop = attr === "aria-label" ? null : attr;
+          if (attr === "aria-label") {
+            const de =
+              el.getAttribute("data-de-aria") || el.getAttribute("aria-label");
+            if (!el.getAttribute("data-de-aria"))
+              el.setAttribute("data-de-aria", de);
+            el.setAttribute("aria-label", t(de));
+          } else if (attr === "title") {
+            const de = el.getAttribute("data-de-title") || el.title;
+            if (de && !el.getAttribute("data-de-title"))
+              el.setAttribute("data-de-title", de);
+            if (de) el.title = t(de);
+          } else if (attr === "textContent") {
+            // Nur reine Text-Elemente (keine Kinder mit eigenem Text)
+            const hasChildElements = el.querySelector(
+              "span, b, div, a, input, select, button",
+            );
+            if (!hasChildElements) {
+              const de = el.getAttribute("data-de") || el.textContent.trim();
+              if (!el.getAttribute("data-de")) el.setAttribute("data-de", de);
+              el.textContent = t(de);
+            }
+          }
+        });
+      }
+
+      function _tEl(id, attr, deKey) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (attr === "textContent") el.textContent = t(deKey);
+        else if (attr === "aria-label") el.setAttribute("aria-label", t(deKey));
+        else if (attr === "title") el.title = t(deKey);
+      }
+
       function setStatusMessage(text, color = "#475569") {
         const msg = document.getElementById("statusMessage");
         if (!msg) return;
@@ -2799,8 +3756,8 @@
         const androidBridge = getAndroidBridge();
         return Boolean(
           androidBridge &&
-            typeof androidBridge.getBundledIndexHtml === "function" &&
-            typeof androidBridge.saveTextFile === "function",
+          typeof androidBridge.getBundledIndexHtml === "function" &&
+          typeof androidBridge.saveTextFile === "function",
         );
       }
 
@@ -2894,8 +3851,7 @@
         const red = parseInt(rgbHex.slice(0, 2), 16);
         const green = parseInt(rgbHex.slice(2, 4), 16);
         const blue = parseInt(rgbHex.slice(4, 6), 16);
-        const luminance =
-          (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255;
+        const luminance = (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255;
         return luminance < 0.5;
       }
 
@@ -2925,7 +3881,9 @@
           document.body.style.backgroundImage = gradient;
         }
 
-        const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+        const themeColorMeta = document.querySelector(
+          'meta[name="theme-color"]',
+        );
         if (themeColorMeta) {
           themeColorMeta.setAttribute("content", bottomColor);
         }
@@ -3086,17 +4044,11 @@
           `<\/script>`;
 
         if (safeHtmlText.includes("</head>")) {
-          return safeHtmlText.replace(
-            "</head>",
-            `${bootstrapScript}\n</head>`,
-          );
+          return safeHtmlText.replace("</head>", `${bootstrapScript}\n</head>`);
         }
 
         if (safeHtmlText.includes("</body>")) {
-          return safeHtmlText.replace(
-            "</body>",
-            `${bootstrapScript}\n</body>`,
-          );
+          return safeHtmlText.replace("</body>", `${bootstrapScript}\n</body>`);
         }
 
         return `${safeHtmlText}\n${bootstrapScript}`;
@@ -3179,10 +4131,7 @@
         const mimeType = resolveMimeTypeForFilename(safeFilename);
         const androidBridge = getAndroidBridge();
 
-        if (
-          androidBridge &&
-          typeof androidBridge.saveTextFile === "function"
-        ) {
+        if (androidBridge && typeof androidBridge.saveTextFile === "function") {
           try {
             const result = androidBridge.saveTextFile(safeFilename, safeText);
             if (result !== false) return true;
@@ -3191,10 +4140,7 @@
           }
         }
 
-        const attempts = [
-          { useBlob: true },
-          { useBlob: false },
-        ];
+        const attempts = [{ useBlob: true }, { useBlob: false }];
 
         for (const attempt of attempts) {
           try {
@@ -3254,7 +4200,10 @@
             const result = androidBridge.shareTextFile(safeFilename, safeText);
             return result !== false;
           } catch (error) {
-            console.warn("AndroidInterface.shareTextFile fehlgeschlagen", error);
+            console.warn(
+              "AndroidInterface.shareTextFile fehlgeschlagen",
+              error,
+            );
           }
         }
 
@@ -3525,7 +4474,7 @@
         if (btn) {
           // Text statt Auge (kinderfreundlich)
           const pc = parseInt(taskEl.dataset.peekCount || "0", 10) || 0;
-          const label = pc <= 0 ? "Zahlen anzeigen" : "Nochmal anzeigen";
+          const label = pc <= 0 ? t("Zahlen anzeigen") : t("Nochmal anzeigen");
           btn.textContent = label;
           btn.setAttribute("aria-label", label);
           btn.title = label;
@@ -3746,7 +4695,7 @@
 
         const msg = document.getElementById("statusMessage");
         if (msg) {
-          msg.textContent = "⏱ Zeit abgelaufen.";
+          msg.textContent = t("⏱ Zeit abgelaufen.");
           msg.style.color = "#bc4749";
         }
 
@@ -4436,43 +5385,72 @@
       function getGridCellA11yLabel(kind, cellId) {
         const parts = {
           pyramide: {
-            r0c0: "oberer Stein",
-            r1c0: "mittlere Reihe links",
-            r1c1: "mittlere Reihe rechts",
-            r2c0: "untere Reihe links",
-            r2c1: "untere Reihe Mitte",
-            r2c2: "untere Reihe rechts",
+            r0c0: t("oberer Stein"),
+            r1c0: t("mittlere Reihe links"),
+            r1c1: t("mittlere Reihe rechts"),
+            r2c0: t("untere Reihe links"),
+            r2c1: t("untere Reihe Mitte"),
+            r2c2: t("untere Reihe rechts"),
           },
           traube: {
-            r0c0: "obere Reihe links",
-            r0c1: "obere Reihe Mitte",
-            r0c2: "obere Reihe rechts",
-            r1c0: "mittlere Reihe links",
-            r1c1: "mittlere Reihe rechts",
-            r2c0: "unterer Stein",
+            r0c0: t("obere Reihe links"),
+            r0c1: t("obere Reihe Mitte"),
+            r0c2: t("obere Reihe rechts"),
+            r1c0: t("mittlere Reihe links"),
+            r1c1: t("mittlere Reihe rechts"),
+            r2c0: t("unterer Stein"),
           },
         };
-        const modeText = kind === "pyramide" ? "Plus-Pyramide" : "Minus-Traube";
-        return `${modeText}, Eingabefeld ${parts[kind]?.[cellId] || "im Raster"}`;
+        const modeText =
+          kind === "pyramide" ? t("Plus-Pyramide") : t("Minus-Traube");
+        return `${modeText}, ${t("Eingabefeld")} ${parts[kind]?.[cellId] || t("im Raster")}`;
       }
 
       function getTaskInputA11yLabel(task) {
-        if (!task) return "Antwort eingeben";
+        if (!task) return t("Antwort eingeben");
         if (task.fmt === "verdoppeln")
-          return `Ergebnis für Verdoppeln von ${task.a} eingeben`;
+          return (
+            t("Ergebnis für Verdoppeln von") + ` ${task.a} ` + t("eingeben")
+          );
         if (task.fmt === "halbieren")
-          return `Ergebnis für Halbieren von ${task.a} eingeben`;
+          return (
+            t("Ergebnis für Halbieren von") + ` ${task.a} ` + t("eingeben")
+          );
         if (task.fmt === "faktor") {
           if (task.missing === 0)
-            return `Ersten Faktor für Aufgabe mit Ergebnis ${task.res} eingeben`;
+            return (
+              t("Ersten Faktor für Aufgabe mit Ergebnis") +
+              ` ${task.res} ` +
+              t("eingeben")
+            );
           if (task.missing === 1)
-            return `Zweiten Faktor oder Teiler für Aufgabe mit Ergebnis ${task.res} eingeben`;
+            return (
+              t("Zweiten Faktor oder Teiler für Aufgabe mit Ergebnis") +
+              ` ${task.res} ` +
+              t("eingeben")
+            );
         }
         if (task.missing === 0)
-          return `Erste Zahl für ${task.a} ${task.sym} ${task.b} gleich ${task.res} eingeben`;
+          return (
+            t("Erste Zahl für") +
+            ` ${task.a} ${task.sym} ${task.b} ` +
+            t("gleich") +
+            ` ${task.res} ` +
+            t("eingeben")
+          );
         if (task.missing === 1)
-          return `Zweite Zahl für ${task.a} ${task.sym} ${task.b} gleich ${task.res} eingeben`;
-        return `Ergebnis für ${task.a} ${task.sym} ${task.b} eingeben`;
+          return (
+            t("Zweite Zahl für") +
+            ` ${task.a} ${task.sym} ${task.b} ` +
+            t("gleich") +
+            ` ${task.res} ` +
+            t("eingeben")
+          );
+        return (
+          t("Ergebnis für") +
+          ` ${task.a} ${task.sym} ${task.b} ` +
+          t("eingeben")
+        );
       }
 
       function setControlValidationState(control, state) {
@@ -4480,7 +5458,7 @@
         const baseLabel =
           control.dataset.baseAriaLabel ||
           control.getAttribute("aria-label") ||
-          "Eingabe";
+          t("Eingabe");
         if (state === "neutral") {
           control.removeAttribute("aria-invalid");
           control.setAttribute("aria-label", baseLabel);
@@ -4492,7 +5470,7 @@
         );
         control.setAttribute(
           "aria-label",
-          `${baseLabel}, ${state === "correct" ? "richtig" : "falsch"}`,
+          `${baseLabel}, ${state === "correct" ? t("richtig") : t("falsch")}`,
         );
       }
 
@@ -4503,24 +5481,28 @@
         if (task.fmt === "wahrfalsch") {
           aufg.setAttribute(
             "aria-label",
-            `Wahr oder falsch: ${task.a} ${task.sym} ${task.b} = ${task.shownRes}`,
+            t("Wahr oder falsch:") +
+              ` ${task.a} ${task.sym} ${task.b} = ${task.shownRes}`,
           );
           const buttons = aufg.querySelectorAll("button");
           if (buttons[0])
-            buttons[0].setAttribute("aria-label", "Aussage ist wahr");
+            buttons[0].setAttribute("aria-label", t("Aussage ist wahr"));
           if (buttons[1])
-            buttons[1].setAttribute("aria-label", "Aussage ist falsch");
+            buttons[1].setAttribute("aria-label", t("Aussage ist falsch"));
           return;
         }
 
         if (task.fmt === "operator") {
           aufg.setAttribute(
             "aria-label",
-            `Operator suchen: ${task.a} ? ${task.b} = ${task.res}`,
+            t("Operator suchen:") + ` ${task.a} ? ${task.b} = ${task.res}`,
           );
           const sel = aufg.querySelector("select.inlineSelect");
           if (sel) {
-            const label = `Operator für ${task.a} ? ${task.b} = ${task.res} auswählen`;
+            const label =
+              t("Operator für") +
+              ` ${task.a} ? ${task.b} = ${task.res} ` +
+              t("auswählen");
             sel.dataset.baseAriaLabel = label;
             sel.setAttribute("aria-label", label);
           }
@@ -4530,11 +5512,19 @@
         if (task.fmt === "compare") {
           aufg.setAttribute(
             "aria-label",
-            `Vergleich: ${task.leftTxt} im Vergleich zu ${task.rightTxt}`,
+            t("Vergleich:") +
+              ` ${task.leftTxt} ` +
+              t("im Vergleich zu") +
+              ` ${task.rightTxt}`,
           );
           const sel = aufg.querySelector("select.inlineSelect");
           if (sel) {
-            const label = `Vergleichszeichen zwischen ${task.leftTxt} und ${task.rightTxt} auswählen`;
+            const label =
+              t("Vergleichszeichen zwischen") +
+              ` ${task.leftTxt} ` +
+              t("und") +
+              ` ${task.rightTxt} ` +
+              t("auswählen");
             sel.dataset.baseAriaLabel = label;
             sel.setAttribute("aria-label", label);
           }
@@ -4552,8 +5542,8 @@
           aufg.setAttribute(
             "aria-label",
             task.fmt === "verdoppeln"
-              ? `Verdoppeln von ${task.a}`
-              : `Halbieren von ${task.a}`,
+              ? t("Verdoppeln von") + ` ${task.a}`
+              : t("Halbieren von") + ` ${task.a}`,
           );
         } else {
           aufg.setAttribute("aria-label", `${task.a} ${task.sym} ${task.b} =`);
@@ -4563,7 +5553,9 @@
         if (flashBtn)
           flashBtn.setAttribute(
             "aria-label",
-            `Zahlen für ${task.a} ${task.sym} ${task.b} kurz anzeigen`,
+            t("Zahlen für") +
+              ` ${task.a} ${task.sym} ${task.b} ` +
+              t("kurz anzeigen"),
           );
       }
 
@@ -4576,6 +5568,10 @@
         const pinStatus = document.getElementById("parentPinStatus");
         if (pinStatus) {
           pinStatus.textContent =
+            pin === DEFAULT_PARENT_PIN
+              ? t("PIN: offen (0000) – kein Schutz aktiv, Resets ohne PIN")
+              : t("PIN: aktiv – Resets nur mit PIN");
+          pinStatus._deText =
             pin === DEFAULT_PARENT_PIN
               ? "PIN: offen (0000) – kein Schutz aktiv, Resets ohne PIN"
               : "PIN: aktiv – Resets nur mit PIN";
@@ -4620,14 +5616,17 @@
         if (targetProgress === targetCorrect && !goalLockActive) {
           goalLockActive = true;
           try {
-            showMotivation(`🎉 Ziel erreicht: ${targetCorrect} richtig!`, 2600);
+            showMotivation(
+              `🎉 ${t("Ziel erreicht:")} ${targetCorrect} ${t("richtig!")}`,
+              2600,
+            );
           } catch (e) {}
           try {
             createConfetti();
           } catch (e) {}
           const msg = document.getElementById("statusMessage");
           if (msg) {
-            msg.textContent = `Ziel erreicht ✅ (${targetCorrect}).`;
+            msg.textContent = `${t("Ziel erreicht")} ✅ (${targetCorrect}).`;
             msg.style.color = "#2d6a4f";
             // nach kurzer Zeit wieder ausblenden, damit es nicht dauerhaft stört
             clearTimeout(window.__goalMsgT);
@@ -4655,19 +5654,21 @@
         // PIN aktiv? -> per Prompt abfragen (wie beim normalen Reset)
         if (pin !== DEFAULT_PARENT_PIN) {
           const enteredRaw = prompt(
-            "PIN eingeben, um den Stand zurückzusetzen:",
+            t("PIN eingeben, um den Stand zurückzusetzen:"),
           );
           if (enteredRaw === null) return;
 
           const entered = normalizePinInput(enteredRaw);
           if (entered !== pin) {
-            alert("Falsche PIN.");
+            alert(t("Falsche PIN."));
             return;
           }
         }
 
         if (
-          !confirm("Ziel-Fortschritt (🎯) wirklich auf 0 setzen?\n(✅ bleibt)")
+          !confirm(
+            t("Ziel-Fortschritt (🎯) wirklich auf 0 setzen?\n(✅ bleibt)"),
+          )
         )
           return;
 
@@ -4677,7 +5678,7 @@
         updateTargetHint();
         updateParentProgressDisplay();
         applyGoalLock();
-        setParentMsg("Ziel-Fortschritt zurückgesetzt (🎯=0).", true);
+        setParentMsg(t("Ziel-Fortschritt zurückgesetzt (🎯=0)."), true);
       }
 
       function parentSaveTarget() {
@@ -4693,7 +5694,7 @@
             document.getElementById("parentCurrentPin")?.value,
           );
           if (entered !== pin) {
-            setParentMsg("Falsche PIN.", false);
+            setParentMsg(t("Falsche PIN."), false);
             return;
           }
         }
@@ -4707,8 +5708,12 @@
 
         setParentMsg(
           targetCorrect > 0
-            ? `Ziel gespeichert: ${targetCorrect} richtige.`
-            : "Ziel ausgeschaltet.",
+            ? t("Ziel gespeichert:") +
+                " " +
+                targetCorrect +
+                " " +
+                t("richtige.")
+            : t("Ziel ausgeschaltet."),
           true,
         );
         applyGoalLock();
@@ -4726,7 +5731,7 @@
           document.getElementById("parentNewPinSet")?.value,
         );
         if (!newPin) {
-          setParentMsg("Bitte eine 4-stellige PIN eingeben.", false);
+          setParentMsg(t("Bitte eine 4-stellige PIN eingeben."), false);
           return;
         }
 
@@ -4735,8 +5740,8 @@
         if (f) f.value = "";
         setParentMsg(
           newPin === DEFAULT_PARENT_PIN
-            ? "PIN bleibt offen (0000): kein Schutz aktiv."
-            : "PIN gespeichert.",
+            ? t("PIN bleibt offen (0000): kein Schutz aktiv.")
+            : t("PIN gespeichert."),
           true,
         );
         syncParentUI(true);
@@ -4753,7 +5758,7 @@
           document.getElementById("parentCurrentPin")?.value,
         );
         if (entered !== stored) {
-          setParentMsg("Falsche PIN.", false);
+          setParentMsg(t("Falsche PIN."), false);
           return;
         }
 
@@ -4761,7 +5766,7 @@
           document.getElementById("parentNewPin")?.value,
         );
         if (!newPin) {
-          setParentMsg("Bitte eine 4-stellige neue PIN eingeben.", false);
+          setParentMsg(t("Bitte eine 4-stellige neue PIN eingeben."), false);
           return;
         }
 
@@ -4770,8 +5775,8 @@
         if (n) n.value = "";
         setParentMsg(
           newPin === DEFAULT_PARENT_PIN
-            ? "PIN deaktiviert (0000)."
-            : "PIN geändert.",
+            ? t("PIN deaktiviert (0000).")
+            : t("PIN geändert."),
           true,
         );
         syncParentUI(true);
@@ -4803,7 +5808,7 @@
         updateScoreboard();
         const msg = document.getElementById("statusMessage");
         if (msg) {
-          msg.textContent = "Zurückgesetzt.";
+          msg.textContent = t("Zurückgesetzt.");
           msg.style.color = "#2d6a4f";
         }
         initGame(true);
@@ -4816,14 +5821,14 @@
             document.getElementById("parentCurrentPin")?.value,
           );
           if (entered !== pin) {
-            setParentMsg("Falsche PIN.", false);
+            setParentMsg(t("Falsche PIN."), false);
             return;
           }
         }
 
-        if (confirm("Punktestand und Fehler wirklich löschen?")) {
+        if (confirm(t("Punktestand und Fehler wirklich löschen?"))) {
           resetScoreInternal();
-          setParentMsg("Zurückgesetzt.", true);
+          setParentMsg(t("Zurückgesetzt."), true);
         }
       }
 
@@ -4906,19 +5911,35 @@
 
       function normalizeMulProfileControls() {
         const mp = document.getElementById("mulProfile");
-        const rt = document.getElementById("rowTrain");
-        if (!mp || !rt) return;
+        if (!mp) return;
 
         const isTable9 = mp.value === "table9";
 
         // 10er-Reihe bei 1×1 (1–9) deaktivieren
-        const opt10 = [...rt.options].find((o) => o.value === "10");
-        if (opt10) {
-          opt10.disabled = isTable9;
-          opt10.hidden = isTable9;
+        const btn10 = document.querySelector(
+          '#rowChips .row-chip[data-value="10"]',
+        );
+        if (btn10) {
+          if (isTable9) {
+            btn10.setAttribute("data-disabled", "1");
+            btn10.classList.remove("active");
+          } else {
+            btn10.removeAttribute("data-disabled");
+          }
         }
 
-        if (isTable9 && rt.value === "10") rt.value = "9";
+        const mixedBtn = document.querySelector("#rowChips .chip-mixed");
+        const activeCount = document.querySelectorAll(
+          "#rowChips .row-chip.active",
+        ).length;
+        if (activeCount === 0 && mixedBtn) {
+          mixedBtn.classList.add("active");
+        }
+
+        const rt = getRowTrain();
+        const rtInput = document.getElementById("rowTrain");
+        if (rtInput)
+          rtInput.value = Array.isArray(rt) ? JSON.stringify(rt) : rt;
       }
 
       function mergeModeSettings(mode, patch) {
@@ -5077,8 +6098,9 @@
             mulProfile: "table9",
           });
 
-          msg =
-            "Preset Klasse 2 aktiviert (Max 100, ± ohne Zehnerübergang, ×/÷ 1×1 bis 9).";
+          msg = t(
+            "Preset Klasse 2 aktiviert (Max 100, ± ohne Zehnerübergang, ×/÷ 1×1 bis 9).",
+          );
         } else if (g === "3") {
           mergeModeSettings("pyramide", { maxWert: "100" });
           mergeModeSettings("traube", { maxWert: "100" });
@@ -5147,8 +6169,9 @@
             mulProfile: "table",
           });
 
-          msg =
-            "Preset Klasse 3 aktiviert (Max 100, ± gemischt, ×/÷ 1×1 bis 10).";
+          msg = t(
+            "Preset Klasse 3 aktiviert (Max 100, ± gemischt, ×/÷ 1×1 bis 10).",
+          );
         } else if (g === "4") {
           mergeModeSettings("pyramide", { maxWert: "1000" });
           mergeModeSettings("traube", { maxWert: "1000" });
@@ -5217,7 +6240,7 @@
             mulProfile: "free",
           });
 
-          msg = "Preset Klasse 4 aktiviert (Max 1000, gemischt).";
+          msg = t("Preset Klasse 4 aktiviert (Max 1000, gemischt).");
         } else {
           msg = "Unbekanntes Preset.";
         }
@@ -5803,6 +6826,7 @@
         updateControlsVisibility();
         wechselAnsicht(false);
         updateViewSelectLabels();
+        applyLanguage();
 
         setTimeout(() => {
           scrollToTasks();
@@ -5947,7 +6971,7 @@
         if (!Array.isArray(wrongPool) || wrongPool.length === 0) {
           const msg = document.getElementById("statusMessage");
           if (msg) {
-            msg.textContent = "Keine Fehler.";
+            msg.textContent = t("Keine Fehler.");
             msg.style.color = "#2d6a4f";
           }
           return;
@@ -6146,7 +7170,7 @@
         try {
           if (ev) ev.stopPropagation();
         } catch (e) {}
-        if (!confirm("✅ Stand wirklich auf 0 setzen?\n(🎯 Ziel bleibt)"))
+        if (!confirm(t("✅ Stand wirklich auf 0 setzen?\n(🎯 Ziel bleibt)")))
           return;
 
         scoreCorrect = 0;
@@ -6155,11 +7179,11 @@
 
         const msg = document.getElementById("statusMessage");
         if (msg) {
-          msg.textContent = "✅ Stand zurückgesetzt.";
+          msg.textContent = t("✅ Stand zurückgesetzt.");
           msg.style.color = "#2d6a4f";
           clearTimeout(window.__standMsgT);
           window.__standMsgT = setTimeout(() => {
-            if (msg.textContent === "✅ Stand zurückgesetzt.")
+            if (msg.textContent === t("✅ Stand zurückgesetzt."))
               msg.textContent = "";
           }, 3500);
         }
@@ -6167,15 +7191,15 @@
 
       // Hilfsfunktion: Ja/Nein + (optional) PIN, wenn PIN aktiv
       function confirmAndMaybePin(confirmText) {
-        if (!confirm(confirmText)) return false;
+        if (!confirm(t(confirmText))) return false;
         const pin = getParentPin();
         if (pin === DEFAULT_PARENT_PIN) return true;
 
-        const enteredRaw = prompt("PIN eingeben, um zurückzusetzen:");
+        const enteredRaw = prompt(t("PIN eingeben, um zurückzusetzen:"));
         if (enteredRaw === null) return false;
         const entered = normalizePinInput(enteredRaw);
         if (entered !== pin) {
-          alert("Falsche PIN.");
+          alert(t("Falsche PIN."));
           return false;
         }
         return true;
@@ -6216,11 +7240,11 @@
         const pin = getParentPin();
         if (pin === DEFAULT_PARENT_PIN) return true;
 
-        const enteredRaw = prompt("PIN eingeben, um zurückzusetzen:");
+        const enteredRaw = prompt(t("PIN eingeben, um zurückzusetzen:"));
         if (enteredRaw === null) return false;
         const entered = normalizePinInput(enteredRaw);
         if (entered !== pin) {
-          alert("Falsche PIN.");
+          alert(t("Falsche PIN."));
           return false;
         }
         return true;
@@ -6242,7 +7266,7 @@
 
         const msg = document.getElementById("statusMessage");
         if (msg) {
-          msg.textContent = "❌ Fehler zurückgesetzt (Üben-Liste gelöscht).";
+          msg.textContent = t("❌ Fehler zurückgesetzt (Üben-Liste gelöscht).");
           msg.style.color = "#2d6a4f";
         }
       }
@@ -6429,7 +7453,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       function printWrongPoolSheetFromOverlay() {
         const n = Array.isArray(wrongPool) ? wrongPool.length : 0;
         if (n <= 0) {
-          alert("Keine Fehler.");
+          alert(t("Keine Fehler."));
           return;
         }
 
@@ -6461,7 +7485,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           window.print();
         } catch (e) {
           restoreWrongPoolPrintState(restore);
-          alert("Drucken nicht möglich.");
+          alert(t("Drucken nicht möglich."));
         }
       }
 
@@ -6474,7 +7498,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         updateScoreboard();
         const msg = document.getElementById("statusMessage");
         if (msg) {
-          msg.textContent = "🔥 Serie zurückgesetzt.";
+          msg.textContent = t("🔥 Serie zurückgesetzt.");
           msg.style.color = "#2d6a4f";
         }
       }
@@ -6497,7 +7521,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         updateScoreboard();
         const msg = document.getElementById("statusMessage");
         if (msg) {
-          msg.textContent = "🏅 Level neu gestartet.";
+          msg.textContent = t("🏅 Level neu gestartet.");
           msg.style.color = "#2d6a4f";
         }
       }
@@ -6509,7 +7533,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         if (targetCorrect <= 0) {
           const msg = document.getElementById("statusMessage");
           if (msg) {
-            msg.textContent = "Kein Ziel aktiv.";
+            msg.textContent = t("Kein Ziel aktiv.");
             msg.style.color = "#1d3557";
           }
           return;
@@ -6531,7 +7555,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
         const msg = document.getElementById("statusMessage");
         if (msg) {
-          msg.textContent = "🎯 Ziel-Fortschritt neu gestartet.";
+          msg.textContent = t("🎯 Ziel-Fortschritt neu gestartet.");
           msg.style.color = "#2d6a4f";
         }
       }
@@ -6541,17 +7565,17 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
         // PIN 0000 = offen → Reset wie bisher
         if (pin !== DEFAULT_PARENT_PIN) {
-          const enteredRaw = prompt("PIN eingeben, um zu löschen:");
+          const enteredRaw = prompt(t("PIN eingeben, um zu löschen:"));
           if (enteredRaw === null) return;
 
           const entered = normalizePinInput(enteredRaw);
           if (entered !== pin) {
-            alert("Falsche PIN.");
+            alert(t("Falsche PIN."));
             return;
           }
         }
 
-        if (confirm("Punktestand und Fehler wirklich löschen?")) {
+        if (confirm(t("Punktestand und Fehler wirklich löschen?"))) {
           resetScoreInternal();
         }
       }
@@ -6659,12 +7683,12 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
           // Motivierende Texte (zufällig)
           const messages = [
-            "Super! 🌟",
-            "Klasse! 👏",
-            "Weiter so! 💪",
-            "Toll gemacht! ⭐",
-            "Prima! 🎉",
-            "Spitze! 🚀",
+            t("Super! 🌟"),
+            t("Klasse! 👏"),
+            t("Weiter so! 💪"),
+            t("Toll gemacht! ⭐"),
+            t("Prima! 🎉"),
+            t("Spitze! 🚀"),
           ];
           const msg = messages[Math.floor(Math.random() * messages.length)];
 
@@ -6692,21 +7716,30 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         }
 
         if (streakCount === 5) {
-          showMotivation("🔥 5er-Serie! Fantastisch! 🔥", 2000);
+          showMotivation("🔥 " + t("5er-Serie! Fantastisch!") + " 🔥", 2000);
         } else if (streakCount === 10) {
-          showMotivation("🔥🔥 10 richtig hintereinander! 🔥🔥", 2500);
+          showMotivation(
+            "🔥🔥 " + t("10 richtig hintereinander!") + " 🔥🔥",
+            2500,
+          );
           createConfetti();
         } else if (streakCount === 20) {
-          showMotivation("🔥🔥🔥 20er-Serie! Unglaublich! 🔥🔥🔥", 3000);
+          showMotivation(
+            "🔥🔥🔥 " + t("20er-Serie! Unglaublich!") + " 🔥🔥🔥",
+            3000,
+          );
           createConfetti();
         } else if (streakCount % 10 === 0 && streakCount > 0) {
-          showMotivation(`🔥 ${streakCount}er-Serie! Wow! 🔥`, 2000);
+          showMotivation(`🔥 ${streakCount}${t("er-Serie! Wow!")} 🔥`, 2000);
         }
       }
 
       // Level-Up feiern
       function celebrateLevelUp(newLevel) {
-        showMotivation(`🏅 Level ${newLevel} erreicht! 🏅`, 2500);
+        showMotivation(
+          `🏅 ${t("Level {n} erreicht!").replace("{n}", newLevel)} 🏅`,
+          2500,
+        );
         createConfetti();
       }
 
@@ -6719,18 +7752,21 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         if (removedCount > 0) {
           const msg = document.getElementById("statusMessage");
           if (msg) {
-            msg.textContent = `Fehlerpool voll: ${removedCount} älteste Aufgabe${removedCount === 1 ? "" : "n"} entfernt.`;
+            msg.textContent =
+              currentLang === "ro"
+                ? `Lista greșeli plină: ${removedCount} exerciții vechi eliminate.`
+                : `Fehlerpool voll: ${removedCount} älteste Aufgabe${removedCount === 1 ? "" : "n"} entfernt.`;
             msg.style.color = "#6b705c";
           }
         }
       }
 
       function resetWrongPool() {
-        if (confirm("Fehlerpool wirklich löschen?")) {
+        if (confirm(t("Fehlerpool wirklich löschen?"))) {
           wrongPool = [];
           saveWrongPool();
           document.getElementById("statusMessage").textContent =
-            "Fehlerpool gelöscht.";
+            msg.textContent = t("Fehlerpool gelöscht.");
           document.getElementById("statusMessage").style.color = "#2d6a4f";
         }
       }
@@ -6738,7 +7774,9 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       function resetModeSettingsToDefault() {
         if (
           confirm(
-            "Alle Modus-Einstellungen auf Werkseinstellungen zurücksetzen?\n\n(Punkte und Fehlerpool bleiben erhalten)",
+            t(
+              "Alle Modus-Einstellungen auf Werkseinstellungen zurücksetzen?\n\n(Punkte und Fehlerpool bleiben erhalten)",
+            ),
           )
         ) {
           // Lösche alle Modi-spezifischen Einstellungen
@@ -6766,8 +7804,9 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           appStorage.removeItem("mathLastMode");
 
           // Lade Seite neu, um Standardwerte zu laden
-          document.getElementById("statusMessage").textContent =
-            "Werkseinstellungen wiederhergestellt!";
+          document.getElementById("statusMessage").textContent = t(
+            "Werkseinstellungen wiederhergestellt!",
+          );
           document.getElementById("statusMessage").style.color = "#2d6a4f";
 
           setTimeout(() => {
@@ -6804,7 +7843,9 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           mp.style.display =
             showZeilen &&
             (mode === "mal" ||
+              mode === "squareMal" ||
               mode === "geteilt" ||
+              mode === "squareDiv" ||
               mode === "mixMD" ||
               mode === "mixALL" ||
               mode === "fehler")
@@ -6877,6 +7918,14 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           <option value="operator">Operator fehlt</option>
           <option value="compare">Vergleichen (&lt; &gt; =)</option>
         `);
+          } else if (mode === "squareMal" || mode === "squareDiv") {
+            setOptions(`
+          <option value="standard">Standard</option>
+          <option value="faktor">Faktor fehlt</option>
+          <option value="wahrfalsch">Wahr / Falsch</option>
+          <option value="operator">Operator fehlt</option>
+          <option value="compare">Vergleichen (&lt; &gt; =)</option>
+        `);
           } else if (mode === "mixMD") {
             setOptions(`
           <option value="standard">Standard</option>
@@ -6938,45 +7987,52 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
         if (mode === "plus") {
           diff.innerHTML = `
-        <option value="standard">Standard (Ergebnis fehlt)</option>
-        <option value="mixed">Gemischt</option>
-        <option value="noCarry">Ohne Zehnerübergang</option>
-        <option value="carry">Mit Zehnerübergang</option>`;
-          document.querySelector("#difficultyGroup label").textContent = "Plus";
+        <option value="standard">${t("Standard (Ergebnis fehlt)")}</option>
+        <option value="mixed">${t("Gemischt")}</option>
+        <option value="noCarry">${t("Ohne Zehnerübergang")}</option>
+        <option value="carry">${t("Mit Zehnerübergang")}</option>`;
+          document.querySelector("#difficultyGroup label").textContent =
+            t("Plus");
           document.getElementById("rowGroup").style.display = "none";
         } else if (mode === "minus") {
           diff.innerHTML = `
-        <option value="standard">Standard (Ergebnis fehlt)</option>
-        <option value="mixed">Gemischt</option>
-        <option value="noBorrow">Ohne Zehnerübergang</option>
-        <option value="borrow">Mit Zehnerübergang</option>`;
+        <option value="standard">${t("Standard (Ergebnis fehlt)")}</option>
+        <option value="mixed">${t("Gemischt")}</option>
+        <option value="noBorrow">${t("Ohne Zehnerübergang")}</option>
+        <option value="borrow">${t("Mit Zehnerübergang")}</option>`;
           document.querySelector("#difficultyGroup label").textContent =
-            "Minus";
+            t("Minus");
           document.getElementById("rowGroup").style.display = "none";
-        } else if (mode === "mal" || mode === "geteilt" || mode === "mixMD") {
+        } else if (
+          mode === "mal" ||
+          mode === "geteilt" ||
+          mode === "squareMal" ||
+          mode === "squareDiv" ||
+          mode === "mixMD"
+        ) {
           diff.innerHTML = `
-        <option value="standard">Standard (Ergebnis fehlt)</option>
-        <option value="easy">Einfach</option>
-        <option value="hard">Schwer</option>
-        <option value="mixed">Gemischt</option>`;
+        <option value="standard">${t("Standard (Ergebnis fehlt)")}</option>
+        <option value="easy">${t("Einfach")}</option>
+        <option value="hard">${t("Schwer")}</option>
+        <option value="mixed">${t("Gemischt")}</option>`;
           document.querySelector("#difficultyGroup label").textContent =
-            "Schwierigkeit";
+            t("Schwierigkeit");
           document.getElementById("rowGroup").style.display = "";
         } else if (mode === "mixALL") {
           diff.innerHTML = `
-        <option value="mixed">Gemischt</option>
-        <option value="easy">Einfach</option>
-        <option value="hard">Schwer</option>`;
+        <option value="mixed">${t("Gemischt")}</option>
+        <option value="easy">${t("Einfach")}</option>
+        <option value="hard">${t("Schwer")}</option>`;
           document.querySelector("#difficultyGroup label").textContent =
-            "Schwierigkeit";
+            t("Schwierigkeit");
           document.getElementById("rowGroup").style.display = "";
         } else if (mode === "mix" || mode === "mixALL" || mode === "fehler") {
           diff.innerHTML = `
-        <option value="mixed">Gemischt</option>
-        <option value="easy">Einfach</option>
-        <option value="hard">Schwer</option>`;
+        <option value="mixed">${t("Gemischt")}</option>
+        <option value="easy">${t("Einfach")}</option>
+        <option value="hard">${t("Schwer")}</option>`;
           document.querySelector("#difficultyGroup label").textContent =
-            "Schwierigkeit";
+            t("Schwierigkeit");
           document.getElementById("rowGroup").style.display = "none";
         } else {
           document.getElementById("rowGroup").style.display = "none";
@@ -7065,7 +8121,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
               ? getMax()
               : getStoredMaxForMode(opt.value);
           const suffix = ` (0–${max})`;
-          opt.textContent = opt.dataset.baseLabel + suffix;
+          opt.textContent = t(opt.dataset.baseLabel) + suffix;
         }
 
         updateViewSelectOverlay();
@@ -7088,7 +8144,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
         const baseEl = ov.querySelector(".viewBase");
         const rngEl = ov.querySelector(".viewRangeInline");
-        if (baseEl) baseEl.textContent = (base || vs.value).trim();
+        if (baseEl) baseEl.textContent = t((base || vs.value).trim());
         if (rngEl) rngEl.textContent = `(0–${max})`;
       }
 
@@ -7258,7 +8314,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         if (task.operandCount === 3) {
           if (task.fmt === "wahrfalsch")
             return (
-              "Rechne nach: " +
+              t("Rechne nach: ") +
               task.a +
               " " +
               task.sym +
@@ -7270,10 +8326,12 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
               task.c +
               " = " +
               task.res +
-              (task.isTrue ? " → ✅" : " (nicht " + task.shownRes + ") → ❌")
+              (task.isTrue
+                ? " → ✅"
+                : " (" + t("nicht") + " " + task.shownRes + ") → ❌")
             );
           return (
-            "Rechne: " +
+            t("Rechne: ") +
             task.a +
             " " +
             task.sym +
@@ -7290,7 +8348,9 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         if (task.fmt === "verdoppeln")
           return (
             task.a +
-            " verdoppeln = " +
+            " " +
+            t("verdoppeln") +
+            " = " +
             task.a +
             " + " +
             task.a +
@@ -7298,10 +8358,18 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             task.res
           );
         if (task.fmt === "halbieren")
-          return task.a + " halbieren = " + task.a + " ÷ 2 = " + task.res;
+          return (
+            task.a +
+            " " +
+            t("halbieren") +
+            " = " +
+            task.a +
+            " ÷ 2 = " +
+            task.res
+          );
         if (task.fmt === "wahrfalsch")
           return (
-            "Rechne nach: " +
+            t("Rechne nach: ") +
             task.a +
             " " +
             task.sym +
@@ -7309,17 +8377,20 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             task.b +
             " = " +
             task.res +
-            (task.isTrue ? " → ✅" : " (nicht " + task.shownRes + ") → ❌")
+            (task.isTrue
+              ? " → ✅"
+              : " (" + t("nicht") + " " + task.shownRes + ") → ❌")
           );
         if (task.fmt === "operator")
           return (
-            "Probiere: " + task.a + " +/−/×/÷ " + task.b + " = " + task.res
+            t("Probiere: ") + task.a + " +/−/×/÷ " + task.b + " = " + task.res
           );
         if (task.fmt === "compare")
           return (
-            "Links=" +
+            t("Links=") +
             task.leftVal +
-            ", Rechts=" +
+            ", " +
+            t("Rechts=") +
             task.rightVal +
             " → " +
             task.correct
@@ -7330,45 +8401,49 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           if (ue) {
             const bis = 10 - (task.a % 10);
             return (
-              "Zehnerübergang: " +
+              t("Zehnerübergang: ") +
               task.a +
               "+" +
               bis +
               "=" +
               (task.a + bis) +
-              ", dann +" +
+              ", " +
+              t("dann") +
+              " +" +
               (task.b - bis) +
               "=" +
               task.res
             );
           }
-          return "Rechne: " + task.a + " + " + task.b + " = " + task.res;
+          return t("Rechne: ") + task.a + " + " + task.b + " = " + task.res;
         }
         if (task.sym === "−") {
           const ent = task.a % 10 < task.b % 10;
           if (ent) {
             const bis = task.a % 10;
             return (
-              "Entleihen: " +
+              t("Entleihen: ") +
               task.a +
               "−" +
               bis +
               "=" +
               (task.a - bis) +
-              ", dann −" +
+              ", " +
+              t("dann") +
+              " −" +
               (task.b - bis) +
               "=" +
               task.res
             );
           }
-          return "Rechne: " + task.a + " − " + task.b + " = " + task.res;
+          return t("Rechne: ") + task.a + " − " + task.b + " = " + task.res;
         }
         if (task.sym === "×") {
           const kleiner = Math.min(task.a, task.b);
           return (
-            "Denk an die " +
+            t("Denk an die ") +
             kleiner +
-            "er-Reihe: " +
+            t("er-Reihe: ") +
             task.a +
             "×" +
             task.b +
@@ -7377,7 +8452,9 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           );
         }
         if (task.sym === "÷") {
-          return "Umkehr: ? × " + task.b + " = " + task.a + " → " + task.res;
+          return (
+            t("Umkehr: ") + "? × " + task.b + " = " + task.a + " → " + task.res
+          );
         }
         return "";
       }
@@ -7452,7 +8529,9 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         const title = document.getElementById("printSheetTitle");
 
         if (!printArea || !grid || !title) {
-          alert("Print-Bereich fehlt in der HTML-Datei (printArea/printGrid).");
+          alert(
+            t("Print-Bereich fehlt in der HTML-Datei (printArea/printGrid)."),
+          );
           return;
         }
 
@@ -7475,28 +8554,30 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         document.documentElement.style.setProperty("--printCols", cols);
 
         const modeLabelMap = {
-          pyramide: "Plus-Pyramide",
-          traube: "Minus-Traube",
-          plus: "Plus (+)",
-          minus: "Minus (−)",
-          mal: "Mal (×)",
-          geteilt: "Geteilt (÷)",
-          double: "Verdoppeln",
-          half: "Halbieren",
-          mix: "Gemischt (+/−)",
-          mixMD: "Gemischt (×/÷)",
-          mixALL: "Gemischt (+/−/×/÷)",
-          fehler: "Fehler üben",
+          pyramide: t("Plus-Pyramide"),
+          traube: t("Minus-Traube"),
+          plus: t("Plus (+)"),
+          minus: t("Minus (−)"),
+          mal: t("Mal (×)"),
+          geteilt: t("Geteilt (÷)"),
+          double: t("Verdoppeln"),
+          half: t("Halbieren"),
+          mix: t("Gemischt (+/−)"),
+          mixMD: t("Gemischt (×/÷)"),
+          mixALL: t("Gemischt (+/−/×/÷)"),
+          fehler: t("Fehler üben"),
         };
-        const label = modeLabelMap[mode] || "Mathe";
+        const label = modeLabelMap[mode] || t("Mathe");
 
         // Titel/Meta
-        title.textContent = "Arbeitsblatt – " + label;
+        title.textContent = t("Arbeitsblatt") + " – " + label;
         if (meta) {
           const rowTxt =
             mode === "mal" || mode === "geteilt"
-              ? " · Reihe: " +
-                (rowTrain === "mixed" ? "Gemischt" : rowTrain + "er")
+              ? " · " +
+                t("Reihe:") +
+                " " +
+                (rowTrain === "mixed" ? t("Gemischt") : rowTrain + "er")
               : "";
           const profTxt =
             mode === "mal" || mode === "geteilt"
@@ -7504,8 +8585,8 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
                 (mulProfile === "table"
                   ? "1×1"
                   : mulProfile === "tens"
-                    ? "Zehner"
-                    : "Frei")
+                    ? t("Zehner")
+                    : t("Frei"))
               : "";
           meta.textContent = "Max: " + max + rowTxt + profTxt;
         }
@@ -7765,6 +8846,36 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
         return `${ma} ${task.sym} ${mb} = ${mr}`;
       }
+
+      function rowChipClick(btn) {
+        if (btn.hasAttribute('data-disabled') && btn.getAttribute('data-disabled') === '1') {
+          return;
+        }
+
+        const chips = document.querySelectorAll('.row-chip');
+        chips.forEach(c => {
+          c.classList.remove('active');
+          c.setAttribute('aria-pressed', 'false');
+        });
+        
+        btn.classList.add('active');
+        btn.setAttribute('aria-pressed', 'true');
+        
+        const rowTrainInput = document.getElementById('rowTrain');
+        if (rowTrainInput) {
+          rowTrainInput.value = btn.dataset.value;
+        }
+        
+        const modeSelect = document.getElementById('viewSelect');
+        if (modeSelect && typeof saveModeSettings === 'function') {
+          saveModeSettings(modeSelect.value);
+        }
+        
+        if (typeof initGame === 'function') {
+          initGame(true);
+        }
+      }
+
       function initGame(shouldScroll = true, fromRefresh = false) {
         if (window._autoNextTimeout) {
           clearTimeout(window._autoNextTimeout);
@@ -7786,7 +8897,11 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         if (mode === "pyramide") generierePyramide();
         else if (mode === "traube") {
           document.getElementById("statusMessage").innerHTML =
-            '<small style="opacity:0.7">Tipp: Links − Rechts = Unten (umgekehrt: Unten + Rechts = Links)</small>';
+            '<small style="opacity:0.7">' +
+            t(
+              "Tipp: Links − Rechts = Unten (umgekehrt: Unten + Rechts = Links)",
+            ) +
+            "</small>";
           generiereTraube();
         } else {
           generiereZeilen(mode);
@@ -8100,7 +9215,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         if (isWrongMode && (!wrongPool || !wrongPool.length)) {
           const msg = document.getElementById("statusMessage");
           if (msg) {
-            msg.textContent = "Keine Fehler.";
+            msg.textContent = t("Keine Fehler.");
             msg.style.color = "#6b705c";
           }
         }
@@ -8358,15 +9473,19 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
                 ? ["plus", "minus"]
                 : mode === "mal"
                   ? ["mal"]
-                  : mode === "geteilt"
-                    ? ["geteilt"]
-                    : mode === "mixMD"
-                      ? ["mal", "geteilt"]
-                      : mode === "mixALL"
-                        ? ["plus", "minus", "mal", "geteilt"]
-                        : mode === "fehler"
-                          ? ["plus", "minus", "mal", "geteilt"]
-                          : ["plus", "minus", "mal", "geteilt"];
+                  : mode === "squareMal"
+                    ? ["squareMal"]
+                    : mode === "geteilt"
+                      ? ["geteilt"]
+                      : mode === "squareDiv"
+                        ? ["squareDiv"]
+                        : mode === "mixMD"
+                          ? ["mal", "geteilt"]
+                          : mode === "mixALL"
+                            ? ["plus", "minus", "mal", "geteilt"]
+                            : mode === "fehler"
+                              ? ["plus", "minus", "mal", "geteilt"]
+                              : ["plus", "minus", "mal", "geteilt"];
 
         // Tatsächlichen Operator wählen (bei Mix/Fehler)
         const chooseOp = () => {
@@ -8441,7 +9560,12 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           return makeTrueFalseTask(realOp, max, effDiff, rowTrain, mulProfile);
 
         if (fmt === "faktor") {
-          if (realOp === "mal" || realOp === "geteilt")
+          if (
+            realOp === "mal" ||
+            realOp === "geteilt" ||
+            realOp === "squareMal" ||
+            realOp === "squareDiv"
+          )
             return makeFactorMissingTask(
               realOp,
               max,
@@ -8499,6 +9623,13 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       function makeStandardTask(op, max, diff, rowTrain, mulProfile) {
         let a, b, res, sym;
         const onesOnly = getOnesOnlyEnabled();
+
+        let effRow = pickRow(rowTrain);
+        if (effRow === "squares") {
+          if (op === "mal") op = "squareMal";
+          if (op === "geteilt") op = "squareDiv";
+          effRow = null;
+        }
 
         if (op === "plus") {
           sym = "+";
@@ -8808,8 +9939,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           sym = "×";
 
           if (onesOnly) {
-            const fixedRow =
-              rowTrain !== "mixed" ? parseInt(rowTrain, 10) : null;
+            const fixedRow = typeof effRow === "number" ? effRow : null;
             b = Number.isFinite(fixedRow)
               ? Math.max(1, Math.min(9, fixedRow))
               : zufallszahl(1, 9);
@@ -8821,7 +9951,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             res = a * b;
           } else {
             const profile = mulProfile || "free";
-            const row = rowTrain !== "mixed" ? rowTrain : null;
+            const row = typeof effRow === "number" ? effRow : null;
 
             const pickByDiff = (arr) => {
               if (!arr || !arr.length) return null;
@@ -8974,13 +10104,12 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
               }
             }
           }
-        } else {
+        } else if (op === "geteilt") {
           // geteilt
           sym = "÷";
 
           if (onesOnly) {
-            const fixedRow =
-              rowTrain !== "mixed" ? parseInt(rowTrain, 10) : null;
+            const fixedRow = typeof effRow === "number" ? effRow : null;
             b = Number.isFinite(fixedRow)
               ? Math.max(1, Math.min(9, fixedRow))
               : zufallszahl(1, 9);
@@ -8992,7 +10121,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             a = res * b;
           } else {
             const profile = mulProfile || "free";
-            const row = rowTrain !== "mixed" ? rowTrain : null;
+            const row = typeof effRow === "number" ? effRow : null;
 
             const pickByDiff = (arr) => {
               if (!arr || !arr.length) return null;
@@ -9191,13 +10320,107 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
               a = res * b;
             }
           }
+        } else if (op === "squareMal") {
+          sym = "×";
+          const fixedRow = rowTrain !== "mixed" ? parseInt(rowTrain, 10) : null;
+          if (Number.isFinite(fixedRow)) {
+            a = fixedRow;
+          } else {
+            const aMax = Math.floor(Math.sqrt(max));
+            if (aMax < 1) {
+              a = 1;
+            } else {
+              const profile = mulProfile || "free";
+              const candidates = [];
+              if (profile === "tens") {
+                for (let t = 10; t <= aMax; t += 10) candidates.push(t);
+              } else if (profile === "table9") {
+                for (let t = 1; t <= Math.min(9, aMax); t++) candidates.push(t);
+              } else if (profile === "table") {
+                for (let t = 1; t <= Math.min(10, aMax); t++)
+                  candidates.push(t);
+              } else {
+                for (let t = 1; t <= aMax; t++) candidates.push(t);
+              }
+              if (candidates.length === 0) a = 1;
+              else {
+                if (diff === "easy") {
+                  const maxIdx = Math.max(
+                    0,
+                    Math.floor((candidates.length - 1) * 0.4),
+                  );
+                  a = candidates[zufallszahl(0, maxIdx)];
+                } else if (diff === "hard") {
+                  const minIdx = Math.min(
+                    candidates.length - 1,
+                    Math.floor((candidates.length - 1) * 0.6),
+                  );
+                  a = candidates[zufallszahl(minIdx, candidates.length - 1)];
+                } else {
+                  a = candidates[zufallszahl(0, candidates.length - 1)];
+                }
+              }
+            }
+          }
+          b = a;
+          res = a * b;
+        } else if (op === "squareDiv") {
+          sym = "÷";
+          const fixedRow = rowTrain !== "mixed" ? parseInt(rowTrain, 10) : null;
+          if (Number.isFinite(fixedRow)) {
+            res = fixedRow;
+          } else {
+            const maxRes = Math.floor(Math.sqrt(max));
+            if (maxRes < 1) {
+              res = 1;
+            } else {
+              const profile = mulProfile || "free";
+              const candidates = [];
+              if (profile === "tens") {
+                for (let t = 10; t <= maxRes; t += 10) candidates.push(t);
+              } else if (profile === "table9") {
+                for (let t = 1; t <= Math.min(9, maxRes); t++)
+                  candidates.push(t);
+              } else if (profile === "table") {
+                for (let t = 1; t <= Math.min(10, maxRes); t++)
+                  candidates.push(t);
+              } else {
+                for (let t = 1; t <= maxRes; t++) candidates.push(t);
+              }
+              if (candidates.length === 0) res = 1;
+              else {
+                if (diff === "easy") {
+                  const maxIdx = Math.max(
+                    0,
+                    Math.floor((candidates.length - 1) * 0.4),
+                  );
+                  res = candidates[zufallszahl(0, maxIdx)];
+                } else if (diff === "hard") {
+                  const minIdx = Math.min(
+                    candidates.length - 1,
+                    Math.floor((candidates.length - 1) * 0.6),
+                  );
+                  res = candidates[zufallszahl(minIdx, candidates.length - 1)];
+                } else {
+                  res = candidates[zufallszahl(0, candidates.length - 1)];
+                }
+              }
+            }
+          }
+          b = res;
+          a = res * b;
         }
 
         let missing;
         // Standard-Anzeige: bei +/− ist nur im Modus "Gemischt" eine der drei Stellen zufällig leer.
         // In allen anderen Schwierigkeits-Modi (Standard / (ohne|mit) Übergang / (ohne|mit) Entleihen)
         // wird immer das Ergebnis gesucht – sonst würde man Umkehraufgaben (Minus) brauchen.
-        if (op === "mal" || op === "geteilt") {
+        if (
+          op === "mal" ||
+          op === "geteilt" ||
+          op === "squareMal" ||
+          op === "squareDiv"
+        ) {
           missing = 2;
         } else if (op === "plus" || op === "minus") {
           missing = diff === "mixed" ? zufallszahl(0, 2) : 2;
@@ -9210,14 +10433,14 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
       function makeFactorMissingTask(op, max, diff, rowTrain, mulProfile) {
         const base = makeStandardTask(op, max, diff, rowTrain, mulProfile);
-        if (op === "mal")
+        if (op === "mal" || op === "squareMal")
           return {
             ...base,
             fmt: "faktor",
             missing: 0,
             key: `${op}|faktor|${base.a}|${base.b}|${base.res}`,
           };
-        if (op === "geteilt")
+        if (op === "geteilt" || op === "squareDiv")
           return {
             ...base,
             fmt: "faktor",
@@ -9656,7 +10879,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         sel.classList.toggle("ok", correct);
         sel.classList.toggle("bad", !correct);
         setControlValidationState(sel, neu);
-        sel.title = correct ? "Richtig" : "Falsch";
+        sel.title = correct ? window.t("Richtig") : window.t("Falsch");
         if (correct) focusNextControl(sel);
         checkAllFinished();
       }
@@ -9731,7 +10954,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         sel.classList.toggle("ok", correct);
         sel.classList.toggle("bad", !correct);
         setControlValidationState(sel, neu);
-        sel.title = correct ? "Richtig" : "Falsch";
+        sel.title = correct ? window.t("Richtig") : window.t("Falsch");
         if (correct) focusNextControl(sel);
         checkAllFinished();
       }
@@ -9782,7 +11005,11 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           if (msg) {
             if (modeNow === "traube") {
               msg.innerHTML =
-                '<small style="opacity:0.7">Tipp: Links − Rechts = Unten (umgekehrt: Unten + Rechts = Links)</small>';
+                '<small style="opacity:0.7">' +
+                t(
+                  "Tipp: Links − Rechts = Unten (umgekehrt: Unten + Rechts = Links)",
+                ) +
+                "</small>";
               msg.style.color = "";
             } else {
               msg.textContent = "";
@@ -9884,18 +11111,133 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           stein.classList.remove("korrekt");
         }
         setControlValidationState(inp, newState);
-        inp.title = newState === "correct" ? "Richtig" : "Falsch";
+        inp.title = newState === "correct" ? t("Richtig") : t("Falsch");
 
         checkAllFinished();
       }
 
+      /* Übersetze deutsche Textfragmente in Tipp-Schritten (HTML-Steps) */
+      const STEP_RO = [
+        // Pyramide / Traube
+        ["Unten zwei Nachbarn zusammenrechnen: ", "Adună doi vecini de jos: "],
+        ["Die Summe kommt immer in den Stein ", "Suma vine mereu în piatra "],
+        ["darüber", "de deasupra"],
+        [
+          "Fehlt unten eine Zahl, rechne zurück: ",
+          "Lipsește un număr jos, calculează invers: ",
+        ],
+        ["Oben links minus oben rechts: ", "Stânga sus minus dreapta sus: "],
+        ["Das Ergebnis steht immer ", "Rezultatul este mereu "],
+        ["darunter", "dedesubt"],
+        [
+          "Fehlt oben links eine Zahl, rechne zurück: ",
+          "Lipsește un număr stânga sus, calculează invers: ",
+        ],
+        // Allgemein
+        [
+          "Diese Runde ist schon fertig gelöst.",
+          "Această rundă este deja rezolvată.",
+        ],
+        ["Rechne langsam Schritt für Schritt.", "Calculează încet pas cu pas."],
+        // Verdoppeln / Halbieren
+        ["Nimm die Zahl einfach ", "Ia pur și simplu numărul "],
+        ["zweimal", "de două ori"],
+        ["Halbieren heißt: durch ", "A înjumătăți înseamnă: împarte la "],
+        [" teilen.", " ."],
+        ["Probe: ", "Probă: "],
+        ["Zusammen: ", "Împreună: "],
+        ["Zusammen ergibt das ", "Rezultatul este "],
+        // Wahr/Falsch
+        ["Rechne zuerst selbst: ", "Calculează mai întâi singur: "],
+        [
+          "Vergleiche dann mit der angezeigten Zahl: ",
+          "Compară apoi cu numărul afișat: ",
+        ],
+        ["Ist beides gleich? Dann ", "Sunt egale? Atunci "],
+        ["✅ wahr", "✅ adevărat"],
+        [", sonst ", ", altfel "],
+        ["❌ falsch", "❌ fals"],
+        // Operator
+        [
+          "Probiere nacheinander alle Zeichen.",
+          "Încearcă pe rând toate semnele.",
+        ],
+        ["Gesucht ist das Zeichen, das ", "Se caută semnul care dă "],
+        [" ergibt.", "."],
+        // Compare
+        ["Links ausrechnen: ", "Calculează stânga: "],
+        ["Rechts ausrechnen: ", "Calculează dreapta: "],
+        ["Dann vergleichen: ", "Apoi compară: "],
+        // Plus
+        ["Starte bei ", "Începe de la "],
+        [" und zähle ", " și numără "],
+        [" weiter.", " mai departe."],
+        ["Zahlenschritte: ", "Pași numerici: "],
+        ["Rückwärtsschritte: ", "Pași înapoi: "],
+        [" zurück.", " înapoi."],
+        ["Ergebnis: ", "Rezultat: "],
+        [" zerlegen in ", " descompune în "],
+        [" und ", " și "],
+        [
+          "Zuerst bis zum nächsten Zehner: ",
+          "Mai întâi până la zecimala următoare: ",
+        ],
+        ["Dann den Rest dazu: ", "Apoi adaugă restul: "],
+        ["Zahlenweg: ", "Drum numeric: "],
+        ["Zehner: ", "Zecimale: "],
+        ["Einer: ", "Unități: "],
+        // Minus
+        [
+          "Zuerst bis zum vorherigen Zehner: ",
+          "Mai întâi până la zecimala anterioară: ",
+        ],
+        ["Dann den Rest abziehen: ", "Apoi scade restul: "],
+        // Mal
+        ["Denk an die ", "Gândește-te la "],
+        ["er-Reihe", " înmulțire"],
+        ["Also: ", "Deci: "],
+        ["Die größere Zahl zerlegen: ", "Descompune numărul mai mare: "],
+        [
+          "Einmaleins-Reihen helfen sehr schnell.",
+          "Tabla înmulțirii ajută foarte rapid.",
+        ],
+        // Geteilt
+        ["Frage dich: ", "Întreabă-te: "],
+        ["Wie oft passt ", "De câte ori încape "],
+        [" in ", " în "],
+        ["Denk an die Umkehraufgabe: ", "Gândește-te la operația inversă: "],
+        ["Passend ist: ", "Potrivit este: "],
+        // Erst Zehner / Einer
+        [
+          "Erst Zehner, dann Einer verdoppeln.",
+          "Mai întâi zecimalele, apoi unitățile dublează.",
+        ],
+        [
+          "Erst Zehner, dann Einer halbieren.",
+          "Mai întâi zecimalele, apoi unitățile înjumătățește.",
+        ],
+        ["Erst Zehner, dann Einer.", "Mai întâi zecimalele, apoi unitățile."],
+        ["Erst Einer, dann Zehner.", "Mai întâi unitățile, apoi zecimalele."],
+      ];
+
+      function _translateStep(html) {
+        if (currentLang === "de") return html;
+        let result = html;
+        for (const [de, ro] of STEP_RO) {
+          result = result.replaceAll(de, ro);
+        }
+        return result;
+      }
+
       function renderTipBox(title, steps, note = "") {
+        const tTitle = t(title);
+        const tNote = note ? t(note) : "";
         const safeSteps = Array.isArray(steps) ? steps : [];
         const htmlSteps = safeSteps
           .map((s) => {
             return (
               '<div class="tipStep"><span class="tipArrow">→</span><div class="tipMath">' +
-              s +
+              _translateStep(s) +
               "</div></div>"
             );
           })
@@ -9903,10 +11245,10 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         return (
           '<div class="tipBox">' +
           '<div class="tipTitle">💡 ' +
-          title +
+          tTitle +
           "</div>" +
           htmlSteps +
-          (note ? '<div class="tipMiniNote">' + note + "</div>" : "") +
+          (tNote ? '<div class="tipMiniNote">' + tNote + "</div>" : "") +
           "</div>"
         );
       }
@@ -10561,7 +11903,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           !anyInputEmpty &&
           !anySelectEmpty
         ) {
-          msg.textContent = "Super gemacht! 🌟";
+          msg.textContent = t("Super gemacht! 🌟");
           msg.style.color = "#2d6a4f";
 
           clearRoundTimer();
@@ -10591,7 +11933,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           !anySelectEmpty &&
           (inputs.length || selects.length)
         ) {
-          msg.textContent = "Noch nicht ganz richtig...";
+          msg.textContent = t("Noch nicht ganz richtig...");
           msg.style.color = "#bc4749";
         } else {
           if (mode !== "traube") msg.textContent = "";
@@ -10601,7 +11943,9 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       function factoryReset() {
         if (
           confirm(
-            "App wirklich komplett zurücksetzen (Werkseinstellung)?\n\nPIN ist danach wieder 0000 (offen).",
+            t(
+              "App wirklich komplett zurücksetzen (Werkseinstellung)?\n\nPIN ist danach wieder 0000 (offen).",
+            ),
           )
         ) {
           appStorage.clear();
@@ -10616,7 +11960,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v44";
+        const SW_VERSION = "rechenguru-lgi-v58";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -10682,8 +12026,8 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         function isDocumentFullscreen() {
           return Boolean(
             document.fullscreenElement ||
-              document.webkitFullscreenElement ||
-              document.msFullscreenElement,
+            document.webkitFullscreenElement ||
+            document.msFullscreenElement,
           );
         }
 
@@ -10820,14 +12164,22 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
               capture: true,
             },
           );
-          window.addEventListener("click", installedFullscreenActivationHandler, {
-            once: true,
-            capture: true,
-          });
-          window.addEventListener("keydown", installedFullscreenActivationHandler, {
-            once: true,
-            capture: true,
-          });
+          window.addEventListener(
+            "click",
+            installedFullscreenActivationHandler,
+            {
+              once: true,
+              capture: true,
+            },
+          );
+          window.addEventListener(
+            "keydown",
+            installedFullscreenActivationHandler,
+            {
+              once: true,
+              capture: true,
+            },
+          );
         }
 
         function shouldSuppressWebInstallUi() {
@@ -10843,7 +12195,10 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             !/CriOS|FxiOS|EdgiOS|OPiOS|OPT|YaBrowser|DuckDuckGo/i.test(ua);
           const isAndroid = isAndroidDevice();
           const isMobile =
-            isIOS || isAndroid || /Mobile|Tablet/i.test(ua) || maxTouchPoints > 0;
+            isIOS ||
+            isAndroid ||
+            /Mobile|Tablet/i.test(ua) ||
+            maxTouchPoints > 0;
           const isApkWebView = isAndroidAppWebView();
           const inAppBrowser = !isApkWebView && isInAppBrowser();
 
@@ -11013,7 +12368,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           try {
             const msg = document.getElementById("statusMessage");
             if (msg) {
-              msg.textContent = `${getCurrentAppName()} ist jetzt installiert. 🎉`;
+              msg.textContent = `${getCurrentAppName()} ${t("ist jetzt installiert. 🎉")}`;
               msg.style.color = "#2d6a4f";
             }
           } catch (e) {}
@@ -11023,7 +12378,8 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           // ── Pull-to-Refresh (nur Web/PWA, nicht Android-WebView) ──
           (function initPullToRefresh() {
             if (isAndroidAppWebView()) return;
-            if (!(navigator.maxTouchPoints > 0 || "ontouchstart" in window)) return;
+            if (!(navigator.maxTouchPoints > 0 || "ontouchstart" in window))
+              return;
 
             const PULL_MAX = 108;
             const PULL_TRIGGER = 72;
@@ -11031,12 +12387,20 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             let refreshing = false;
 
             function getScrollTop() {
-              return Math.max(window.scrollY || 0, document.documentElement?.scrollTop || 0, document.body?.scrollTop || 0);
+              return Math.max(
+                window.scrollY || 0,
+                document.documentElement?.scrollTop || 0,
+                document.body?.scrollTop || 0,
+              );
             }
 
             function isBlocked(target) {
               if (!(target instanceof Element)) return false;
-              return Boolean(target.closest("button, input, textarea, select, summary, .overlay, .overlayCard"));
+              return Boolean(
+                target.closest(
+                  "button, input, textarea, select, summary, .overlay, .overlayCard",
+                ),
+              );
             }
 
             function setIndicator(distance, isRefreshing) {
@@ -11046,49 +12410,101 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
               const d = Math.max(0, Math.min(PULL_MAX, Math.round(distance)));
               const ready = d >= PULL_TRIGGER;
               const visible = isRefreshing || d > 0;
-              el.style.setProperty("--pullRefreshOffset", (isRefreshing ? 0 : d - PULL_TRIGGER) + "px");
+              el.style.setProperty(
+                "--pullRefreshOffset",
+                (isRefreshing ? 0 : d - PULL_TRIGGER) + "px",
+              );
               el.classList.toggle("visible", visible);
               el.classList.toggle("ready", ready && !isRefreshing);
               el.classList.toggle("refreshing", isRefreshing);
-              label.textContent = isRefreshing ? "Aktualisiere…" : ready ? "Loslassen zum Aktualisieren" : "Nach unten ziehen zum Aktualisieren";
+              label.textContent = isRefreshing
+                ? t("Aktualisiere…")
+                : ready
+                  ? t("Loslassen zum Aktualisieren")
+                  : t("Nach unten ziehen zum Aktualisieren");
             }
 
-            function reset() { setIndicator(0, false); }
+            function reset() {
+              setIndicator(0, false);
+            }
 
-            function cancel() { gesture = null; if (!refreshing) reset(); }
-
-            window.addEventListener("touchstart", function(e) {
-              if (refreshing || e.touches.length !== 1) return;
-              if (getScrollTop() > 0) return;
-              if (isBlocked(e.target)) return;
-              gesture = { startY: e.touches[0].clientY, startX: e.touches[0].clientX, lastDist: 0 };
-            }, { passive: true });
-
-            window.addEventListener("touchmove", function(e) {
-              if (!gesture || refreshing || e.touches.length !== 1) { if (!refreshing) cancel(); return; }
-              var t = e.touches[0];
-              var dy = t.clientY - gesture.startY;
-              var dx = t.clientX - gesture.startX;
-              if (getScrollTop() > 0) { cancel(); return; }
-              if (dy <= 0) { reset(); return; }
-              if (Math.abs(dx) > dy + 12) { cancel(); return; }
-              var dist = Math.min(PULL_MAX, dy * 0.52);
-              gesture.lastDist = dist;
-              setIndicator(dist, false);
-              e.preventDefault();
-            }, { passive: false });
-
-            window.addEventListener("touchend", function() {
-              if (!gesture || refreshing) return;
-              var dist = Math.max(0, Math.min(PULL_MAX, gesture.lastDist || 0));
+            function cancel() {
               gesture = null;
-              if (dist < PULL_TRIGGER) { reset(); return; }
-              refreshing = true;
-              setIndicator(PULL_TRIGGER, true);
-              window.location.reload();
-            }, { passive: true });
+              if (!refreshing) reset();
+            }
 
-            window.addEventListener("touchcancel", function() { cancel(); }, { passive: true });
+            window.addEventListener(
+              "touchstart",
+              function (e) {
+                if (refreshing || e.touches.length !== 1) return;
+                if (getScrollTop() > 0) return;
+                if (isBlocked(e.target)) return;
+                gesture = {
+                  startY: e.touches[0].clientY,
+                  startX: e.touches[0].clientX,
+                  lastDist: 0,
+                };
+              },
+              { passive: true },
+            );
+
+            window.addEventListener(
+              "touchmove",
+              function (e) {
+                if (!gesture || refreshing || e.touches.length !== 1) {
+                  if (!refreshing) cancel();
+                  return;
+                }
+                var t = e.touches[0];
+                var dy = t.clientY - gesture.startY;
+                var dx = t.clientX - gesture.startX;
+                if (getScrollTop() > 0) {
+                  cancel();
+                  return;
+                }
+                if (dy <= 0) {
+                  reset();
+                  return;
+                }
+                if (Math.abs(dx) > dy + 12) {
+                  cancel();
+                  return;
+                }
+                var dist = Math.min(PULL_MAX, dy * 0.52);
+                gesture.lastDist = dist;
+                setIndicator(dist, false);
+                e.preventDefault();
+              },
+              { passive: false },
+            );
+
+            window.addEventListener(
+              "touchend",
+              function () {
+                if (!gesture || refreshing) return;
+                var dist = Math.max(
+                  0,
+                  Math.min(PULL_MAX, gesture.lastDist || 0),
+                );
+                gesture = null;
+                if (dist < PULL_TRIGGER) {
+                  reset();
+                  return;
+                }
+                refreshing = true;
+                setIndicator(PULL_TRIGGER, true);
+                window.location.reload();
+              },
+              { passive: true },
+            );
+
+            window.addEventListener(
+              "touchcancel",
+              function () {
+                cancel();
+              },
+              { passive: true },
+            );
           })();
 
           const btn = document.getElementById("installBtn");
@@ -11169,7 +12585,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="44"
+      data-app-version="58"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -11181,7 +12597,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">44</span>
+      <span id="appVersion">58</span>
     </footer>
 
     <!-- ❌ Fehler-Aktionen (Zurücksetzen / Drucken) -->
