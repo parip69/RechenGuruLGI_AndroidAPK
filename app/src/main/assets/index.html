@@ -506,6 +506,12 @@
         pointer-events: none;
       }
 
+      .row-selection-summary {
+        margin-top: 8px;
+        opacity: 0.9;
+        font-weight: 800;
+      }
+
       label {
         font-size: 0.95rem;
         font-weight: 800;
@@ -2136,7 +2142,7 @@
         }
       }
     
-      /* === Update-Prüfung v65: unauffällig am Seitenende, nicht schwebend === */
+      /* === Update-Prüfung v66: unauffällig am Seitenende, nicht schwebend === */
       .appUpdateWidget {
         position: static;
         display: flex;
@@ -2292,7 +2298,7 @@
               </select>
             </div>
             <div id="currentSetupSummary" class="currentSetupSummary">
-              bis 10 · 3 Aufgaben · Normal
+              bis 10 · 1 Aufgabe · Normal
             </div>
           </div>
           <span class="settingsTitle"
@@ -2570,7 +2576,7 @@
           <div class="control-group" id="taskCountGroup">
             <label>Aufgaben pro Runde</label>
             <select id="taskCount" onchange="initGame(true)">
-              <option value="1">1</option>
+              <option value="1" selected>1</option>
               <option value="3">3</option>
               <option value="5">5</option>
               <option value="10">10</option>
@@ -2723,7 +2729,8 @@
                 Quadratzahlen
               </button>
             </div>
-            <div class="hintSmall">Eine oder mehrere Reihen antippen.</div>
+            <div class="hintSmall">Gemischt oder einzelne Reihen wählen. Quadratzahlen können zusätzlich dazugewählt werden.</div>
+            <div class="hintSmall row-selection-summary" id="rowSelectionSummary" aria-live="polite">Ausgewählt: Gemischt</div>
           </div>
 
           <div class="control-group" id="mulProfileGroup">
@@ -3247,7 +3254,7 @@
     </div>
 
     <script>
-      const APP_VERSION = 64;
+      const APP_VERSION = 66;
       const APP_STORAGE_PREFIX = "RechenGuruLGI_";
       const APP_NAME_FALLBACK = "Mathe Guru Web";
       const PORTABLE_HTML_MARKER_PREFIX = "__portableBootstrapApplied_";
@@ -3421,6 +3428,9 @@
         "Reihe (×/÷)": "Seria (×/÷)",
         "Welche Reihen?": "Ce serii?",
         "Eine oder mehrere Reihen antippen.": "Alege una sau mai multe serii.",
+        "Gemischt oder einzelne Reihen wählen. Quadratzahlen können zusätzlich dazugewählt werden.":
+          "Alege una sau mai multe serii. Pătratele perfecte pot fi adăugate separat.",
+        "Ausgewählt:": "Selectat:",
         Quadratzahlen: "Pătrate perfecte",
         "×/÷ Zahlenart": "Tip numere ×/÷",
         "×/÷ Zahlenbereich": "Interval ×/÷",
@@ -4090,6 +4100,7 @@
         updateMaxValueHelp(
           document.getElementById("viewSelect")?.value || "plus",
         );
+        updateRowSelectionSummary();
         updateSettingsSummary();
       }
 
@@ -6304,43 +6315,81 @@
         }
       }
 
+      function ensureTaskCountOneDefaults() {
+        const migrationKey = "defaults:taskCount1:v66";
+        if (appStorage.getItem(migrationKey) === "1") return;
+
+        const modeSelect = document.getElementById("viewSelect");
+        const modes = modeSelect
+          ? [...modeSelect.options].map((o) => String(o.value || "")).filter(Boolean)
+          : [];
+
+        modes.forEach((mode) => {
+          try {
+            const current = loadModeSettings(mode) || {};
+            current.taskCount = "1";
+            appStorage.setItem(modeSettingsKey(mode), JSON.stringify(current));
+          } catch (e) {}
+        });
+
+        const taskCount = document.getElementById("taskCount");
+        if (taskCount) taskCount.value = "1";
+        appStorage.setItem(migrationKey, "1");
+      }
+
       function normalizeRowSelection(raw) {
-        const normalizeNumbers = (values) => {
-          const rows = [];
-          const seen = new Set();
+        const normalizeTokens = (values) => {
+          const numericRows = [];
+          const seenNumbers = new Set();
+          let hasMixed = false;
+          let hasSquares = false;
+
           values.forEach((value) => {
-            const n =
-              typeof value === "number"
-                ? value
-                : Number(String(value ?? "").trim());
-            if (!Number.isInteger(n) || n < 1 || n > 10 || seen.has(n))
+            const token = String(value ?? "").trim().toLowerCase();
+            if (!token) return;
+
+            if (token === "mixed") {
+              hasMixed = true;
               return;
-            rows.push(n);
-            seen.add(n);
+            }
+            if (token === "squares") {
+              hasSquares = true;
+              return;
+            }
+
+            const n = Number(token);
+            if (!Number.isInteger(n) || n < 1 || n > 10 || seenNumbers.has(n))
+              return;
+            numericRows.push(n);
+            seenNumbers.add(n);
           });
-          if (rows.length === 0) return "mixed";
-          if (rows.length === 1) return rows[0];
-          return rows;
+
+          // "Gemischt" steht für die normalen Reihen insgesamt und ersetzt
+          // deshalb einzelne Reihen. Quadratzahlen dürfen aber zusätzlich aktiv sein.
+          let result = [];
+          if (hasMixed) result.push("mixed");
+          else result.push(...numericRows.sort((a, b) => a - b));
+          if (hasSquares) result.push("squares");
+
+          if (result.length === 0) return "mixed";
+          if (result.length === 1) return result[0];
+          return result;
         };
 
-        if (Array.isArray(raw)) return normalizeNumbers(raw);
+        if (Array.isArray(raw)) return normalizeTokens(raw);
 
         const value = String(raw ?? "mixed").trim();
-        if (!value || value === "mixed") return "mixed";
-        if (value === "squares") return "squares";
+        if (!value) return "mixed";
 
         if (value.startsWith("[") && value.endsWith("]")) {
           try {
             const parsed = JSON.parse(value);
-            if (Array.isArray(parsed)) return normalizeNumbers(parsed);
+            if (Array.isArray(parsed)) return normalizeTokens(parsed);
           } catch (e) {}
         }
 
-        if (value.includes(",")) {
-          return normalizeNumbers(value.split(","));
-        }
-
-        return normalizeNumbers([value]);
+        if (value.includes(",")) return normalizeTokens(value.split(","));
+        return normalizeTokens([value]);
       }
 
       function serializeRowTrainValue(selection) {
@@ -6358,17 +6407,28 @@
 
       function formatRowTrainLabel(selection) {
         const normalized = normalizeRowSelection(selection);
-        if (normalized === "mixed") return t("Gemischt");
-        if (normalized === "squares") return t("Quadratzahlen");
-        if (Array.isArray(normalized))
-          return normalized.map((row) => row + "er").join(", ");
-        return normalized + "er";
+        const oneLabel = (value) => {
+          if (value === "mixed") return t("Gemischt");
+          if (value === "squares") return t("Quadratzahlen");
+          return value + "er";
+        };
+        if (Array.isArray(normalized)) return normalized.map(oneLabel).join(" + ");
+        return oneLabel(normalized);
       }
 
       function setRowChipPressed(chip, active) {
         if (!chip) return;
         chip.classList.toggle("active", !!active);
         chip.setAttribute("aria-pressed", active ? "true" : "false");
+      }
+
+      function updateRowSelectionSummary(selection) {
+        const el = document.getElementById("rowSelectionSummary");
+        if (!el) return;
+        const current = normalizeRowSelection(
+          selection ?? document.getElementById("rowTrain")?.value ?? "mixed",
+        );
+        el.textContent = `${t("Ausgewählt:")} ${formatRowTrainLabel(current)}`;
       }
 
       function syncRowTrainInputFromChips() {
@@ -6379,30 +6439,37 @@
             chip.classList.contains("active") &&
             chip.getAttribute("data-disabled") !== "1",
         );
-        const special = active.find((chip) => {
-          const value = chip.dataset.value;
-          return value === "mixed" || value === "squares";
-        });
 
-        let selection = "mixed";
-        if (special) {
-          selection = special.dataset.value;
-          chips.forEach((chip) => setRowChipPressed(chip, chip === special));
+        const hasMixed = active.some((chip) => chip.dataset.value === "mixed");
+        const hasSquares = active.some((chip) => chip.dataset.value === "squares");
+        const numeric = active
+          .filter((chip) => /^\d+$/.test(String(chip.dataset.value || "")))
+          .map((chip) => chip.dataset.value);
+
+        let selection;
+        if (hasMixed) {
+          // Gemischt + Quadratzahlen ist erlaubt; einzelne Reihen sind bei Gemischt redundant.
+          chips.forEach((chip) => {
+            if (/^\d+$/.test(String(chip.dataset.value || "")))
+              setRowChipPressed(chip, false);
+          });
+          selection = hasSquares ? ["mixed", "squares"] : "mixed";
+        } else if (numeric.length || hasSquares) {
+          selection = normalizeRowSelection([
+            ...numeric,
+            ...(hasSquares ? ["squares"] : []),
+          ]);
         } else {
-          selection = normalizeRowSelection(
-            active.map((chip) => chip.dataset.value),
-          );
-          if (selection === "mixed") {
-            const mixedBtn = document.querySelector("#rowChips .chip-mixed");
-            chips.forEach((chip) =>
-              setRowChipPressed(chip, chip === mixedBtn),
-            );
-          }
+          const mixedBtn = document.querySelector("#rowChips .chip-mixed");
+          setRowChipPressed(mixedBtn, true);
+          selection = "mixed";
         }
 
         if (rowTrainInput)
           rowTrainInput.value = serializeRowTrainValue(selection);
-        return normalizeRowSelection(selection);
+        const normalized = normalizeRowSelection(selection);
+        updateRowSelectionSummary(normalized);
+        return normalized;
       }
 
       function syncRowChipsFromValue(raw) {
@@ -6421,7 +6488,7 @@
         chips.forEach((chip) => {
           const active =
             chip.getAttribute("data-disabled") !== "1" &&
-            selectedValues.has(chip.dataset.value);
+            selectedValues.has(String(chip.dataset.value));
           setRowChipPressed(chip, active);
           if (active) hasActive = true;
         });
@@ -7275,6 +7342,7 @@
         const lastMode = appStorage.getItem("mathLastMode");
         if (lastMode) document.getElementById("viewSelect").value = lastMode;
 
+        ensureTaskCountOneDefaults();
         wireModeSettingListeners();
 
         syncOnesOnlyUI();
@@ -8510,6 +8578,12 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         ) {
           parts.push(difficulty.selectedOptions[0].textContent.trim());
         }
+
+        const rowGroup = document.getElementById("rowGroup");
+        if (rowGroup && rowGroup.style.display !== "none") {
+          parts.push(formatRowTrainLabel(getRowTrain()));
+        }
+
         target.textContent = parts.join(" · ");
       }
 
@@ -8814,7 +8888,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         const mode = document.getElementById("viewSelect")?.value;
         if (isFlashActiveForMode(mode)) return 1;
         const v = parseInt(document.getElementById("taskCount").value, 10);
-        return isNaN(v) ? 3 : Math.max(1, Math.min(20, v));
+        return isNaN(v) ? 1 : Math.max(1, Math.min(20, v));
       }
       function getTaskFormat() {
         const mode = document.getElementById("viewSelect")?.value;
@@ -9476,53 +9550,57 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       }
 
       function rowChipClick(btn) {
-        if (btn.hasAttribute('data-disabled') && btn.getAttribute('data-disabled') === '1') {
+        if (
+          btn.hasAttribute("data-disabled") &&
+          btn.getAttribute("data-disabled") === "1"
+        ) {
           return;
         }
 
         const value = String(btn.dataset.value || "mixed");
         const chips = [...document.querySelectorAll("#rowChips .row-chip")];
+        const mixedBtn = document.querySelector("#rowChips .chip-mixed");
+        const squaresBtn = document.querySelector("#rowChips .chip-squares");
 
-        if (value === "mixed" || value === "squares") {
-          chips.forEach((chip) => setRowChipPressed(chip, chip === btn));
-        } else {
-          const wasActive = btn.classList.contains("active");
+        if (value === "mixed") {
+          // Gemischt wählt alle normalen Reihen. Quadratzahlen bleiben als Zusatz erhalten.
           chips.forEach((chip) => {
-            if (
-              chip.dataset.value === "mixed" ||
-              chip.dataset.value === "squares"
-            ) {
-              setRowChipPressed(chip, false);
-            }
+            const chipValue = String(chip.dataset.value || "");
+            if (/^\d+$/.test(chipValue)) setRowChipPressed(chip, false);
           });
-          setRowChipPressed(btn, !wasActive);
-
-          const anyNumericActive = chips.some((chip) => {
-            const chipValue = chip.dataset.value;
-            return (
-              chip.classList.contains("active") &&
-              chip.getAttribute("data-disabled") !== "1" &&
-              chipValue !== "mixed" &&
-              chipValue !== "squares"
-            );
-          });
-          if (!anyNumericActive) {
-            const mixedBtn = document.querySelector("#rowChips .chip-mixed");
-            setRowChipPressed(mixedBtn, true);
-          }
+          setRowChipPressed(mixedBtn, true);
+        } else if (value === "squares") {
+          // Quadratzahlen sind bewusst KEINE Exklusiv-Auswahl mehr.
+          setRowChipPressed(squaresBtn, !squaresBtn.classList.contains("active"));
+        } else {
+          // Einzelne Reihe: Gemischt ausschalten, andere Reihen + Quadratzahlen behalten.
+          setRowChipPressed(mixedBtn, false);
+          setRowChipPressed(btn, !btn.classList.contains("active"));
         }
+
+        const anyBaseSelection = chips.some((chip) => {
+          if (chip.getAttribute("data-disabled") === "1") return false;
+          const chipValue = String(chip.dataset.value || "");
+          return (
+            chip.classList.contains("active") &&
+            (chipValue === "mixed" || /^\d+$/.test(chipValue))
+          );
+        });
+        const squaresActive = Boolean(squaresBtn?.classList.contains("active"));
+
+        // Wenn wirklich gar nichts ausgewählt ist, sinnvoll auf Gemischt zurückfallen.
+        // "Nur Quadratzahlen" ist dagegen weiterhin eine gültige Auswahl.
+        if (!anyBaseSelection && !squaresActive) setRowChipPressed(mixedBtn, true);
 
         syncRowTrainInputFromChips();
 
-        const modeSelect = document.getElementById('viewSelect');
-        if (modeSelect && typeof saveModeSettings === 'function') {
+        const modeSelect = document.getElementById("viewSelect");
+        if (modeSelect && typeof saveModeSettings === "function") {
           saveModeSettings(modeSelect.value);
         }
         updateSettingsSummary();
-        
-        if (typeof initGame === 'function') {
-          initGame(true);
-        }
+
+        if (typeof initGame === "function") initGame(true);
       }
 
       function initGame(shouldScroll = true, fromRefresh = false) {
@@ -12616,7 +12694,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v67";
+        const SW_VERSION = "rechenguru-lgi-v68";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -13240,7 +13318,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
     </script>
 
     <script>
-      /* Update-Prüfung v65 – sichtbarer Dialog, Fokus-/Tastatur-Sperre während der Prüfung. */
+      /* Update-Prüfung v66 – sichtbarer Dialog, Fokus-/Tastatur-Sperre während der Prüfung. */
       (function () {
         const WEB_FALLBACK_VERSION = 65;
         const RELEASE_INDEX = "https://parip69.github.io/RechenGuruLGI_AndroidAPK/";
@@ -13595,7 +13673,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="67"
+      data-app-version="68"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -13607,7 +13685,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">67</span>
+      <span id="appVersion">68</span>
     </footer>
 
     <!-- Unauffälliger Update-Button direkt am Seitenende -->
