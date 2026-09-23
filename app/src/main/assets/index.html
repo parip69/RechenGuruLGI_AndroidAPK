@@ -981,6 +981,90 @@
         white-space: nowrap;
       }
 
+      /* Erstaufruf: Browser oder Web-App installieren */
+      .firstInstallChoice {
+        position: fixed;
+        inset: 0;
+        z-index: 30000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+        background: rgba(15, 23, 42, 0.56);
+        -webkit-backdrop-filter: blur(5px);
+        backdrop-filter: blur(5px);
+      }
+
+      .firstInstallChoice.show {
+        display: flex;
+      }
+
+      .firstInstallChoiceCard {
+        width: min(430px, 94vw);
+        padding: 20px;
+        border-radius: 22px;
+        background: var(--surface92);
+        border: 1px solid var(--glass-border);
+        box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+        text-align: center;
+        color: var(--text);
+      }
+
+      .firstInstallChoiceIcon {
+        width: 76px;
+        height: 76px;
+        border-radius: 18px;
+        display: block;
+        margin: 0 auto 12px;
+      }
+
+      .firstInstallChoiceTitle {
+        font-size: 1.22rem;
+        font-weight: 900;
+        margin-bottom: 7px;
+      }
+
+      .firstInstallChoiceText {
+        color: var(--textMuted);
+        font-size: 0.94rem;
+        font-weight: 700;
+        line-height: 1.35;
+        margin-bottom: 16px;
+      }
+
+      .firstInstallChoiceActions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .firstInstallChoiceBtn {
+        min-height: 48px;
+        border: none;
+        border-radius: 16px;
+        padding: 10px 12px;
+        cursor: pointer;
+        font-size: 0.98rem;
+        font-weight: 900;
+        color: #fff;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.14);
+        touch-action: manipulation;
+      }
+
+      .firstInstallChoiceBtn.browser {
+        color: var(--text);
+        background: var(--surface70);
+        border: 1px solid var(--dividerStrong);
+        box-shadow: none;
+      }
+
+      @media (max-width: 420px) {
+        .firstInstallChoiceActions {
+          grid-template-columns: 1fr;
+        }
+      }
+
       .btn-action:hover {
         transform: translateY(-2px);
         box-shadow: 0 12px 24px rgba(0, 0, 0, 0.16);
@@ -3254,7 +3338,7 @@
     </div>
 
     <script>
-      const APP_VERSION = 66;
+      const APP_VERSION = 69;
       const APP_STORAGE_PREFIX = "RechenGuruLGI_";
       const APP_NAME_FALLBACK = "Mathe Guru Web";
       const PORTABLE_HTML_MARKER_PREFIX = "__portableBootstrapApplied_";
@@ -6316,7 +6400,7 @@
       }
 
       function ensureTaskCountOneDefaults() {
-        const migrationKey = "defaults:taskCount1:v66";
+        const migrationKey = "defaults:taskCount1:v69";
         if (appStorage.getItem(migrationKey) === "1") return;
 
         const modeSelect = document.getElementById("viewSelect");
@@ -6546,19 +6630,19 @@
           // Klasse 1: Fokus auf Zahlzerlegung & sichere Strategien (ohne Zehnerübergang/Entleihen)
           mergeModeSettings("plus", {
             maxWert: "20",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "noCarry",
           });
           mergeModeSettings("minus", {
             maxWert: "20",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "noBorrow",
           });
           mergeModeSettings("mix", {
             maxWert: "20",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
           });
@@ -6566,7 +6650,7 @@
           // ×/÷ ist in Klasse 1 normalerweise noch nicht dran – Preset hält es klein (optional auswählbar)
           mergeModeSettings("mal", {
             maxWert: "20",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
             rowTrain: "mixed",
@@ -6574,7 +6658,7 @@
           });
           mergeModeSettings("squareMal", {
             maxWert: "20",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
             rowTrain: "squares",
@@ -6582,7 +6666,7 @@
           });
           mergeModeSettings("geteilt", {
             maxWert: "20",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
             rowTrain: "mixed",
@@ -6590,7 +6674,7 @@
           });
           mergeModeSettings("squareDiv", {
             maxWert: "20",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
             rowTrain: "squares",
@@ -6598,7 +6682,7 @@
           });
           mergeModeSettings("mixMD", {
             maxWert: "20",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
             rowTrain: "mixed",
@@ -6606,7 +6690,7 @@
           });
           mergeModeSettings("mixALL", {
             maxWert: "20",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
             rowTrain: "mixed",
@@ -6618,7 +6702,7 @@
 
           mergeModeSettings("fehler", {
             maxWert: "20",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
             rowTrain: "mixed",
@@ -6633,26 +6717,26 @@
 
           mergeModeSettings("plus", {
             maxWert: "100",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "noCarry",
           });
           mergeModeSettings("minus", {
             maxWert: "100",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "noBorrow",
           });
           mergeModeSettings("mix", {
             maxWert: "100",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
           });
 
           mergeModeSettings("mal", {
             maxWert: "81",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
             rowTrain: "mixed",
@@ -6660,7 +6744,7 @@
           });
           mergeModeSettings("squareMal", {
             maxWert: "81",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
             rowTrain: "squares",
@@ -6668,7 +6752,7 @@
           });
           mergeModeSettings("geteilt", {
             maxWert: "81",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
             rowTrain: "mixed",
@@ -6676,7 +6760,7 @@
           });
           mergeModeSettings("squareDiv", {
             maxWert: "81",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
             rowTrain: "squares",
@@ -6684,7 +6768,7 @@
           });
           mergeModeSettings("mixMD", {
             maxWert: "81",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
             rowTrain: "mixed",
@@ -6692,7 +6776,7 @@
           });
           mergeModeSettings("mixALL", {
             maxWert: "100",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
             rowTrain: "mixed",
@@ -6704,7 +6788,7 @@
 
           mergeModeSettings("fehler", {
             maxWert: "100",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
             rowTrain: "mixed",
@@ -6720,26 +6804,26 @@
 
           mergeModeSettings("plus", {
             maxWert: "100",
-            taskCount: "10",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
           });
           mergeModeSettings("minus", {
             maxWert: "100",
-            taskCount: "10",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
           });
           mergeModeSettings("mix", {
             maxWert: "100",
-            taskCount: "10",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
           });
 
           mergeModeSettings("mal", {
             maxWert: "100",
-            taskCount: "10",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
             rowTrain: "mixed",
@@ -6747,7 +6831,7 @@
           });
           mergeModeSettings("squareMal", {
             maxWert: "100",
-            taskCount: "10",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
             rowTrain: "squares",
@@ -6755,7 +6839,7 @@
           });
           mergeModeSettings("geteilt", {
             maxWert: "100",
-            taskCount: "10",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
             rowTrain: "mixed",
@@ -6763,7 +6847,7 @@
           });
           mergeModeSettings("squareDiv", {
             maxWert: "100",
-            taskCount: "10",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
             rowTrain: "squares",
@@ -6771,7 +6855,7 @@
           });
           mergeModeSettings("mixMD", {
             maxWert: "100",
-            taskCount: "10",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
             rowTrain: "mixed",
@@ -6779,7 +6863,7 @@
           });
           mergeModeSettings("mixALL", {
             maxWert: "100",
-            taskCount: "10",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
             rowTrain: "mixed",
@@ -6791,7 +6875,7 @@
 
           mergeModeSettings("fehler", {
             maxWert: "100",
-            taskCount: "10",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
             rowTrain: "mixed",
@@ -6807,26 +6891,26 @@
 
           mergeModeSettings("plus", {
             maxWert: "1000",
-            taskCount: "12",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
           });
           mergeModeSettings("minus", {
             maxWert: "1000",
-            taskCount: "12",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
           });
           mergeModeSettings("mix", {
             maxWert: "1000",
-            taskCount: "12",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
           });
 
           mergeModeSettings("mal", {
             maxWert: "1000",
-            taskCount: "12",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
             rowTrain: "mixed",
@@ -6834,7 +6918,7 @@
           });
           mergeModeSettings("squareMal", {
             maxWert: "1000",
-            taskCount: "12",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
             rowTrain: "squares",
@@ -6842,7 +6926,7 @@
           });
           mergeModeSettings("geteilt", {
             maxWert: "1000",
-            taskCount: "12",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
             rowTrain: "mixed",
@@ -6850,7 +6934,7 @@
           });
           mergeModeSettings("squareDiv", {
             maxWert: "1000",
-            taskCount: "12",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
             rowTrain: "squares",
@@ -6858,7 +6942,7 @@
           });
           mergeModeSettings("mixMD", {
             maxWert: "1000",
-            taskCount: "12",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
             rowTrain: "mixed",
@@ -6866,7 +6950,7 @@
           });
           mergeModeSettings("mixALL", {
             maxWert: "1000",
-            taskCount: "12",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
             rowTrain: "mixed",
@@ -6878,7 +6962,7 @@
 
           mergeModeSettings("fehler", {
             maxWert: "1000",
-            taskCount: "12",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
             rowTrain: "mixed",
@@ -6889,6 +6973,23 @@
         } else {
           msg = "Unbekanntes Preset.";
         }
+
+
+        // Aufgaben pro Runde: Klassen-Presets setzen ausnahmslos ALLE Modi auf 1.
+        // Danach darf eine manuelle Auswahl (3/5/10/...) wieder gespeichert bleiben.
+        try {
+          const allModeSelect = document.getElementById("viewSelect");
+          const allModes = allModeSelect
+            ? [...allModeSelect.options]
+                .map((option) => String(option.value || "").trim())
+                .filter(Boolean)
+            : [];
+          [...new Set(allModes)].forEach((mode) => {
+            mergeModeSettings(mode, { taskCount: "1" });
+          });
+          const presetTaskCount = document.getElementById("taskCount");
+          if (presetTaskCount) presetTaskCount.value = "1";
+        } catch (e) {}
 
         // Zum passenden Modus springen: ± Mix (damit man sofort etwas sieht)
         const vs = document.getElementById("viewSelect");
@@ -12692,9 +12793,51 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       }
     </script>
 
+
+    <!-- Beim ersten Android-Aufruf: Browser oder PWA installieren -->
+    <div
+      class="firstInstallChoice"
+      id="firstInstallChoice"
+      role="dialog"
+      aria-modal="true"
+      aria-hidden="true"
+      aria-labelledby="firstInstallChoiceTitle"
+    >
+      <div class="firstInstallChoiceCard">
+        <img
+          class="firstInstallChoiceIcon"
+          src="icons/icon-192.png"
+          alt=""
+          aria-hidden="true"
+        />
+        <div class="firstInstallChoiceTitle" id="firstInstallChoiceTitle">
+          Mathe Guru öffnen oder installieren?
+        </div>
+        <div class="firstInstallChoiceText" id="firstInstallChoiceText">
+          Du kannst die Seite normal in Chrome öffnen oder als Web-App installieren.
+        </div>
+        <div class="firstInstallChoiceActions">
+          <button
+            class="firstInstallChoiceBtn browser"
+            id="firstInstallBrowserBtn"
+            type="button"
+          >
+            🌐 In Chrome öffnen
+          </button>
+          <button
+            class="firstInstallChoiceBtn"
+            id="firstInstallAppBtn"
+            type="button"
+          >
+            📲 App installieren
+          </button>
+        </div>
+      </div>
+    </div>
+
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v68";
+        const SW_VERSION = "rechenguru-lgi-v69";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -13317,10 +13460,225 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       })();
     </script>
 
+
+    <script>
+      /* Erstaufruf-Auswahl v69: In Chrome öffnen oder als PWA installieren. */
+      (function () {
+        const FIRST_INSTALL_CHOICE_KEY = "RechenGuruLGI_firstInstallChoice_v69";
+        let firstChoiceTimer = null;
+
+        function firstChoiceIsAndroid() {
+          return /Android/i.test(navigator.userAgent || "");
+        }
+
+        function firstChoiceIsChrome() {
+          const ua = navigator.userAgent || "";
+          return /Chrome\//i.test(ua) && !/EdgA|OPR|SamsungBrowser|DuckDuckGo/i.test(ua);
+        }
+
+        function firstChoiceIsInAppBrowser() {
+          const ua = navigator.userAgent || "";
+          return /FBAN|FBAV|Instagram|Line\/|Snapchat|TikTok|MicroMessenger|Telegram|WhatsApp|Messenger|\bwv\b|; wv\)/i.test(ua);
+        }
+
+        function firstChoiceIsStandalone() {
+          return (
+            window.matchMedia("(display-mode: fullscreen)").matches ||
+            window.matchMedia("(display-mode: standalone)").matches ||
+            window.matchMedia("(display-mode: minimal-ui)").matches ||
+            window.navigator.standalone === true
+          );
+        }
+
+        function firstChoiceIsNativeApk() {
+          try {
+            if (typeof getAndroidBridge === "function" && getAndroidBridge()) return true;
+          } catch (_) {}
+          return String(location.href || "").indexOf("file:///android_asset/") === 0;
+        }
+
+        function firstChoiceRequestedInstall() {
+          try {
+            return new URL(location.href).searchParams.get("install") === "1";
+          } catch (_) {
+            return false;
+          }
+        }
+
+        function firstChoiceAlreadyHandled() {
+          try {
+            return localStorage.getItem(FIRST_INSTALL_CHOICE_KEY) === "1";
+          } catch (_) {
+            return false;
+          }
+        }
+
+        function firstChoiceMarkHandled() {
+          try {
+            localStorage.setItem(FIRST_INSTALL_CHOICE_KEY, "1");
+          } catch (_) {}
+          try {
+            const url = new URL(location.href);
+            if (url.searchParams.has("install")) {
+              url.searchParams.delete("install");
+              history.replaceState(null, "", url.toString());
+            }
+          } catch (_) {}
+        }
+
+        function firstChoiceClose(markHandled = true) {
+          if (firstChoiceTimer) {
+            clearTimeout(firstChoiceTimer);
+            firstChoiceTimer = null;
+          }
+          const modal = document.getElementById("firstInstallChoice");
+          if (modal) {
+            modal.classList.remove("show");
+            modal.setAttribute("aria-hidden", "true");
+          }
+          if (markHandled) firstChoiceMarkHandled();
+        }
+
+        function firstChoiceHideKeyboard() {
+          try {
+            if (typeof mgHideKeypad === "function") mgHideKeypad();
+          } catch (_) {}
+          try {
+            document.activeElement?.blur?.();
+          } catch (_) {}
+        }
+
+        function firstChoiceShow(force = false) {
+          if (!firstChoiceIsAndroid() || firstChoiceIsNativeApk() || firstChoiceIsStandalone()) return;
+          if (!force && firstChoiceAlreadyHandled()) return;
+
+          const modal = document.getElementById("firstInstallChoice");
+          const browserBtn = document.getElementById("firstInstallBrowserBtn");
+          const textEl = document.getElementById("firstInstallChoiceText");
+          if (!modal) return;
+
+          if (browserBtn) {
+            browserBtn.textContent = firstChoiceIsChrome()
+              ? "🌐 In Chrome geöffnet lassen"
+              : "🌐 In Chrome öffnen";
+          }
+
+          if (textEl) {
+            textEl.textContent = firstChoiceIsInAppBrowser()
+              ? "Öffne Mathe Guru in Chrome oder installiere es dort als Web-App."
+              : "Du kannst Mathe Guru normal in Chrome benutzen oder als Web-App installieren.";
+          }
+
+          firstChoiceHideKeyboard();
+          modal.classList.add("show");
+          modal.setAttribute("aria-hidden", "false");
+        }
+
+        function firstChoiceChromeIntent(installAfterOpen) {
+          const target = new URL(location.href);
+          if (installAfterOpen) target.searchParams.set("install", "1");
+          else target.searchParams.delete("install");
+
+          if (!firstChoiceIsAndroid() || firstChoiceIsChrome()) {
+            if (installAfterOpen) firstChoiceTryInstall();
+            else firstChoiceClose(true);
+            return;
+          }
+
+          const hostAndPath = target.host + target.pathname + target.search;
+          const fallback = encodeURIComponent(target.toString());
+          const intent =
+            "intent://" +
+            hostAndPath +
+            "#Intent;scheme=https;package=com.android.chrome;" +
+            "S.browser_fallback_url=" +
+            fallback +
+            ";end";
+
+          firstChoiceMarkHandled();
+          location.href = intent;
+        }
+
+        async function firstChoiceTryInstall() {
+          const installEvent = window.__deferredPwaPrompt;
+
+          if (installEvent && typeof installEvent.prompt === "function") {
+            firstChoiceClose(true);
+            try {
+              installEvent.prompt();
+              await installEvent.userChoice;
+            } catch (_) {}
+            window.__deferredPwaPrompt = null;
+            return;
+          }
+
+          if (firstChoiceIsInAppBrowser() || !firstChoiceIsChrome()) {
+            firstChoiceChromeIntent(true);
+            return;
+          }
+
+          firstChoiceClose(true);
+          const installBtn = document.getElementById("installBtn");
+          const hint = document.getElementById("installHint");
+          if (installBtn) {
+            installBtn.style.display = "";
+            installBtn.textContent = "📲 App installieren";
+          }
+          if (hint) {
+            hint.style.display = "";
+            hint.textContent =
+              "Falls kein Installationsfenster erscheint: Chrome-Menü ⋮ → App installieren.";
+          }
+        }
+
+        window.addEventListener("beforeinstallprompt", () => {
+          setTimeout(() => {
+            if (firstChoiceRequestedInstall()) firstChoiceShow(true);
+            else firstChoiceShow(false);
+          }, 0);
+        });
+
+        window.addEventListener("appinstalled", () => {
+          firstChoiceMarkHandled();
+          firstChoiceClose(false);
+        });
+
+        document.addEventListener("DOMContentLoaded", () => {
+          const modal = document.getElementById("firstInstallChoice");
+          const browserBtn = document.getElementById("firstInstallBrowserBtn");
+          const installBtn = document.getElementById("firstInstallAppBtn");
+
+          modal?.addEventListener("click", (event) => {
+            event.stopPropagation();
+          });
+
+          browserBtn?.addEventListener("click", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            firstChoiceChromeIntent(false);
+          });
+
+          installBtn?.addEventListener("click", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            firstChoiceTryInstall();
+          });
+
+          if (!firstChoiceIsAndroid() || firstChoiceIsNativeApk() || firstChoiceIsStandalone()) return;
+
+          const forceInstall = firstChoiceRequestedInstall();
+          const delay = firstChoiceIsInAppBrowser() ? 250 : 1200;
+          firstChoiceTimer = setTimeout(() => {
+            firstChoiceShow(forceInstall);
+          }, delay);
+        });
+      })();
+    </script>
+
     <script>
       /* Update-Prüfung v66 – sichtbarer Dialog, Fokus-/Tastatur-Sperre während der Prüfung. */
       (function () {
-        const WEB_FALLBACK_VERSION = 65;
+        const WEB_FALLBACK_VERSION = 69;
         const RELEASE_INDEX = "https://parip69.github.io/RechenGuruLGI_AndroidAPK/";
         window.__appUpdateDialogOpen = false;
 
@@ -13673,7 +14031,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="68"
+      data-app-version="69"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -13685,7 +14043,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">68</span>
+      <span id="appVersion">69</span>
     </footer>
 
     <!-- Unauffälliger Update-Button direkt am Seitenende -->
