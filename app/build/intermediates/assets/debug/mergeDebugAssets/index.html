@@ -2136,27 +2136,33 @@
         }
       }
     
-      /* === Update-Prüfung v65 === */
+      /* === Update-Prüfung v65: unauffällig am Seitenende, nicht schwebend === */
       .appUpdateWidget {
-        position: fixed; right: max(14px, env(safe-area-inset-right));
-        bottom: max(14px, env(safe-area-inset-bottom)); z-index: 9998;
-        display: flex; flex-direction: column; align-items: flex-end; gap: 7px;
+        position: static;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 6px auto 2px;
         font-family: "Outfit", sans-serif;
       }
       .appUpdateBtn {
-        border: 1px solid var(--glass-border); border-radius: 999px; padding: 10px 14px;
-        background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff;
-        box-shadow: 0 8px 22px rgba(0,0,0,.20); font-weight: 900; cursor: pointer;
-        font-size: .88rem; white-space: nowrap; touch-action: manipulation;
+        border: 1px solid var(--dividerStrong);
+        border-radius: 999px;
+        padding: 5px 11px;
+        background: var(--surface45);
+        color: var(--textMuted);
+        box-shadow: none;
+        font-weight: 700;
+        cursor: pointer;
+        font-size: .72rem;
+        line-height: 1.1;
+        white-space: nowrap;
+        touch-action: manipulation;
+        opacity: .78;
       }
-      .appUpdateBtn:disabled { opacity: .65; cursor: wait; }
-      .appUpdateStatus {
-        display: none; max-width: min(340px, calc(100vw - 28px)); padding: 9px 11px;
-        border-radius: 13px; background: var(--surface92); color: var(--text);
-        border: 1px solid var(--dividerStrong); box-shadow: 0 8px 22px rgba(0,0,0,.18);
-        font-size: .82rem; font-weight: 800; line-height: 1.3; text-align: left;
-      }
-      .appUpdateStatus.show { display: block; }
+      .appUpdateBtn:hover { background: var(--surface60); opacity: 1; }
+      .appUpdateBtn:disabled { opacity: .48; cursor: wait; }
+      .appUpdateStatus { display: none !important; }
 
       /* Update-Ergebnis als gut sichtbares, modales Fenster. */
       .appUpdateDialog {
@@ -12610,7 +12616,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v66";
+        const SW_VERSION = "rechenguru-lgi-v67";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -13454,7 +13460,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
           if (btn) {
             btn.disabled = true;
-            btn.textContent = "↻ Prüfe …";
+            btn.textContent = "Update";
           }
 
           showUpdateStatus(`Installiert: V${installedVersion} · Suche neue Revision …`, "ok");
@@ -13477,7 +13483,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
                   text,
                   kind: "new",
                 });
-                if (btn) btn.textContent = `APK V${remoteVersion} verfügbar`;
+                if (btn) btn.textContent = "Update";
                 return;
               }
 
@@ -13489,7 +13495,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
                 kind: "new",
                 installVersion: remoteVersion,
               });
-              if (btn) btn.textContent = `Update auf V${remoteVersion}`;
+              if (btn) btn.textContent = "Update";
               return;
             }
 
@@ -13520,11 +13526,9 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
               kind: "error",
             });
           } finally {
-            if (btn && !/^APK V\d+ verfügbar$/.test(btn.textContent || "") && !/^Update auf V\d+$/.test(btn.textContent || "")) {
+            if (btn) {
               btn.disabled = false;
-              btn.textContent = `↻ Update prüfen · V${installedVersion}`;
-            } else if (btn) {
-              btn.disabled = false;
+              btn.textContent = "Update";
             }
           }
         }
@@ -13537,7 +13541,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
           if (btn) {
             const installedVersion = getInstalledVersion();
-            btn.textContent = `↻ Update prüfen · V${installedVersion}`;
+            btn.textContent = "Update";
             ["pointerdown", "mousedown", "touchstart"].forEach((type) => {
               btn.addEventListener(type, (e) => e.stopPropagation(), { passive: true });
             });
@@ -13577,12 +13581,6 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       })();
     </script>
 
-    <!-- Update-Prüfung: feste Schaltfläche unten rechts -->
-    <div class="appUpdateWidget" id="appUpdateWidget">
-      <div class="appUpdateStatus" id="appUpdateStatus" role="status" aria-live="polite"></div>
-      <button class="appUpdateBtn" id="appUpdateBtn" type="button" title="Nach neuer Revision suchen">↻ Update prüfen · V65</button>
-    </div>
-
     <div class="appUpdateDialog" id="appUpdateDialog" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="appUpdateDialogTitle">
       <div class="appUpdateDialogCard">
         <div class="appUpdateDialogIcon" id="appUpdateDialogIcon" aria-hidden="true">⏳</div>
@@ -13597,7 +13595,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="66"
+      data-app-version="67"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -13609,8 +13607,13 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">66</span>
+      <span id="appVersion">67</span>
     </footer>
+
+    <!-- Unauffälliger Update-Button direkt am Seitenende -->
+    <div class="appUpdateWidget" id="appUpdateWidget">
+      <button class="appUpdateBtn" id="appUpdateBtn" type="button" title="Update">Update</button>
+    </div>
 
     <!-- ❌ Fehler-Aktionen (Zurücksetzen / Drucken) -->
     <div
