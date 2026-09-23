@@ -2136,7 +2136,7 @@
         }
       }
     
-      /* === Update-Prüfung v63 === */
+      /* === Update-Prüfung v64 === */
       .appUpdateWidget {
         position: fixed; right: max(14px, env(safe-area-inset-right));
         bottom: max(14px, env(safe-area-inset-bottom)); z-index: 9998;
@@ -3203,7 +3203,7 @@
     </div>
 
     <script>
-      const APP_VERSION = 3;
+      const APP_VERSION = 64;
       const APP_STORAGE_PREFIX = "RechenGuruLGI_";
       const APP_NAME_FALLBACK = "Mathe Guru Web";
       const PORTABLE_HTML_MARKER_PREFIX = "__portableBootstrapApplied_";
@@ -12569,7 +12569,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v64";
+        const SW_VERSION = "rechenguru-lgi-v65";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -13193,21 +13193,59 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
     </script>
 
     <script>
-      /* Update-Prüfung v63 – vergleicht die veröffentlichte GitHub-Pages-Version. */
+      /* Update-Prüfung v64 – robuste Prüfung ohne CORS-auslösenden Request-Header. */
       (function () {
-        const LOCAL_VERSION = 63;
+        const WEB_FALLBACK_VERSION = 64;
         const RELEASE_INDEX = "https://parip69.github.io/RechenGuruLGI_AndroidAPK/";
 
-        function versionFromHtml(html) {
-          const m = String(html || "").match(/data-app-version=["'](\d+)["']/i);
-          if (m) return Number(m[1]);
-          const m2 = String(html || "").match(/id=["']appVersion["'][^>]*>\s*(\d+)/i);
-          return m2 ? Number(m2[1]) : NaN;
+        function versionNumber(value) {
+          const text = String(value ?? "").trim();
+          if (!text) return NaN;
+          const matches = text.match(/\d+/g);
+          if (!matches || !matches.length) return NaN;
+          return Number(matches[matches.length - 1]);
         }
 
-        function isAndroidWebView() {
+        function getInstalledVersion() {
+          try {
+            if (typeof getCurrentAppVersion === "function") {
+              const detected = versionNumber(getCurrentAppVersion());
+              if (Number.isFinite(detected)) return detected;
+            }
+          } catch (_) {}
+
+          const footer = document.getElementById("appFooter");
+          const fromFooter = versionNumber(footer?.getAttribute("data-app-version"));
+          return Number.isFinite(fromFooter) ? fromFooter : WEB_FALLBACK_VERSION;
+        }
+
+        function versionFromHtml(html) {
+          const text = String(html || "");
+          const patterns = [
+            /data-app-version=["']([^"']+)["']/i,
+            /id=["']appVersion["'][^>]*>\s*([^<\s]+)/i,
+            /Bachner\s+Gerhard\s*&\s*Isabella\s*-\s*Ver\.\s*([0-9]+)/i,
+          ];
+          for (const pattern of patterns) {
+            const match = text.match(pattern);
+            if (!match) continue;
+            const parsed = versionNumber(match[1]);
+            if (Number.isFinite(parsed)) return parsed;
+          }
+          return NaN;
+        }
+
+        function isAndroidApp() {
+          try {
+            if (typeof isAndroidAppWebView === "function" && isAndroidAppWebView()) return true;
+            if (typeof getAndroidBridge === "function" && getAndroidBridge()) return true;
+          } catch (_) {}
           const ua = navigator.userAgent || "";
-          return /^file:\/\/\/android_asset\//i.test(location.href) || /\bwv\b/i.test(ua) || /; wv\)/i.test(ua);
+          return (
+            String(location.href || "").indexOf("file:///android_asset/") === 0 ||
+            /\bwv\b/i.test(ua) ||
+            /; wv\)/i.test(ua)
+          );
         }
 
         function showUpdateStatus(text, kind) {
@@ -13215,7 +13253,63 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           if (!el) return;
           el.textContent = text;
           el.classList.add("show");
-          el.style.borderColor = kind === "ok" ? "rgba(45,106,79,.55)" : kind === "new" ? "rgba(37,99,235,.55)" : "rgba(188,71,73,.55)";
+          el.style.borderColor =
+            kind === "ok"
+              ? "rgba(45,106,79,.55)"
+              : kind === "new"
+                ? "rgba(37,99,235,.55)"
+                : "rgba(188,71,73,.55)";
+        }
+
+        function updateUrls() {
+          const stamp = Date.now();
+          const urls = [];
+
+          // Auf GitHub Pages zuerst same-origin prüfen. Das vermeidet CORS komplett.
+          if (
+            location.protocol === "https:" &&
+            location.hostname === "parip69.github.io" &&
+            location.pathname.indexOf("/RechenGuruLGI_AndroidAPK/") === 0
+          ) {
+            urls.push("./?update-check=" + stamp);
+          }
+
+          // Für lokal gestartete HTML/APK: einfacher CORS-GET ohne eigene HTTP-Header.
+          urls.push(RELEASE_INDEX + "?update-check=" + stamp);
+          urls.push(RELEASE_INDEX + "index.html?update-check=" + stamp);
+
+          return Array.from(new Set(urls));
+        }
+
+        async function fetchRemoteVersion() {
+          let lastError = null;
+
+          for (const url of updateUrls()) {
+            const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+            const timeout = controller ? setTimeout(() => controller.abort(), 12000) : null;
+            try {
+              const response = await fetch(url, {
+                cache: "no-store",
+                credentials: "omit",
+                signal: controller?.signal,
+              });
+              if (!response.ok) throw new Error("HTTP " + response.status);
+              const remoteVersion = versionFromHtml(await response.text());
+              if (!Number.isFinite(remoteVersion)) {
+                throw new Error("Versionsnummer nicht gefunden");
+              }
+              return remoteVersion;
+            } catch (error) {
+              lastError = error;
+            } finally {
+              if (timeout) clearTimeout(timeout);
+            }
+          }
+
+          if (lastError?.name === "AbortError") {
+            throw new Error("Zeitüberschreitung beim Serverzugriff");
+          }
+          throw lastError || new Error("Server nicht erreichbar");
         }
 
         async function forceWebUpdate(remoteVersion) {
@@ -13223,13 +13317,20 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           try {
             if ("serviceWorker" in navigator) {
               const regs = await navigator.serviceWorker.getRegistrations();
-              await Promise.all(regs.map(async (reg) => { try { await reg.update(); } catch (_) {} }));
+              await Promise.all(
+                regs.map(async (reg) => {
+                  try {
+                    await reg.update();
+                  } catch (_) {}
+                }),
+              );
             }
             if ("caches" in window) {
               const keys = await caches.keys();
               await Promise.all(keys.map((key) => caches.delete(key)));
             }
           } catch (_) {}
+
           const u = new URL(RELEASE_INDEX);
           u.searchParams.set("update", String(remoteVersion));
           u.searchParams.set("t", String(Date.now()));
@@ -13238,42 +13339,72 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
         async function checkForUpdate() {
           const btn = document.getElementById("appUpdateBtn");
-          if (btn) { btn.disabled = true; btn.textContent = "↻ Prüfe …"; }
-          showUpdateStatus(`Installiert: V${LOCAL_VERSION} · Suche neue Revision …`, "ok");
-          try {
-            const url = RELEASE_INDEX + "?update-check=" + Date.now();
-            const response = await fetch(url, { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
-            if (!response.ok) throw new Error("HTTP " + response.status);
-            const remoteVersion = versionFromHtml(await response.text());
-            if (!Number.isFinite(remoteVersion)) throw new Error("Versionsnummer nicht gefunden");
+          const installedVersion = getInstalledVersion();
+          if (btn) {
+            btn.disabled = true;
+            btn.textContent = "↻ Prüfe …";
+          }
+          showUpdateStatus(
+            `Installiert: V${installedVersion} · Suche neue Revision …`,
+            "ok",
+          );
 
-            if (remoteVersion > LOCAL_VERSION) {
-              if (isAndroidWebView() && location.protocol === "file:") {
-                showUpdateStatus(`Installiert: V${LOCAL_VERSION} · Neu: V${remoteVersion}. Für die Android-App ist eine neue APK nötig.`, "new");
-                if (btn) { btn.textContent = `APK V${remoteVersion} verfügbar`; btn.disabled = false; }
+          try {
+            const remoteVersion = await fetchRemoteVersion();
+
+            if (remoteVersion > installedVersion) {
+              if (isAndroidApp()) {
+                showUpdateStatus(
+                  `Installiert: V${installedVersion} · Neu: V${remoteVersion}. Neue Android-App/APK verfügbar.`,
+                  "new",
+                );
+                if (btn) {
+                  btn.textContent = `APK V${remoteVersion} verfügbar`;
+                  btn.disabled = false;
+                }
                 return;
               }
-              showUpdateStatus(`Installiert: V${LOCAL_VERSION} · Neu: V${remoteVersion}. Update wird installiert …`, "new");
+
+              showUpdateStatus(
+                `Installiert: V${installedVersion} · Neu: V${remoteVersion}. Update wird geladen …`,
+                "new",
+              );
               if (btn) btn.textContent = `Update auf V${remoteVersion}`;
               await forceWebUpdate(remoteVersion);
               return;
             }
 
-            if (remoteVersion === LOCAL_VERSION) {
-              showUpdateStatus(`Installiert: V${LOCAL_VERSION} · Keine neue Version. Du bist aktuell.`, "ok");
+            if (remoteVersion === installedVersion) {
+              showUpdateStatus(
+                `Installiert: V${installedVersion} · Keine neue Version. Du bist aktuell.`,
+                "ok",
+              );
             } else {
-              showUpdateStatus(`Installiert: V${LOCAL_VERSION} · Veröffentlicht: V${remoteVersion}. Diese Installation ist neuer.`, "ok");
+              showUpdateStatus(
+                `Installiert: V${installedVersion} · Online: V${remoteVersion}. Diese Installation ist neuer.`,
+                "ok",
+              );
             }
           } catch (err) {
-            showUpdateStatus(`Installiert: V${LOCAL_VERSION} · Update-Prüfung nicht möglich: ${err.message || err}`, "error");
+            const detail = err?.message || String(err || "Unbekannter Fehler");
+            showUpdateStatus(
+              `Installiert: V${installedVersion} · Update-Prüfung nicht möglich: ${detail}`,
+              "error",
+            );
           } finally {
-            if (btn) { btn.disabled = false; btn.textContent = `↻ Update prüfen · V${LOCAL_VERSION}`; }
+            if (btn && !/^APK V\d+ verfügbar$/.test(btn.textContent || "")) {
+              btn.disabled = false;
+              btn.textContent = `↻ Update prüfen · V${installedVersion}`;
+            }
           }
         }
 
         document.addEventListener("DOMContentLoaded", function () {
           const btn = document.getElementById("appUpdateBtn");
-          if (btn) btn.addEventListener("click", checkForUpdate);
+          if (!btn) return;
+          const installedVersion = getInstalledVersion();
+          btn.textContent = `↻ Update prüfen · V${installedVersion}`;
+          btn.addEventListener("click", checkForUpdate);
         });
       })();
     </script>
@@ -13281,12 +13412,12 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
     <!-- Update-Prüfung: feste Schaltfläche unten rechts -->
     <div class="appUpdateWidget" id="appUpdateWidget">
       <div class="appUpdateStatus" id="appUpdateStatus" role="status" aria-live="polite"></div>
-      <button class="appUpdateBtn" id="appUpdateBtn" type="button" title="Nach neuer Revision suchen">↻ Update prüfen · V63</button>
+      <button class="appUpdateBtn" id="appUpdateBtn" type="button" title="Nach neuer Revision suchen">↻ Update prüfen · V64</button>
     </div>
 
     <footer
       id="appFooter"
-      data-app-version="64"
+      data-app-version="65"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -13298,7 +13429,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">64</span>
+      <span id="appVersion">65</span>
     </footer>
 
     <!-- ❌ Fehler-Aktionen (Zurücksetzen / Drucken) -->
