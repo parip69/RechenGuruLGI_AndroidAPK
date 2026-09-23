@@ -2135,6 +2135,30 @@
           transform: rotate(360deg);
         }
       }
+    
+      /* === Update-Prüfung v63 === */
+      .appUpdateWidget {
+        position: fixed; right: max(14px, env(safe-area-inset-right));
+        bottom: max(14px, env(safe-area-inset-bottom)); z-index: 9998;
+        display: flex; flex-direction: column; align-items: flex-end; gap: 7px;
+        font-family: "Outfit", sans-serif;
+      }
+      .appUpdateBtn {
+        border: 1px solid var(--glass-border); border-radius: 999px; padding: 10px 14px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff;
+        box-shadow: 0 8px 22px rgba(0,0,0,.20); font-weight: 900; cursor: pointer;
+        font-size: .88rem; white-space: nowrap; touch-action: manipulation;
+      }
+      .appUpdateBtn:disabled { opacity: .65; cursor: wait; }
+      .appUpdateStatus {
+        display: none; max-width: min(340px, calc(100vw - 28px)); padding: 9px 11px;
+        border-radius: 13px; background: var(--surface92); color: var(--text);
+        border: 1px solid var(--dividerStrong); box-shadow: 0 8px 22px rgba(0,0,0,.18);
+        font-size: .82rem; font-weight: 800; line-height: 1.3; text-align: left;
+      }
+      .appUpdateStatus.show { display: block; }
+      @media print { .appUpdateWidget { display: none !important; } }
+
     </style>
   </head>
 
@@ -12545,7 +12569,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v62";
+        const SW_VERSION = "rechenguru-lgi-v64";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -13168,9 +13192,101 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       })();
     </script>
 
+    <script>
+      /* Update-Prüfung v63 – vergleicht die veröffentlichte GitHub-Pages-Version. */
+      (function () {
+        const LOCAL_VERSION = 63;
+        const RELEASE_INDEX = "https://parip69.github.io/RechenGuruLGI_AndroidAPK/";
+
+        function versionFromHtml(html) {
+          const m = String(html || "").match(/data-app-version=["'](\d+)["']/i);
+          if (m) return Number(m[1]);
+          const m2 = String(html || "").match(/id=["']appVersion["'][^>]*>\s*(\d+)/i);
+          return m2 ? Number(m2[1]) : NaN;
+        }
+
+        function isAndroidWebView() {
+          const ua = navigator.userAgent || "";
+          return /^file:\/\/\/android_asset\//i.test(location.href) || /\bwv\b/i.test(ua) || /; wv\)/i.test(ua);
+        }
+
+        function showUpdateStatus(text, kind) {
+          const el = document.getElementById("appUpdateStatus");
+          if (!el) return;
+          el.textContent = text;
+          el.classList.add("show");
+          el.style.borderColor = kind === "ok" ? "rgba(45,106,79,.55)" : kind === "new" ? "rgba(37,99,235,.55)" : "rgba(188,71,73,.55)";
+        }
+
+        async function forceWebUpdate(remoteVersion) {
+          showUpdateStatus(`Update V${remoteVersion} wird geladen …`, "new");
+          try {
+            if ("serviceWorker" in navigator) {
+              const regs = await navigator.serviceWorker.getRegistrations();
+              await Promise.all(regs.map(async (reg) => { try { await reg.update(); } catch (_) {} }));
+            }
+            if ("caches" in window) {
+              const keys = await caches.keys();
+              await Promise.all(keys.map((key) => caches.delete(key)));
+            }
+          } catch (_) {}
+          const u = new URL(RELEASE_INDEX);
+          u.searchParams.set("update", String(remoteVersion));
+          u.searchParams.set("t", String(Date.now()));
+          location.replace(u.toString());
+        }
+
+        async function checkForUpdate() {
+          const btn = document.getElementById("appUpdateBtn");
+          if (btn) { btn.disabled = true; btn.textContent = "↻ Prüfe …"; }
+          showUpdateStatus(`Installiert: V${LOCAL_VERSION} · Suche neue Revision …`, "ok");
+          try {
+            const url = RELEASE_INDEX + "?update-check=" + Date.now();
+            const response = await fetch(url, { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
+            if (!response.ok) throw new Error("HTTP " + response.status);
+            const remoteVersion = versionFromHtml(await response.text());
+            if (!Number.isFinite(remoteVersion)) throw new Error("Versionsnummer nicht gefunden");
+
+            if (remoteVersion > LOCAL_VERSION) {
+              if (isAndroidWebView() && location.protocol === "file:") {
+                showUpdateStatus(`Installiert: V${LOCAL_VERSION} · Neu: V${remoteVersion}. Für die Android-App ist eine neue APK nötig.`, "new");
+                if (btn) { btn.textContent = `APK V${remoteVersion} verfügbar`; btn.disabled = false; }
+                return;
+              }
+              showUpdateStatus(`Installiert: V${LOCAL_VERSION} · Neu: V${remoteVersion}. Update wird installiert …`, "new");
+              if (btn) btn.textContent = `Update auf V${remoteVersion}`;
+              await forceWebUpdate(remoteVersion);
+              return;
+            }
+
+            if (remoteVersion === LOCAL_VERSION) {
+              showUpdateStatus(`Installiert: V${LOCAL_VERSION} · Keine neue Version. Du bist aktuell.`, "ok");
+            } else {
+              showUpdateStatus(`Installiert: V${LOCAL_VERSION} · Veröffentlicht: V${remoteVersion}. Diese Installation ist neuer.`, "ok");
+            }
+          } catch (err) {
+            showUpdateStatus(`Installiert: V${LOCAL_VERSION} · Update-Prüfung nicht möglich: ${err.message || err}`, "error");
+          } finally {
+            if (btn) { btn.disabled = false; btn.textContent = `↻ Update prüfen · V${LOCAL_VERSION}`; }
+          }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+          const btn = document.getElementById("appUpdateBtn");
+          if (btn) btn.addEventListener("click", checkForUpdate);
+        });
+      })();
+    </script>
+
+    <!-- Update-Prüfung: feste Schaltfläche unten rechts -->
+    <div class="appUpdateWidget" id="appUpdateWidget">
+      <div class="appUpdateStatus" id="appUpdateStatus" role="status" aria-live="polite"></div>
+      <button class="appUpdateBtn" id="appUpdateBtn" type="button" title="Nach neuer Revision suchen">↻ Update prüfen · V63</button>
+    </div>
+
     <footer
       id="appFooter"
-      data-app-version="62"
+      data-app-version="64"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -13182,7 +13298,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">62</span>
+      <span id="appVersion">64</span>
     </footer>
 
     <!-- ❌ Fehler-Aktionen (Zurücksetzen / Drucken) -->

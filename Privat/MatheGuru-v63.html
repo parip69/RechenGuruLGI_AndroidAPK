@@ -314,15 +314,150 @@
       .controls {
         display: flex;
         flex-wrap: wrap;
-        justify-content: center;
-        gap: 10px;
+        align-items: flex-start;
+        justify-content: flex-start;
+        gap: 12px;
       }
 
       .control-group {
         display: flex;
         flex-direction: column;
         min-width: 170px;
+        flex: 1 1 210px;
+        padding: 12px;
+        border: 1px solid var(--dividerStrong);
+        border-radius: 14px;
+        background: var(--surface45);
       }
+
+      .settings-guide,
+      .settings-section-title {
+        flex: 1 0 100%;
+      }
+
+      .settings-guide {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 2px 2px 4px;
+        color: var(--textMuted);
+        line-height: 1.35;
+      }
+
+      .settings-guide-number,
+      .settings-step-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 26px;
+        width: 26px;
+        height: 26px;
+        border-radius: 999px;
+        background: var(--primary);
+        color: #fff;
+        font-size: 0.86rem;
+        font-weight: 900;
+      }
+
+      .settings-guide strong,
+      .settings-section-title strong {
+        display: block;
+        color: var(--text);
+        font-size: 0.98rem;
+      }
+
+      .settings-guide small,
+      .settings-section-title small {
+        display: block;
+        margin-top: 2px;
+        color: var(--textMuted);
+        font-size: 0.82rem;
+        font-weight: 650;
+      }
+
+      .settings-section-title {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-top: 4px;
+        padding-top: 12px;
+        border-top: 1px solid var(--dividerStrong);
+      }
+
+      #presetGroup {
+        flex-basis: 100%;
+      }
+
+      #presetGroup .hintSmall {
+        margin-top: 7px;
+      }
+
+      .advanced-settings {
+        flex: 1 0 100%;
+        border: 1px solid var(--dividerStrong);
+        border-radius: 14px;
+        background: var(--surface45);
+        overflow: hidden;
+      }
+
+      .advanced-settings > summary {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 13px 14px;
+        cursor: pointer;
+        list-style: none;
+        color: var(--text);
+        font-weight: 850;
+        user-select: none;
+      }
+
+      .advanced-settings > summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .advanced-settings > summary::after {
+        content: "▾";
+        margin-left: auto;
+        color: var(--textMuted);
+        transition: transform 0.18s ease;
+      }
+
+      .advanced-settings[open] > summary::after {
+        transform: rotate(180deg);
+      }
+
+      .advanced-settings-grid {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 0 12px 12px;
+      }
+
+      .advanced-settings-grid .control-group {
+        background: var(--surface60);
+      }
+
+      .hintSmall {
+        margin-top: 6px;
+        line-height: 1.35;
+      }
+
+      /* Visueller Ablauf; DOM-IDs und Speicherlogik bleiben unverändert. */
+      #presetGroup { order: 1; }
+      .settings-guide { order: 2; }
+      #controlsArea > .settings-section-title:not(.task-details-step) { order: 3; }
+      #maxValueGroup { order: 4; }
+      #taskCountGroup { order: 5; }
+      #difficultyGroup { order: 6; }
+      .task-details-step { order: 7; }
+      #taskFormatGroup { order: 8; }
+      #operandCountGroup { order: 9; }
+      #onesOnlyGroup { order: 10; }
+      #rowGroup { order: 11; }
+      #mulProfileGroup { order: 12; }
+      #advancedSettings { order: 13; }
 
       /* === Reihe-Chips (Mehrfachauswahl) === */
       .row-chips {
@@ -1039,7 +1174,7 @@
         color: rgba(255, 255, 255, 0.92);
       }
 
-      .selectPopupCard h2 {
+      .overlayCard.selectPopupCard h2 {
         color: rgba(255, 255, 255, 0.92);
       }
 
@@ -1052,21 +1187,25 @@
         display: flex;
         flex-direction: column;
         margin-top: 8px;
-        gap: 0;
+        gap: 7px;
+      }
 
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 14px;
-        overflow: hidden;
+      .selectPopupGroup {
+        padding: 9px 10px 3px;
+        color: rgba(255, 255, 255, 0.62);
+        font-size: 0.72rem;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
       }
 
       .selectPopupItem {
         width: 100%;
-        border: none;
-        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.035);
 
-        /* enger/flanker */
-        padding: 12px 12px;
-        border-radius: 0;
+        padding: 10px 12px;
+        border-radius: 12px;
 
         display: flex;
         align-items: center;
@@ -1075,12 +1214,6 @@
         cursor: pointer;
         text-align: left;
 
-        /* Trennlinie */
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      }
-
-      .selectPopupItem:last-child {
-        border-bottom: none;
       }
 
       .selectPopupItem:hover {
@@ -1092,11 +1225,20 @@
       }
 
       .selectPopupLeft {
-        display: inline-flex;
-        align-items: baseline;
-        gap: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 3px;
         min-width: 0;
         flex: 1 1 auto;
+      }
+
+      .selectPopupTitleLine {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        max-width: 100%;
+        min-width: 0;
       }
 
       .selectPopupBase {
@@ -1117,6 +1259,13 @@
         opacity: 0.78;
         white-space: nowrap;
         flex: 0 0 auto;
+      }
+
+      .selectPopupDescription {
+        color: rgba(255, 255, 255, 0.62);
+        font-size: 0.76rem;
+        font-weight: 650;
+        line-height: 1.25;
       }
 
       .selectPopupMark {
@@ -1425,14 +1574,27 @@
         align-items: center;
         gap: 10px;
         margin-left: auto;
+        padding: 8px 10px;
+        border-radius: 12px;
+        color: var(--textMuted);
+        font-size: 0.82rem;
       }
 
       .viewSelectWrap {
         display: flex;
-        align-items: center;
+        flex-direction: column;
+        align-items: stretch;
         gap: 6px;
         flex: 1;
         min-width: 0;
+      }
+
+      .currentSetupSummary {
+        padding-left: 10px;
+        color: var(--textMuted);
+        font-size: 0.78rem;
+        font-weight: 750;
+        line-height: 1.25;
       }
 
       .viewSelectBox {
@@ -1522,6 +1684,20 @@
       .viewSelectWrap #viewSelect {
         flex: 1 1 auto;
         min-width: 0;
+      }
+
+      @media (max-width: 520px) {
+        .settingsAction {
+          display: none;
+        }
+
+        .settingsTitle {
+          padding-inline: 6px;
+        }
+
+        .control-group {
+          flex-basis: 100%;
+        }
       }
 
       select.adventureSelect {
@@ -1959,6 +2135,30 @@
           transform: rotate(360deg);
         }
       }
+    
+      /* === Update-Prüfung v63 === */
+      .appUpdateWidget {
+        position: fixed; right: max(14px, env(safe-area-inset-right));
+        bottom: max(14px, env(safe-area-inset-bottom)); z-index: 9998;
+        display: flex; flex-direction: column; align-items: flex-end; gap: 7px;
+        font-family: "Outfit", sans-serif;
+      }
+      .appUpdateBtn {
+        border: 1px solid var(--glass-border); border-radius: 999px; padding: 10px 14px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff;
+        box-shadow: 0 8px 22px rgba(0,0,0,.20); font-weight: 900; cursor: pointer;
+        font-size: .88rem; white-space: nowrap; touch-action: manipulation;
+      }
+      .appUpdateBtn:disabled { opacity: .65; cursor: wait; }
+      .appUpdateStatus {
+        display: none; max-width: min(340px, calc(100vw - 28px)); padding: 9px 11px;
+        border-radius: 13px; background: var(--surface92); color: var(--text);
+        border: 1px solid var(--dividerStrong); box-shadow: 0 8px 22px rgba(0,0,0,.18);
+        font-size: .82rem; font-weight: 800; line-height: 1.3; text-align: left;
+      }
+      .appUpdateStatus.show { display: block; }
+      @media print { .appUpdateWidget { display: none !important; } }
+
     </style>
   </head>
 
@@ -2007,10 +2207,13 @@
               <div
                 id="viewSelectOverlay"
                 class="viewSelectOverlay"
-                aria-hidden="true"
+                role="button"
+                tabindex="0"
+                aria-haspopup="dialog"
+                aria-label="Aufgabenart auswählen"
               >
                 <span class="viewLabel"
-                  ><span class="viewBase">Zeilen (+)</span
+                  ><span class="viewBase">Addition (+)</span
                   ><span class="viewRangeInline">(0–10)</span></span
                 >
                 <span class="viewChevron">▾</span>
@@ -2021,19 +2224,21 @@
                 onchange="wechselAnsicht()"
               >
                 <optgroup label="Grundrechenarten">
-                  <option value="plus">Zeilen (+)</option>
-                  <option value="minus">Zeilen (−)</option>
-                  <option value="mix">Zeilen (+/− Mix)</option>
+                  <option value="plus">Addition (+)</option>
+                  <option value="minus">Subtraktion (−)</option>
+                  <option value="mix">Plus und Minus</option>
                 </optgroup>
-                <optgroup label="× / ÷">
-                  <option value="mal">Zeilen (×)</option>
-                  <option value="squareMal">Quadrat × (z.B. 12×12)</option>
-                  <option value="geteilt">Zeilen (÷)</option>
-                  <option value="squareDiv">Quadrat ÷ (z.B. 144÷12)</option>
-                  <option value="mixMD">Zeilen (×/÷ Mix)</option>
-                  <option value="mixALL">Zeilen (+/−/×/÷ Mix)</option>
+                <optgroup label="Malnehmen und Teilen">
+                  <option value="mal">Multiplikation (×)</option>
+                  <option value="squareMal">Quadratzahlen (z.B. 12×12)</option>
+                  <option value="geteilt">Division (÷)</option>
+                  <option value="squareDiv">
+                    Quadrat-Division (z.B. 144÷12)
+                  </option>
+                  <option value="mixMD">Mal und Geteilt</option>
+                  <option value="mixALL">Alle Rechenarten</option>
                 </optgroup>
-                <optgroup label="Spezial">
+                <optgroup label="Weitere Übungen">
                   <option value="double">Verdoppeln</option>
                   <option value="half">Halbieren</option>
                   <option value="fehler">Fehler üben</option>
@@ -2042,12 +2247,26 @@
                 </optgroup>
               </select>
             </div>
+            <div id="currentSetupSummary" class="currentSetupSummary">
+              bis 10 · 3 Aufgaben · Normal
+            </div>
           </div>
-          <span class="settingsTitle">⚙️</span>
+          <span class="settingsTitle"
+            ><span aria-hidden="true">⚙️</span
+            ><span class="settingsAction">Einstellen</span></span
+          >
         </summary>
         <div class="controls" id="controlsArea">
+          <div class="settings-guide">
+            <span class="settings-guide-number">1</span>
+            <div>
+              <strong>Aufgabenart wählen</strong>
+              <small>Tippe oben auf „Addition“, „Division“ oder eine andere Aufgabenart.</small>
+            </div>
+          </div>
+
           <div class="control-group" id="presetGroup">
-            <label>1-Klick Presets</label>
+            <label>Schnellstart (optional)</label>
             <div class="preset-row">
               <button type="button" class="btn-mini" onclick="applyPreset(1)">
                 Klasse 1
@@ -2062,10 +2281,21 @@
                 Klasse 4
               </button>
             </div>
+            <div class="hintSmall">
+              Stellt alle Aufgabenarten passend ein. Du kannst danach jedes Feld weiter anpassen.
+            </div>
           </div>
 
-          <div class="control-group">
-            <label>Maximalwert</label>
+          <div class="settings-section-title">
+            <span class="settings-step-number">2</span>
+            <div>
+              <strong>Umfang und Schwierigkeit</strong>
+              <small>Damit legst du die wichtigsten Grenzen fest.</small>
+            </div>
+          </div>
+
+          <div class="control-group" id="maxValueGroup">
+            <label id="maxValueLabel">Zahlen bis</label>
             <input
               type="text"
               inputmode="numeric"
@@ -2093,15 +2323,21 @@
               onchange="initGame(true)"
               onblur="handleMaxWertBlur()"
             />
-            <div class="hintSmall">
-              Für +/− ist das die größte Zahl. Bei ×/÷ gilt der Wert für das
-              Ergebnis bzw. die größere Zahl vor ÷: 22×22 braucht mindestens
-              484.
+            <div class="hintSmall" id="maxValueHint">
+              Alle Zahlen und Ergebnisse bleiben höchstens bei diesem Wert.
+            </div>
+          </div>
+
+          <div class="settings-section-title task-details-step">
+            <span class="settings-step-number">3</span>
+            <div>
+              <strong>Aufgaben genauer festlegen</strong>
+              <small>Nur die passenden Felder für deine Aufgabenart werden angezeigt.</small>
             </div>
           </div>
 
           <div class="control-group" id="onesOnlyGroup">
-            <label>Einser-Training</label>
+            <label>2./3. Zahl begrenzen</label>
             <select
               id="onesOnly"
               onchange="
@@ -2109,13 +2345,13 @@
                 initGame(true);
               "
             >
-              <option value="0">Aus (alle Zahlen mehrstell.)</option>
-              <option value="1">An (2./3. Zahl nur 0–9)</option>
+              <option value="0">Nein, frei wählen</option>
+              <option value="1">Ja, nur 0–9</option>
             </select>
           </div>
 
           <div class="control-group" id="operandCountGroup">
-            <label>Anzahl Zahlen</label>
+            <label>Wie viele Zahlen?</label>
             <select
               id="operandCount"
               onchange="
@@ -2163,6 +2399,9 @@
             </div>
           </div>
 
+          <details class="advanced-settings" id="advancedSettings">
+            <summary>🛠️ Weitere Optionen</summary>
+            <div class="advanced-settings-grid">
           <div class="control-group" id="flashGroup">
             <label>Kopfrechnen (Blitz)</label>
             <select
@@ -2281,6 +2520,8 @@
             />
             <div class="hintSmall">0 = aus (wie bisher)</div>
           </div>
+            </div>
+          </details>
 
           <div class="control-group" id="taskCountGroup">
             <label>Aufgaben pro Runde</label>
@@ -2289,32 +2530,38 @@
               <option value="3">3</option>
               <option value="5">5</option>
               <option value="10">10</option>
+              <option value="12">12</option>
+              <option value="15">15</option>
+              <option value="20">20</option>
             </select>
           </div>
 
           <div class="control-group" id="taskFormatGroup">
             <label>Aufgabenformat</label>
             <select id="taskFormat" onchange="initGame(true)">
-              <option value="standard">Standard</option>
-              <option value="faktor">Faktor fehlt</option>
-              <option value="wahrfalsch">Wahr / Falsch</option>
-              <option value="operator">Operator fehlt</option>
-              <option value="compare">Vergleichen (&lt; &gt; =)</option>
+              <option value="standard">Ergebnis fehlt</option>
+              <option value="faktor">Zahl fehlt</option>
+              <option value="wahrfalsch">Richtig oder falsch?</option>
+              <option value="operator">Rechenzeichen fehlt</option>
+              <option value="compare">Zahlen vergleichen (&lt; &gt; =)</option>
             </select>
+            <div class="hintSmall" id="taskFormatHint">
+              Deine Auswahl wird für jede Aufgabenart separat gespeichert.
+            </div>
           </div>
 
           <div class="control-group" id="difficultyGroup">
             <label>Schwierigkeit</label>
             <select id="difficulty" onchange="initGame(true)">
-              <option value="standard">Standard (Ergebnis fehlt)</option>
-              <option value="mixed">Gemischt</option>
+              <option value="standard">Normal</option>
+              <option value="mixed">Automatisch (passt sich an)</option>
               <option value="noCarry">Ohne Zehnerübergang</option>
               <option value="carry">Mit Zehnerübergang</option>
             </select>
           </div>
 
           <div class="control-group" id="rowGroup">
-            <label>Reihe (×/÷)</label>
+            <label>Welche Reihen?</label>
             <!-- Hidden input speichert aktuelle Auswahl für saveModeSettings -->
             <input type="hidden" id="rowTrain" value="mixed" />
             <div
@@ -2432,10 +2679,11 @@
                 Quadratzahlen
               </button>
             </div>
+            <div class="hintSmall">Eine oder mehrere Reihen antippen.</div>
           </div>
 
           <div class="control-group" id="mulProfileGroup">
-            <label>×/÷ Zahlenbereich</label>
+            <label>Welche Zahlen bei ×/÷?</label>
             <select id="mulProfile" onchange="initGame(true)">
               <option value="table9">Kleines 1×1 (1–9)</option>
               <option value="table">1×1 bis 10</option>
@@ -2949,7 +3197,7 @@
         >
           ✕
         </button>
-        <h2>Modus auswählen</h2>
+        <h2>Was möchtest du üben?</h2>
         <div id="viewSelectPopupList" class="selectPopupList"></div>
       </div>
     </div>
@@ -3001,6 +3249,7 @@
         "Mathe Guru Web": "Mate Guru Web",
         "Sprache wechseln": "Schimbă limba",
         "Farbstil wechseln": "Schimbă stilul de culoare",
+        "Aufgabenart auswählen": "Alege tipul exercițiului",
 
         // ── Modus-Auswahl (viewSelect options) ──
         "Plus-Pyramide": "Piramida plus",
@@ -3016,12 +3265,61 @@
         "Quadrat ÷ (z.B. 144÷12)": "Pătrat ÷ (ex. 144÷12)",
         "Zeilen (×/÷ Mix)": "Rânduri (×/÷ Mixt)",
         "Zeilen (+/−/×/÷ Mix)": "Rânduri (+/−/×/÷ Mixt)",
+        "Grundrechenarten": "Operații de bază",
+        "Malnehmen und Teilen": "Înmulțire și împărțire",
+        "Weitere Übungen": "Alte exerciții",
+        "Addition (+)": "Adunare (+)",
+        "Subtraktion (−)": "Scădere (−)",
+        "Plus und Minus": "Plus și minus",
+        "Multiplikation (×)": "Înmulțire (×)",
+        "Quadratzahlen (z.B. 12×12)": "Pătrate (ex. 12×12)",
+        "Division (÷)": "Împărțire (÷)",
+        "Quadrat-Division (z.B. 144÷12)": "Împărțire pătrată (ex. 144÷12)",
+        "Mal und Geteilt": "Înmulțire și împărțire",
+        "Alle Rechenarten": "Toate operațiile",
+        "Addieren üben": "Exersează adunarea",
+        "Subtrahieren üben": "Exersează scăderea",
+        "Plus und Minus abwechselnd": "Plus și minus alternativ",
+        "Malaufgaben üben": "Exersează înmulțirea",
+        "Dieselbe Zahl mal sich selbst": "Același număr înmulțit cu el însuși",
+        "Geteiltaufgaben ohne Rest": "Împărțiri fără rest",
+        "Quadratzahlen wieder teilen": "Împarte din nou pătratele",
+        "Mal und Geteilt abwechselnd": "Înmulțire și împărțire alternativ",
+        "Plus, Minus, Mal und Geteilt": "Plus, minus, înmulțire și împărțire",
+        "Eine Zahl verdoppeln": "Dublează un număr",
+        "Eine gerade Zahl halbieren": "Înjumătățește un număr par",
+        "Gespeicherte Fehler wiederholen": "Repetă greșelile salvate",
+        "Fehlende Zahlen in der Pyramide": "Numere lipsă în piramidă",
+        "Fehlende Zahlen in der Traube": "Numere lipsă în ciorchine",
         Verdoppeln: "Dublare",
         Halbieren: "Înjumătățire",
         "Fehler üben": "Exersează greșelile",
 
         // ── Einstellungen (labels) ──
         "1-Klick Presets": "Presetări rapide",
+        Einstellen: "Setări",
+        "Aufgabenart wählen": "Alege tipul exercițiilor",
+        "Tippe oben auf „Addition“, „Division“ oder eine andere Aufgabenart.":
+          "Apasă sus pe „Adunare”, „Împărțire” sau alt tip de exercițiu.",
+        "Schnellstart nach Klassenstufe": "Pornire rapidă după clasă",
+        "Schnellstart (optional)": "Pornire rapidă (opțional)",
+        "Stellt alle Aufgabenarten passend ein. Du kannst danach jedes Feld weiter anpassen.":
+          "Configurează toate tipurile de exerciții. Apoi poți ajusta fiecare câmp.",
+        "Umfang und Schwierigkeit": "Volum și dificultate",
+        "Damit legst du die wichtigsten Grenzen fest.":
+          "Aici stabilești limitele cele mai importante.",
+        "Aufgaben genauer festlegen": "Configurează exercițiile în detaliu",
+        "Nur die passenden Felder für deine Aufgabenart werden angezeigt.":
+          "Sunt afișate doar câmpurile potrivite tipului ales.",
+        "Zahlen bis": "Numere până la",
+        "Alle Zahlen und Ergebnisse bleiben höchstens bei diesem Wert.":
+          "Toate numerele și rezultatele rămân cel mult la această valoare.",
+        "Begrenzt das Ergebnis bzw. die große Zahl vor ÷. Für 22×22 brauchst du mindestens 484.":
+          "Limitează rezultatul sau numărul mare dinainte de ÷. Pentru 22×22 ai nevoie de cel puțin 484.",
+        "Die Zahlen in der gesamten Figur bleiben höchstens bei diesem Wert.":
+          "Numerele din întreaga figură rămân cel mult la această valoare.",
+        bis: "până la",
+        Aufgaben: "exerciții",
         "Klasse 1": "Clasa 1",
         "Klasse 2": "Clasa 2",
         "Klasse 3": "Clasa 3",
@@ -3031,9 +3329,13 @@
         "Bei ×/÷ zählt hier Ergebnis bzw. die große Zahl vor ÷: 22×22 braucht mindestens 484.":
           "La ×/÷ contează aici rezultatul sau numărul mare dinainte de ÷: 22×22 are nevoie de cel puțin 484.",
         "Einser-Training": "Antrenament unități",
+        "2./3. Zahl begrenzen": "Limitează numărul 2/3",
+        "Nein, frei wählen": "Nu, alegere liberă",
+        "Ja, nur 0–9": "Da, doar 0–9",
         "Aus (alle Zahlen mehrstell.)": "Oprit (toate nr. multi-cifre)",
         "An (2./3. Zahl nur 0–9)": "Pornit (nr. 2/3 doar 0–9)",
         "Anzahl Zahlen": "Cantitate numere",
+        "Wie viele Zahlen?": "Câte numere?",
         "2 Zahlen (Standard)": "2 numere (Standard)",
         "3 Zahlen (z.B. 5 + 3 + 2)": "3 numere (ex. 5 + 3 + 2)",
         "1. Zahl": "Nr. 1",
@@ -3052,19 +3354,34 @@
         "Aufgaben pro Runde": "Exerciții pe rundă",
         Aufgabenformat: "Format exercițiu",
         Standard: "Standard",
+        "Ergebnis fehlt": "Rezultatul lipsește",
+        "Zahl fehlt": "Lipsește un număr",
+        "Richtig oder falsch?": "Adevărat sau fals?",
+        "Rechenzeichen fehlt": "Lipsește semnul",
+        "Zahlen vergleichen (< > =)": "Compară numerele (< > =)",
+        "Deine Auswahl wird für jede Aufgabenart separat gespeichert.":
+          "Alegerea ta este salvată separat pentru fiecare tip de exercițiu.",
+        "Bei 3 Zahlen sind „Ergebnis fehlt“ und „Richtig oder falsch?“ am einfachsten; die anderen Formate funktionieren ebenfalls.":
+          "La 3 numere, „Rezultatul lipsește” și „Adevărat sau fals?” sunt cele mai simple; funcționează și celelalte formate.",
         "Faktor fehlt": "Factor lipsă",
         "Wahr / Falsch": "Adevărat / Fals",
         "Operator fehlt": "Operator lipsă",
         "Vergleichen (< > =)": "Comparare (< > =)",
         Schwierigkeit: "Dificultate",
+        Normal: "Normal",
+        "Automatisch (passt sich an)": "Automat (se adaptează)",
         "Standard (Ergebnis fehlt)": "Standard (rezultat lipsă)",
         Gemischt: "Mixt",
         "Ohne Zehnerübergang": "Fără trecere peste zece",
         "Mit Zehnerübergang": "Cu trecere peste zece",
         "Reihe (×/÷)": "Seria (×/÷)",
+        "Welche Reihen?": "Ce serii?",
+        "Eine oder mehrere Reihen antippen.": "Alege una sau mai multe serii.",
         Quadratzahlen: "Pătrate perfecte",
         "×/÷ Zahlenart": "Tip numere ×/÷",
         "×/÷ Zahlenbereich": "Interval ×/÷",
+        "Welche Zahlen bei ×/÷?": "Ce numere la ×/÷?",
+        "🛠️ Weitere Optionen": "🛠️ Alte opțiuni",
         "1×1 (1–9)": "Tabla înm. (1–9)",
         "1×1 (1–10)": "Tabla înm. (1–10)",
         "Zehner ×/÷ (10er, 20er…)": "Zeci ×/÷ (10, 20…)",
@@ -3171,6 +3488,7 @@
         "OK zurücksetzen": "OK resetare",
         "Arbeitsblatt – Mathe": "Fișă de lucru – Mate",
         "Modus auswählen": "Selectează modul",
+        "Was möchtest du üben?": "Ce vrei să exersezi?",
 
         // ── Pull-to-Refresh ──
         "Nach unten ziehen zum Aktualisieren":
@@ -3522,17 +3840,37 @@
             if (!opt.getAttribute("data-de")) opt.setAttribute("data-de", de);
             opt.textContent = t(de);
           });
+          Array.from(vs.querySelectorAll("optgroup")).forEach((group) => {
+            const de = group.getAttribute("data-de-label") || group.label;
+            if (!group.getAttribute("data-de-label"))
+              group.setAttribute("data-de-label", de);
+            group.label = t(de);
+          });
         }
 
         // ViewSelectOverlay Label aktualisieren
         const baseEl = document.querySelector(".viewBase");
         if (baseEl) {
           const selOpt = vs && vs.options[vs.selectedIndex];
-          if (selOpt) baseEl.textContent = selOpt.textContent.trim();
+          if (selOpt) {
+            const base =
+              selOpt.dataset.baseLabel ||
+              selOpt.textContent.replace(/\s*\(0[–-]\d+\)\s*$/i, "").trim();
+            baseEl.textContent = t(base);
+          }
         }
+        const viewOverlay = document.getElementById("viewSelectOverlay");
+        if (viewOverlay)
+          viewOverlay.setAttribute(
+            "aria-label",
+            t("Aufgabenart auswählen"),
+          );
 
         // ── Einstellungen ──
-        _tqAll("#controlsArea label", "textContent");
+        _tqAll(
+          "#controlsArea label, #controlsArea .settings-guide strong, #controlsArea .settings-guide small, #controlsArea .settings-section-title strong, #controlsArea .settings-section-title small, #controlsArea .advanced-settings > summary, .settingsAction",
+          "textContent",
+        );
         _tqAll("#controlsArea .miniLabel", "textContent");
         _tqAll("#controlsArea .hintSmall", "textContent");
         _tqAll("#controlsArea select option", "textContent");
@@ -3704,6 +4042,11 @@
             footer.appendChild(ver);
           }
         }
+
+        updateMaxValueHelp(
+          document.getElementById("viewSelect")?.value || "plus",
+        );
+        updateSettingsSummary();
       }
 
       // Hilfs-Funktionen für applyLanguage()
@@ -6118,12 +6461,28 @@
             rowTrain: "mixed",
             mulProfile: "table9",
           });
+          mergeModeSettings("squareMal", {
+            maxWert: "20",
+            taskCount: "5",
+            taskFormat: "standard",
+            difficulty: "easy",
+            rowTrain: "squares",
+            mulProfile: "table9",
+          });
           mergeModeSettings("geteilt", {
             maxWert: "20",
             taskCount: "5",
             taskFormat: "standard",
             difficulty: "easy",
             rowTrain: "mixed",
+            mulProfile: "table9",
+          });
+          mergeModeSettings("squareDiv", {
+            maxWert: "20",
+            taskCount: "5",
+            taskFormat: "standard",
+            difficulty: "easy",
+            rowTrain: "squares",
             mulProfile: "table9",
           });
           mergeModeSettings("mixMD", {
@@ -6188,12 +6547,28 @@
             rowTrain: "mixed",
             mulProfile: "table9",
           });
+          mergeModeSettings("squareMal", {
+            maxWert: "81",
+            taskCount: "5",
+            taskFormat: "standard",
+            difficulty: "easy",
+            rowTrain: "squares",
+            mulProfile: "table9",
+          });
           mergeModeSettings("geteilt", {
             maxWert: "81",
             taskCount: "5",
             taskFormat: "standard",
             difficulty: "easy",
             rowTrain: "mixed",
+            mulProfile: "table9",
+          });
+          mergeModeSettings("squareDiv", {
+            maxWert: "81",
+            taskCount: "5",
+            taskFormat: "standard",
+            difficulty: "easy",
+            rowTrain: "squares",
             mulProfile: "table9",
           });
           mergeModeSettings("mixMD", {
@@ -6259,12 +6634,28 @@
             rowTrain: "mixed",
             mulProfile: "table",
           });
+          mergeModeSettings("squareMal", {
+            maxWert: "100",
+            taskCount: "10",
+            taskFormat: "standard",
+            difficulty: "mixed",
+            rowTrain: "squares",
+            mulProfile: "table",
+          });
           mergeModeSettings("geteilt", {
             maxWert: "100",
             taskCount: "10",
             taskFormat: "standard",
             difficulty: "mixed",
             rowTrain: "mixed",
+            mulProfile: "table",
+          });
+          mergeModeSettings("squareDiv", {
+            maxWert: "100",
+            taskCount: "10",
+            taskFormat: "standard",
+            difficulty: "mixed",
+            rowTrain: "squares",
             mulProfile: "table",
           });
           mergeModeSettings("mixMD", {
@@ -6330,12 +6721,28 @@
             rowTrain: "mixed",
             mulProfile: "free",
           });
+          mergeModeSettings("squareMal", {
+            maxWert: "1000",
+            taskCount: "12",
+            taskFormat: "standard",
+            difficulty: "mixed",
+            rowTrain: "squares",
+            mulProfile: "free",
+          });
           mergeModeSettings("geteilt", {
             maxWert: "1000",
             taskCount: "12",
             taskFormat: "standard",
             difficulty: "mixed",
             rowTrain: "mixed",
+            mulProfile: "free",
+          });
+          mergeModeSettings("squareDiv", {
+            maxWert: "1000",
+            taskCount: "12",
+            taskFormat: "standard",
+            difficulty: "mixed",
+            rowTrain: "squares",
             mulProfile: "free",
           });
           mergeModeSettings("mixMD", {
@@ -6417,6 +6824,7 @@
         updateViewSelectLabels();
         updateOperandDigitsVisibility();
         updateParentConfettiButton();
+        updateSettingsSummary();
       }
 
       function wireModeSettingListeners() {
@@ -6428,6 +6836,7 @@
           updateViewSelectLabels();
           const mode = document.getElementById("viewSelect").value;
           saveModeSettings(mode);
+          updateSettingsSummary();
         };
 
         // Capturing: auch wenn einzelne Elemente dynamisch neu befüllt werden
@@ -6846,6 +7255,9 @@
         const vsOv = document.getElementById("viewSelectOverlay");
         if (vsOv) {
           vsOv.addEventListener("click", openViewSelectPopup);
+          vsOv.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") openViewSelectPopup(e);
+          });
           vsOv.addEventListener("mousedown", (e) => {
             e.preventDefault();
           });
@@ -7017,7 +7429,13 @@
         } catch (e) {}
         renderViewSelectPopup();
         const vp = document.getElementById("viewSelectPopup");
-        if (vp) vp.classList.add("show");
+        if (vp) {
+          vp.classList.add("show");
+          requestAnimationFrame(() => {
+            const selected = vp.querySelector(".selectPopupItem.selected");
+            if (selected) selected.scrollIntoView({ block: "nearest" });
+          });
+        }
       }
 
       function closeViewSelectPopup(ev) {
@@ -7037,8 +7455,24 @@
         list.innerHTML = "";
 
         const current = vs.value;
+        const descriptions = {
+          plus: "Addieren üben",
+          minus: "Subtrahieren üben",
+          mix: "Plus und Minus abwechselnd",
+          mal: "Malaufgaben üben",
+          squareMal: "Dieselbe Zahl mal sich selbst",
+          geteilt: "Geteiltaufgaben ohne Rest",
+          squareDiv: "Quadratzahlen wieder teilen",
+          mixMD: "Mal und Geteilt abwechselnd",
+          mixALL: "Plus, Minus, Mal und Geteilt",
+          double: "Eine Zahl verdoppeln",
+          half: "Eine gerade Zahl halbieren",
+          fehler: "Gespeicherte Fehler wiederholen",
+          pyramide: "Fehlende Zahlen in der Pyramide",
+          traube: "Fehlende Zahlen in der Traube",
+        };
 
-        for (const opt of vs.options) {
+        const appendOption = (opt) => {
           const val = opt.value;
           const full = (opt.textContent || "").trim();
 
@@ -7068,17 +7502,26 @@
           const left = document.createElement("span");
           left.className = "selectPopupLeft";
 
+          const titleLine = document.createElement("span");
+          titleLine.className = "selectPopupTitleLine";
+
           const baseEl = document.createElement("span");
           baseEl.className = "selectPopupBase";
-          baseEl.textContent = base || val;
-          left.appendChild(baseEl);
+          baseEl.textContent = t(base || val);
+          titleLine.appendChild(baseEl);
 
           if (range) {
             const rEl = document.createElement("span");
             rEl.className = "selectPopupRange";
             rEl.textContent = range;
-            left.appendChild(rEl);
+            titleLine.appendChild(rEl);
           }
+          left.appendChild(titleLine);
+
+          const description = document.createElement("span");
+          description.className = "selectPopupDescription";
+          description.textContent = t(descriptions[val] || "");
+          left.appendChild(description);
 
           const mark = document.createElement("span");
           mark.className = "selectPopupMark";
@@ -7092,7 +7535,19 @@
           btn.appendChild(mark);
 
           list.appendChild(btn);
-        }
+        };
+
+        [...vs.children].forEach((child) => {
+          if (child.tagName === "OPTGROUP") {
+            const group = document.createElement("div");
+            group.className = "selectPopupGroup";
+            group.textContent = t(child.label);
+            list.appendChild(group);
+            [...child.children].forEach(appendOption);
+          } else if (child.tagName === "OPTION") {
+            appendOption(child);
+          }
+        });
       }
       function goPractice() {
         // Üben springt nur dann in den Fehler-Modus, wenn es gespeicherte Fehler gibt.
@@ -7914,7 +8369,9 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             "plus",
             "minus",
             "mal",
+            "squareMal",
             "geteilt",
+            "squareDiv",
             "double",
             "half",
             "mix",
@@ -7943,9 +8400,77 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         }
       }
 
+      function updateMaxValueHelp(mode) {
+        const label = document.getElementById("maxValueLabel");
+        const hint = document.getElementById("maxValueHint");
+        if (!label || !hint) return;
+
+        label.textContent = t("Zahlen bis");
+        if (
+          mode === "mal" ||
+          mode === "squareMal" ||
+          mode === "geteilt" ||
+          mode === "squareDiv" ||
+          mode === "mixMD" ||
+          mode === "mixALL"
+        ) {
+          hint.textContent = t(
+            "Begrenzt das Ergebnis bzw. die große Zahl vor ÷. Für 22×22 brauchst du mindestens 484.",
+          );
+        } else if (mode === "pyramide" || mode === "traube") {
+          hint.textContent = t(
+            "Die Zahlen in der gesamten Figur bleiben höchstens bei diesem Wert.",
+          );
+        } else {
+          hint.textContent = t(
+            "Alle Zahlen und Ergebnisse bleiben höchstens bei diesem Wert.",
+          );
+        }
+      }
+
+      function updateSettingsSectionVisibility() {
+        const detailIds = [
+          "taskFormatGroup",
+          "operandCountGroup",
+          "onesOnlyGroup",
+          "rowGroup",
+          "mulProfileGroup",
+        ];
+        const hasVisibleDetail = detailIds.some((id) => {
+          const el = document.getElementById(id);
+          return el && el.style.display !== "none";
+        });
+        const title = document.querySelector(".task-details-step");
+        if (title) title.style.display = hasVisibleDetail ? "" : "none";
+      }
+
+      function updateSettingsSummary() {
+        const target = document.getElementById("currentSetupSummary");
+        if (!target) return;
+
+        const parts = [`${t("bis")} ${getMax()}`];
+        const taskCountGroup = document.getElementById("taskCountGroup");
+        if (taskCountGroup && taskCountGroup.style.display !== "none") {
+          parts.push(`${getTaskCount()} ${t("Aufgaben")}`);
+        }
+
+        const difficultyGroup = document.getElementById("difficultyGroup");
+        const difficulty = document.getElementById("difficulty");
+        if (
+          difficultyGroup &&
+          difficultyGroup.style.display !== "none" &&
+          difficulty?.selectedOptions?.[0]
+        ) {
+          parts.push(difficulty.selectedOptions[0].textContent.trim());
+        }
+        target.textContent = parts.join(" · ");
+      }
+
       function updateControlsVisibility() {
         const mode = document.getElementById("viewSelect").value;
         const showZeilen = mode !== "pyramide" && mode !== "traube";
+
+        updateMaxValueHelp(mode);
 
         const flashActive = isFlashActiveForMode(mode);
 
@@ -7997,7 +8522,11 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         const row2 = document.getElementById("buttonRow2");
         if (row2) row2.style.display = showZeilen ? "" : "none";
 
-        if (!showZeilen) return;
+        if (!showZeilen) {
+          updateSettingsSectionVisibility();
+          updateSettingsSummary();
+          return;
+        }
 
         // Spezielle Ansichten: Verdoppeln / Halbieren (eigene Modi)
         if (mode === "double" || mode === "half") {
@@ -8005,109 +8534,28 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           document.getElementById("taskFormatGroup").style.display = "none";
           document.getElementById("difficultyGroup").style.display = "none";
           document.getElementById("rowGroup").style.display = "none";
+          updateSettingsSectionVisibility();
+          updateSettingsSummary();
           return;
         }
 
-        // Aufgabenformat je Modus sinnvoll einschränken (damit z.B. „Faktor fehlt“ nicht bei Plus auftaucht)
         const fmtSel = document.getElementById("taskFormat");
+        const fmtHint = document.getElementById("taskFormatHint");
         if (fmtSel) {
-          const prevFmt = fmtSel.value;
-          const setOptions = (html) => {
-            fmtSel.innerHTML = html;
-          };
-
-          if (mode === "plus") {
-            setOptions(`
-          <option value="standard">Standard</option>
-          <option value="wahrfalsch">Wahr / Falsch</option>
-          <option value="operator">Operator fehlt</option>
-          <option value="compare">Vergleichen (&lt; &gt; =)</option>
-        `);
-          } else if (mode === "minus") {
-            setOptions(`
-          <option value="standard">Standard</option>
-          <option value="wahrfalsch">Wahr / Falsch</option>
-          <option value="operator">Operator fehlt</option>
-          <option value="compare">Vergleichen (&lt; &gt; =)</option>
-        `);
-          } else if (mode === "mal") {
-            setOptions(`
-          <option value="standard">Standard</option>
-          <option value="faktor">Faktor fehlt</option>
-          <option value="wahrfalsch">Wahr / Falsch</option>
-          <option value="operator">Operator fehlt</option>
-          <option value="compare">Vergleichen (&lt; &gt; =)</option>
-        `);
-          } else if (mode === "geteilt") {
-            setOptions(`
-          <option value="standard">Standard</option>
-          <option value="faktor">Faktor fehlt</option>
-          <option value="wahrfalsch">Wahr / Falsch</option>
-          <option value="operator">Operator fehlt</option>
-          <option value="compare">Vergleichen (&lt; &gt; =)</option>
-        `);
-          } else if (mode === "squareMal" || mode === "squareDiv") {
-            setOptions(`
-          <option value="standard">Standard</option>
-          <option value="faktor">Faktor fehlt</option>
-          <option value="wahrfalsch">Wahr / Falsch</option>
-          <option value="operator">Operator fehlt</option>
-          <option value="compare">Vergleichen (&lt; &gt; =)</option>
-        `);
-          } else if (mode === "mixMD") {
-            setOptions(`
-          <option value="standard">Standard</option>
-          <option value="faktor">Faktor fehlt</option>
-          <option value="wahrfalsch">Wahr / Falsch</option>
-          <option value="operator">Operator fehlt</option>
-          <option value="compare">Vergleichen (&lt; &gt; =)</option>
-        `);
-          } else if (mode === "mixALL") {
-            setOptions(`
-          <option value="standard">Standard</option>
-          <option value="faktor">Faktor fehlt</option>
-          <option value="wahrfalsch">Wahr / Falsch</option>
-          <option value="operator">Operator fehlt</option>
-          <option value="compare">Vergleichen (&lt; &gt; =)</option>
-        `);
-          } else if (mode === "mix") {
-            setOptions(`
-          <option value="standard">Standard</option>
-          <option value="wahrfalsch">Wahr / Falsch</option>
-          <option value="operator">Operator fehlt</option>
-          <option value="compare">Vergleichen (&lt; &gt; =)</option>
-        `);
-          } else {
-            // fehler
-            setOptions(`
-          <option value="standard">Standard</option>
-          <option value="verdoppeln">Verdoppeln</option>
-          <option value="halbieren">Halbieren</option>
-          <option value="faktor">Faktor fehlt</option>
-          <option value="wahrfalsch">Wahr / Falsch</option>
-          <option value="operator">Operator fehlt</option>
-          <option value="compare">Vergleichen (&lt; &gt; =)</option>
-        `);
-          }
-
-          // Auswahl behalten wenn möglich, sonst Standard
-          const ok = [...fmtSel.options].some((o) => o.value === prevFmt);
-          fmtSel.value = ok ? prevFmt : "standard";
-
-          // Bei 3 Operanden nur Standard und Wahr/Falsch erlauben
-          if (
+          const ok = [...fmtSel.options].some((o) => o.value === fmtSel.value);
+          if (!ok) fmtSel.value = "standard";
+        }
+        if (fmtHint) {
+          const isThreeOperandMode =
             (mode === "plus" || mode === "minus" || mode === "mix") &&
-            getOperandCount() === 3
-          ) {
-            for (const opt of [...fmtSel.options]) {
-              if (opt.value !== "standard" && opt.value !== "wahrfalsch")
-                opt.remove();
-            }
-            const ok3 = [...fmtSel.options].some(
-              (o) => o.value === fmtSel.value,
-            );
-            if (!ok3) fmtSel.value = "standard";
-          }
+            getOperandCount() === 3;
+          fmtHint.textContent = isThreeOperandMode
+            ? t(
+                "Bei 3 Zahlen sind „Ergebnis fehlt“ und „Richtig oder falsch?“ am einfachsten; die anderen Formate funktionieren ebenfalls.",
+              )
+            : t(
+                "Deine Auswahl wird für jede Aufgabenart separat gespeichert.",
+              );
         }
 
         const diff = document.getElementById("difficulty");
@@ -8115,21 +8563,21 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
         if (mode === "plus") {
           diff.innerHTML = `
-        <option value="standard">${t("Standard (Ergebnis fehlt)")}</option>
-        <option value="mixed">${t("Gemischt")}</option>
+        <option value="standard">${t("Normal")}</option>
+        <option value="mixed">${t("Automatisch (passt sich an)")}</option>
         <option value="noCarry">${t("Ohne Zehnerübergang")}</option>
         <option value="carry">${t("Mit Zehnerübergang")}</option>`;
           document.querySelector("#difficultyGroup label").textContent =
-            t("Plus");
+            t("Schwierigkeit");
           document.getElementById("rowGroup").style.display = "none";
         } else if (mode === "minus") {
           diff.innerHTML = `
-        <option value="standard">${t("Standard (Ergebnis fehlt)")}</option>
-        <option value="mixed">${t("Gemischt")}</option>
+        <option value="standard">${t("Normal")}</option>
+        <option value="mixed">${t("Automatisch (passt sich an)")}</option>
         <option value="noBorrow">${t("Ohne Zehnerübergang")}</option>
         <option value="borrow">${t("Mit Zehnerübergang")}</option>`;
           document.querySelector("#difficultyGroup label").textContent =
-            t("Minus");
+            t("Schwierigkeit");
           document.getElementById("rowGroup").style.display = "none";
         } else if (
           mode === "mal" ||
@@ -8139,16 +8587,16 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           mode === "mixMD"
         ) {
           diff.innerHTML = `
-        <option value="standard">${t("Standard (Ergebnis fehlt)")}</option>
+        <option value="standard">${t("Normal")}</option>
         <option value="easy">${t("Einfach")}</option>
         <option value="hard">${t("Schwer")}</option>
-        <option value="mixed">${t("Gemischt")}</option>`;
+        <option value="mixed">${t("Automatisch (passt sich an)")}</option>`;
           document.querySelector("#difficultyGroup label").textContent =
             t("Schwierigkeit");
           document.getElementById("rowGroup").style.display = "";
         } else if (mode === "mixALL") {
           diff.innerHTML = `
-        <option value="mixed">${t("Gemischt")}</option>
+        <option value="mixed">${t("Automatisch (passt sich an)")}</option>
         <option value="easy">${t("Einfach")}</option>
         <option value="hard">${t("Schwer")}</option>`;
           document.querySelector("#difficultyGroup label").textContent =
@@ -8156,7 +8604,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           document.getElementById("rowGroup").style.display = "";
         } else if (mode === "mix" || mode === "mixALL" || mode === "fehler") {
           diff.innerHTML = `
-        <option value="mixed">${t("Gemischt")}</option>
+        <option value="mixed">${t("Automatisch (passt sich an)")}</option>
         <option value="easy">${t("Einfach")}</option>
         <option value="hard">${t("Schwer")}</option>`;
           document.querySelector("#difficultyGroup label").textContent =
@@ -8177,6 +8625,9 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
               ? diff.options[0].value
               : "";
         }
+
+        updateSettingsSectionVisibility();
+        updateSettingsSummary();
       }
 
       function wechselAnsicht(shouldScroll = true) {
@@ -8253,6 +8704,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         }
 
         updateViewSelectOverlay();
+        updateSettingsSummary();
       }
 
       function updateViewSelectOverlay() {
@@ -9019,6 +9471,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         if (modeSelect && typeof saveModeSettings === 'function') {
           saveModeSettings(modeSelect.value);
         }
+        updateSettingsSummary();
         
         if (typeof initGame === 'function') {
           initGame(true);
@@ -12116,7 +12569,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v61";
+        const SW_VERSION = "rechenguru-lgi-v63";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -12739,9 +13192,101 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       })();
     </script>
 
+    <script>
+      /* Update-Prüfung v63 – vergleicht die veröffentlichte GitHub-Pages-Version. */
+      (function () {
+        const LOCAL_VERSION = 63;
+        const RELEASE_INDEX = "https://parip69.github.io/RechenGuruLGI_AndroidAPK/";
+
+        function versionFromHtml(html) {
+          const m = String(html || "").match(/data-app-version=["'](\d+)["']/i);
+          if (m) return Number(m[1]);
+          const m2 = String(html || "").match(/id=["']appVersion["'][^>]*>\s*(\d+)/i);
+          return m2 ? Number(m2[1]) : NaN;
+        }
+
+        function isAndroidWebView() {
+          const ua = navigator.userAgent || "";
+          return /^file:\/\/\/android_asset\//i.test(location.href) || /\bwv\b/i.test(ua) || /; wv\)/i.test(ua);
+        }
+
+        function showUpdateStatus(text, kind) {
+          const el = document.getElementById("appUpdateStatus");
+          if (!el) return;
+          el.textContent = text;
+          el.classList.add("show");
+          el.style.borderColor = kind === "ok" ? "rgba(45,106,79,.55)" : kind === "new" ? "rgba(37,99,235,.55)" : "rgba(188,71,73,.55)";
+        }
+
+        async function forceWebUpdate(remoteVersion) {
+          showUpdateStatus(`Update V${remoteVersion} wird geladen …`, "new");
+          try {
+            if ("serviceWorker" in navigator) {
+              const regs = await navigator.serviceWorker.getRegistrations();
+              await Promise.all(regs.map(async (reg) => { try { await reg.update(); } catch (_) {} }));
+            }
+            if ("caches" in window) {
+              const keys = await caches.keys();
+              await Promise.all(keys.map((key) => caches.delete(key)));
+            }
+          } catch (_) {}
+          const u = new URL(RELEASE_INDEX);
+          u.searchParams.set("update", String(remoteVersion));
+          u.searchParams.set("t", String(Date.now()));
+          location.replace(u.toString());
+        }
+
+        async function checkForUpdate() {
+          const btn = document.getElementById("appUpdateBtn");
+          if (btn) { btn.disabled = true; btn.textContent = "↻ Prüfe …"; }
+          showUpdateStatus(`Installiert: V${LOCAL_VERSION} · Suche neue Revision …`, "ok");
+          try {
+            const url = RELEASE_INDEX + "?update-check=" + Date.now();
+            const response = await fetch(url, { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
+            if (!response.ok) throw new Error("HTTP " + response.status);
+            const remoteVersion = versionFromHtml(await response.text());
+            if (!Number.isFinite(remoteVersion)) throw new Error("Versionsnummer nicht gefunden");
+
+            if (remoteVersion > LOCAL_VERSION) {
+              if (isAndroidWebView() && location.protocol === "file:") {
+                showUpdateStatus(`Installiert: V${LOCAL_VERSION} · Neu: V${remoteVersion}. Für die Android-App ist eine neue APK nötig.`, "new");
+                if (btn) { btn.textContent = `APK V${remoteVersion} verfügbar`; btn.disabled = false; }
+                return;
+              }
+              showUpdateStatus(`Installiert: V${LOCAL_VERSION} · Neu: V${remoteVersion}. Update wird installiert …`, "new");
+              if (btn) btn.textContent = `Update auf V${remoteVersion}`;
+              await forceWebUpdate(remoteVersion);
+              return;
+            }
+
+            if (remoteVersion === LOCAL_VERSION) {
+              showUpdateStatus(`Installiert: V${LOCAL_VERSION} · Keine neue Version. Du bist aktuell.`, "ok");
+            } else {
+              showUpdateStatus(`Installiert: V${LOCAL_VERSION} · Veröffentlicht: V${remoteVersion}. Diese Installation ist neuer.`, "ok");
+            }
+          } catch (err) {
+            showUpdateStatus(`Installiert: V${LOCAL_VERSION} · Update-Prüfung nicht möglich: ${err.message || err}`, "error");
+          } finally {
+            if (btn) { btn.disabled = false; btn.textContent = `↻ Update prüfen · V${LOCAL_VERSION}`; }
+          }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+          const btn = document.getElementById("appUpdateBtn");
+          if (btn) btn.addEventListener("click", checkForUpdate);
+        });
+      })();
+    </script>
+
+    <!-- Update-Prüfung: feste Schaltfläche unten rechts -->
+    <div class="appUpdateWidget" id="appUpdateWidget">
+      <div class="appUpdateStatus" id="appUpdateStatus" role="status" aria-live="polite"></div>
+      <button class="appUpdateBtn" id="appUpdateBtn" type="button" title="Nach neuer Revision suchen">↻ Update prüfen · V63</button>
+    </div>
+
     <footer
       id="appFooter"
-      data-app-version="61"
+      data-app-version="63"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -12753,7 +13298,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">61</span>
+      <span id="appVersion">63</span>
     </footer>
 
     <!-- ❌ Fehler-Aktionen (Zurücksetzen / Drucken) -->
