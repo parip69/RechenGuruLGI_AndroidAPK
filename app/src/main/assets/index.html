@@ -2136,7 +2136,7 @@
         }
       }
     
-      /* === Update-Prüfung v64 === */
+      /* === Update-Prüfung v65 === */
       .appUpdateWidget {
         position: fixed; right: max(14px, env(safe-area-inset-right));
         bottom: max(14px, env(safe-area-inset-bottom)); z-index: 9998;
@@ -2157,7 +2157,45 @@
         font-size: .82rem; font-weight: 800; line-height: 1.3; text-align: left;
       }
       .appUpdateStatus.show { display: block; }
-      @media print { .appUpdateWidget { display: none !important; } }
+
+      /* Update-Ergebnis als gut sichtbares, modales Fenster. */
+      .appUpdateDialog {
+        position: fixed; inset: 0; z-index: 20050; display: none;
+        align-items: center; justify-content: center; padding: 20px;
+        background: rgba(15, 23, 42, .48);
+        -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+      }
+      .appUpdateDialog.show { display: flex; }
+      .appUpdateDialogCard {
+        width: min(520px, calc(100vw - 32px));
+        max-height: min(78vh, 520px); overflow: auto;
+        background: var(--surface92); color: var(--text);
+        border: 1px solid var(--glass-border); border-radius: 20px;
+        box-shadow: 0 22px 60px rgba(0,0,0,.34); padding: 20px;
+        text-align: center;
+      }
+      .appUpdateDialogIcon { font-size: 2.3rem; line-height: 1; margin-bottom: 10px; }
+      .appUpdateDialogTitle { font-size: 1.25rem; font-weight: 900; margin-bottom: 10px; }
+      .appUpdateDialogText {
+        font-size: 1rem; font-weight: 800; line-height: 1.45;
+        white-space: pre-line; overflow-wrap: anywhere;
+      }
+      .appUpdateDialogActions {
+        display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;
+        margin-top: 18px;
+      }
+      .appUpdateDialogBtn {
+        border: none; border-radius: 16px; padding: 11px 18px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: #fff; font: inherit; font-weight: 900; cursor: pointer;
+        min-width: 120px; box-shadow: 0 7px 18px rgba(0,0,0,.16);
+      }
+      .appUpdateDialogBtn.secondary {
+        background: var(--surface78); color: var(--text);
+        border: 1px solid var(--dividerStrong); box-shadow: none;
+      }
+      .appUpdateDialogBtn:disabled { opacity: .55; cursor: wait; }
+      @media print { .appUpdateWidget, .appUpdateDialog { display: none !important; } }
 
     </style>
   </head>
@@ -7045,6 +7083,7 @@
       }
 
       function mgSetActiveInput(inp) {
+        if (window.__appUpdateDialogOpen) return;
         if (!inp) return;
         mgActiveInput = inp;
 
@@ -7579,6 +7618,7 @@
       }
 
       function focusWithoutAutofill(el, opts = {}) {
+        if (window.__appUpdateDialogOpen) return;
         if (!el || el.disabled) return;
         const moveCaretToEnd = opts && opts.moveCaretToEnd !== false;
 
@@ -7708,6 +7748,7 @@
       }
 
       function focusFirstTaskInput(openKeyboard = false) {
+        if (window.__appUpdateDialogOpen) return;
         const settingsOpen = !!document.getElementById("settingsDetails")?.open;
         if (settingsOpen) return;
 
@@ -12569,7 +12610,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v65";
+        const SW_VERSION = "rechenguru-lgi-v66";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -13193,10 +13234,11 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
     </script>
 
     <script>
-      /* Update-Prüfung v64 – robuste Prüfung ohne CORS-auslösenden Request-Header. */
+      /* Update-Prüfung v65 – sichtbarer Dialog, Fokus-/Tastatur-Sperre während der Prüfung. */
       (function () {
-        const WEB_FALLBACK_VERSION = 64;
+        const WEB_FALLBACK_VERSION = 65;
         const RELEASE_INDEX = "https://parip69.github.io/RechenGuruLGI_AndroidAPK/";
+        window.__appUpdateDialogOpen = false;
 
         function versionNumber(value) {
           const text = String(value ?? "").trim();
@@ -13248,6 +13290,16 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           );
         }
 
+        function closeKeyboardAndTaskFocus() {
+          try {
+            if (typeof mgHideKeypad === "function") mgHideKeypad();
+          } catch (_) {}
+          try {
+            const active = document.activeElement;
+            if (active && typeof active.blur === "function") active.blur();
+          } catch (_) {}
+        }
+
         function showUpdateStatus(text, kind) {
           const el = document.getElementById("appUpdateStatus");
           if (!el) return;
@@ -13261,11 +13313,66 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
                 : "rgba(188,71,73,.55)";
         }
 
+        function hideCompactStatus() {
+          const el = document.getElementById("appUpdateStatus");
+          if (el) el.classList.remove("show");
+        }
+
+        function setDialogContent({ title, text, kind = "ok", busy = false, installVersion = null }) {
+          const dialog = document.getElementById("appUpdateDialog");
+          const titleEl = document.getElementById("appUpdateDialogTitle");
+          const textEl = document.getElementById("appUpdateDialogText");
+          const iconEl = document.getElementById("appUpdateDialogIcon");
+          const okBtn = document.getElementById("appUpdateDialogOk");
+          const installBtn = document.getElementById("appUpdateDialogInstall");
+          if (!dialog || !titleEl || !textEl || !iconEl || !okBtn || !installBtn) return;
+
+          titleEl.textContent = title || "Update-Prüfung";
+          textEl.textContent = text || "";
+          iconEl.textContent = busy ? "⏳" : kind === "new" ? "⬆️" : kind === "error" ? "⚠️" : "✅";
+          okBtn.disabled = !!busy;
+          okBtn.style.display = busy ? "none" : "";
+
+          if (Number.isFinite(installVersion)) {
+            installBtn.style.display = "";
+            installBtn.disabled = false;
+            installBtn.dataset.version = String(installVersion);
+          } else {
+            installBtn.style.display = "none";
+            installBtn.disabled = false;
+            delete installBtn.dataset.version;
+          }
+        }
+
+        function openUpdateDialog(options) {
+          closeKeyboardAndTaskFocus();
+          window.__appUpdateDialogOpen = true;
+          const dialog = document.getElementById("appUpdateDialog");
+          if (!dialog) return;
+          setDialogContent(options || {});
+          dialog.classList.add("show");
+          dialog.setAttribute("aria-hidden", "false");
+          document.body.style.overflow = "hidden";
+        }
+
+        function closeUpdateDialog() {
+          const dialog = document.getElementById("appUpdateDialog");
+          if (dialog) {
+            dialog.classList.remove("show");
+            dialog.setAttribute("aria-hidden", "true");
+          }
+          document.body.style.overflow = "";
+          window.__appUpdateDialogOpen = false;
+          hideCompactStatus();
+          // Absichtlich KEIN automatischer Rückfokus auf die Aufgabe.
+          // Die Tastatur öffnet sich erst wieder, wenn die Aufgabe angetippt wird.
+          closeKeyboardAndTaskFocus();
+        }
+
         function updateUrls() {
           const stamp = Date.now();
           const urls = [];
 
-          // Auf GitHub Pages zuerst same-origin prüfen. Das vermeidet CORS komplett.
           if (
             location.protocol === "https:" &&
             location.hostname === "parip69.github.io" &&
@@ -13274,16 +13381,13 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             urls.push("./?update-check=" + stamp);
           }
 
-          // Für lokal gestartete HTML/APK: einfacher CORS-GET ohne eigene HTTP-Header.
           urls.push(RELEASE_INDEX + "?update-check=" + stamp);
           urls.push(RELEASE_INDEX + "index.html?update-check=" + stamp);
-
           return Array.from(new Set(urls));
         }
 
         async function fetchRemoteVersion() {
           let lastError = null;
-
           for (const url of updateUrls()) {
             const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
             const timeout = controller ? setTimeout(() => controller.abort(), 12000) : null;
@@ -13295,9 +13399,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
               });
               if (!response.ok) throw new Error("HTTP " + response.status);
               const remoteVersion = versionFromHtml(await response.text());
-              if (!Number.isFinite(remoteVersion)) {
-                throw new Error("Versionsnummer nicht gefunden");
-              }
+              if (!Number.isFinite(remoteVersion)) throw new Error("Versionsnummer nicht gefunden");
               return remoteVersion;
             } catch (error) {
               lastError = error;
@@ -13313,15 +13415,18 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         }
 
         async function forceWebUpdate(remoteVersion) {
-          showUpdateStatus(`Update V${remoteVersion} wird geladen …`, "new");
+          openUpdateDialog({
+            title: "Update wird installiert",
+            text: `Version V${remoteVersion} wird geladen. Die App startet danach neu.`,
+            kind: "new",
+            busy: true,
+          });
           try {
             if ("serviceWorker" in navigator) {
               const regs = await navigator.serviceWorker.getRegistrations();
               await Promise.all(
                 regs.map(async (reg) => {
-                  try {
-                    await reg.update();
-                  } catch (_) {}
+                  try { await reg.update(); } catch (_) {}
                 }),
               );
             }
@@ -13337,74 +13442,137 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           location.replace(u.toString());
         }
 
-        async function checkForUpdate() {
+        async function checkForUpdate(event) {
+          try {
+            event?.preventDefault?.();
+            event?.stopPropagation?.();
+          } catch (_) {}
+
           const btn = document.getElementById("appUpdateBtn");
           const installedVersion = getInstalledVersion();
+          closeKeyboardAndTaskFocus();
+
           if (btn) {
             btn.disabled = true;
             btn.textContent = "↻ Prüfe …";
           }
-          showUpdateStatus(
-            `Installiert: V${installedVersion} · Suche neue Revision …`,
-            "ok",
-          );
+
+          showUpdateStatus(`Installiert: V${installedVersion} · Suche neue Revision …`, "ok");
+          openUpdateDialog({
+            title: "Update wird geprüft",
+            text: `Installiert: V${installedVersion}\nSuche nach einer neuen Revision …`,
+            kind: "ok",
+            busy: true,
+          });
 
           try {
             const remoteVersion = await fetchRemoteVersion();
 
             if (remoteVersion > installedVersion) {
               if (isAndroidApp()) {
-                showUpdateStatus(
-                  `Installiert: V${installedVersion} · Neu: V${remoteVersion}. Neue Android-App/APK verfügbar.`,
-                  "new",
-                );
-                if (btn) {
-                  btn.textContent = `APK V${remoteVersion} verfügbar`;
-                  btn.disabled = false;
-                }
+                const text = `Installiert: V${installedVersion}\nNeue Version: V${remoteVersion}\n\nEine neue Android-App/APK ist verfügbar.`;
+                showUpdateStatus(text.replace(/\n/g, " · "), "new");
+                setDialogContent({
+                  title: "Neue Version verfügbar",
+                  text,
+                  kind: "new",
+                });
+                if (btn) btn.textContent = `APK V${remoteVersion} verfügbar`;
                 return;
               }
 
-              showUpdateStatus(
-                `Installiert: V${installedVersion} · Neu: V${remoteVersion}. Update wird geladen …`,
-                "new",
-              );
+              const text = `Installiert: V${installedVersion}\nNeue Version: V${remoteVersion}\n\nDas Update kann jetzt installiert werden.`;
+              showUpdateStatus(text.replace(/\n/g, " · "), "new");
+              setDialogContent({
+                title: "Update verfügbar",
+                text,
+                kind: "new",
+                installVersion: remoteVersion,
+              });
               if (btn) btn.textContent = `Update auf V${remoteVersion}`;
-              await forceWebUpdate(remoteVersion);
               return;
             }
 
             if (remoteVersion === installedVersion) {
-              showUpdateStatus(
-                `Installiert: V${installedVersion} · Keine neue Version. Du bist aktuell.`,
-                "ok",
-              );
+              const text = `Installiert: V${installedVersion}\nOnline: V${remoteVersion}\n\nKeine neue Version. Du bist aktuell.`;
+              showUpdateStatus(text.replace(/\n/g, " · "), "ok");
+              setDialogContent({
+                title: "Alles aktuell",
+                text,
+                kind: "ok",
+              });
             } else {
-              showUpdateStatus(
-                `Installiert: V${installedVersion} · Online: V${remoteVersion}. Diese Installation ist neuer.`,
-                "ok",
-              );
+              const text = `Installiert: V${installedVersion}\nOnline: V${remoteVersion}\n\nDiese Installation ist neuer als die veröffentlichte Version.`;
+              showUpdateStatus(text.replace(/\n/g, " · "), "ok");
+              setDialogContent({
+                title: "Installation ist neuer",
+                text,
+                kind: "ok",
+              });
             }
           } catch (err) {
             const detail = err?.message || String(err || "Unbekannter Fehler");
-            showUpdateStatus(
-              `Installiert: V${installedVersion} · Update-Prüfung nicht möglich: ${detail}`,
-              "error",
-            );
+            const text = `Installiert: V${installedVersion}\n\nUpdate-Prüfung nicht möglich:\n${detail}`;
+            showUpdateStatus(text.replace(/\n/g, " · "), "error");
+            setDialogContent({
+              title: "Update-Prüfung fehlgeschlagen",
+              text,
+              kind: "error",
+            });
           } finally {
-            if (btn && !/^APK V\d+ verfügbar$/.test(btn.textContent || "")) {
+            if (btn && !/^APK V\d+ verfügbar$/.test(btn.textContent || "") && !/^Update auf V\d+$/.test(btn.textContent || "")) {
               btn.disabled = false;
               btn.textContent = `↻ Update prüfen · V${installedVersion}`;
+            } else if (btn) {
+              btn.disabled = false;
             }
           }
         }
 
         document.addEventListener("DOMContentLoaded", function () {
           const btn = document.getElementById("appUpdateBtn");
-          if (!btn) return;
-          const installedVersion = getInstalledVersion();
-          btn.textContent = `↻ Update prüfen · V${installedVersion}`;
-          btn.addEventListener("click", checkForUpdate);
+          const okBtn = document.getElementById("appUpdateDialogOk");
+          const installBtn = document.getElementById("appUpdateDialogInstall");
+          const dialog = document.getElementById("appUpdateDialog");
+
+          if (btn) {
+            const installedVersion = getInstalledVersion();
+            btn.textContent = `↻ Update prüfen · V${installedVersion}`;
+            ["pointerdown", "mousedown", "touchstart"].forEach((type) => {
+              btn.addEventListener(type, (e) => e.stopPropagation(), { passive: true });
+            });
+            btn.addEventListener("click", checkForUpdate);
+          }
+
+          okBtn?.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeUpdateDialog();
+          });
+
+          installBtn?.addEventListener("click", async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const remoteVersion = versionNumber(installBtn.dataset.version);
+            if (!Number.isFinite(remoteVersion)) return;
+            installBtn.disabled = true;
+            await forceWebUpdate(remoteVersion);
+          });
+
+          dialog?.addEventListener("click", (e) => {
+            // Klick auf den dunklen Hintergrund schließt NICHT automatisch.
+            e.stopPropagation();
+          });
+
+          // Falls irgendeine bereits geplante Fokus-Routine versucht, während des
+          // Update-Fensters wieder ein Aufgabenfeld zu aktivieren, sofort abfangen.
+          document.addEventListener("focusin", (e) => {
+            if (!window.__appUpdateDialogOpen) return;
+            const modal = document.getElementById("appUpdateDialog");
+            if (modal?.contains(e.target)) return;
+            try { e.target?.blur?.(); } catch (_) {}
+            closeKeyboardAndTaskFocus();
+          }, true);
         });
       })();
     </script>
@@ -13412,12 +13580,24 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
     <!-- Update-Prüfung: feste Schaltfläche unten rechts -->
     <div class="appUpdateWidget" id="appUpdateWidget">
       <div class="appUpdateStatus" id="appUpdateStatus" role="status" aria-live="polite"></div>
-      <button class="appUpdateBtn" id="appUpdateBtn" type="button" title="Nach neuer Revision suchen">↻ Update prüfen · V64</button>
+      <button class="appUpdateBtn" id="appUpdateBtn" type="button" title="Nach neuer Revision suchen">↻ Update prüfen · V65</button>
+    </div>
+
+    <div class="appUpdateDialog" id="appUpdateDialog" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="appUpdateDialogTitle">
+      <div class="appUpdateDialogCard">
+        <div class="appUpdateDialogIcon" id="appUpdateDialogIcon" aria-hidden="true">⏳</div>
+        <div class="appUpdateDialogTitle" id="appUpdateDialogTitle">Update-Prüfung</div>
+        <div class="appUpdateDialogText" id="appUpdateDialogText"></div>
+        <div class="appUpdateDialogActions">
+          <button class="appUpdateDialogBtn secondary" id="appUpdateDialogOk" type="button">OK</button>
+          <button class="appUpdateDialogBtn" id="appUpdateDialogInstall" type="button" style="display:none">Update installieren</button>
+        </div>
+      </div>
     </div>
 
     <footer
       id="appFooter"
-      data-app-version="65"
+      data-app-version="66"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -13429,7 +13609,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">65</span>
+      <span id="appVersion">66</span>
     </footer>
 
     <!-- ❌ Fehler-Aktionen (Zurücksetzen / Drucken) -->
