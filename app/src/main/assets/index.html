@@ -1091,6 +1091,56 @@
         box-shadow: none;
       }
 
+      /* Sichtbare Rückmeldung für alle Tasten im Einstellungsmenü. */
+      #settingsDetails button:not(:disabled),
+      #settingsDetails summary,
+      #settingsDetails [role="button"],
+      #legendOverlay button:not(:disabled) {
+        transition: transform 0.14s ease, filter 0.14s ease, box-shadow 0.14s ease;
+        transform-origin: center;
+      }
+
+      #settingsDetails .is-pressing,
+      #legendOverlay .is-pressing {
+        transform: translateY(2px) scale(0.92) !important;
+        filter: brightness(1.16);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18) !important;
+      }
+
+      #settingsDetails .did-press,
+      #legendOverlay .did-press {
+        animation: settingsButtonTap 0.38s ease-out;
+      }
+
+      @keyframes settingsButtonTap {
+        0% { transform: translateY(2px) scale(0.92); filter: brightness(1.16); }
+        55% { transform: translateY(-1px) scale(1.04); }
+        100% { transform: translateY(0) scale(1); filter: brightness(1); }
+      }
+
+      #settingsDetails button:focus-visible,
+      #settingsDetails summary:focus-visible,
+      #settingsDetails [role="button"]:focus-visible,
+      #legendOverlay button:focus-visible {
+        outline: 3px solid var(--accent);
+        outline-offset: 3px;
+      }
+
+      #parentSaveTargetBtn.save-confirmed {
+        background: #2d6a4f;
+        color: #fff;
+      }
+
+      #parentSaveTargetBtn.save-error {
+        background: #bc4749;
+        color: #fff;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        #settingsDetails .did-press,
+        #legendOverlay .did-press { animation: none; }
+      }
+
       #statusMessage {
         margin-top: 12px;
         text-align: center;
@@ -3165,7 +3215,7 @@
           >
             🎯 Ziel resetten
           </button>
-          <button class="btn-mini" type="button" onclick="parentSaveTarget()">
+          <button id="parentSaveTargetBtn" class="btn-mini" type="button" onclick="parentSaveTarget()">
             Speichern
           </button>
         </div>
@@ -3594,6 +3644,7 @@
           "Obiectiv pentru exerciții corecte",
         "🎯 Ziel resetten": "🎯 Resetare obiectiv",
         Speichern: "Salvează",
+        Gespeichert: "Salvat",
         "0 = aus": "0 = oprit",
         "Aktueller Ziel-Stand (🎯):": "Progres curent obiectiv (🎯):",
         "\u201E🎯 Ziel resetten\u201C setzt nur die Zahl nach dem / auf 0 (✅ bleibt)":
@@ -6192,6 +6243,17 @@
           );
           if (entered !== pin) {
             setParentMsg(t("Falsche PIN."), false);
+            const saveBtn = document.getElementById("parentSaveTargetBtn");
+            if (saveBtn) {
+              clearTimeout(saveBtn._saveFeedbackTimer);
+              saveBtn.classList.remove("save-confirmed");
+              saveBtn.classList.add("save-error");
+              saveBtn.textContent = t("Falsche PIN.");
+              saveBtn._saveFeedbackTimer = setTimeout(() => {
+                saveBtn.classList.remove("save-error");
+                saveBtn.textContent = t("Speichern");
+              }, 1600);
+            }
             return;
           }
         }
@@ -6215,6 +6277,20 @@
         );
         applyGoalLock();
         updateParentProgressDisplay();
+
+        // Die Meldung am Ende des Menüs ist hier oft nicht im Blickfeld.
+        // Deshalb bestätigt auch der gedrückte Button selbst den Erfolg.
+        const saveBtn = document.getElementById("parentSaveTargetBtn");
+        if (saveBtn) {
+          clearTimeout(saveBtn._saveFeedbackTimer);
+          saveBtn.classList.remove("save-error");
+          saveBtn.classList.add("save-confirmed");
+          saveBtn.textContent = "✓ " + t("Gespeichert");
+          saveBtn._saveFeedbackTimer = setTimeout(() => {
+            saveBtn.classList.remove("save-confirmed");
+            saveBtn.textContent = t("Speichern");
+          }, 1600);
+        }
       }
 
       function parentSetPin() {
@@ -12881,7 +12957,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v71";
+        const SW_VERSION = "rechenguru-lgi-v72";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -14075,7 +14151,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="71"
+      data-app-version="72"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -14087,7 +14163,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">71</span>
+      <span id="appVersion">72</span>
     </footer>
 
     <!-- Unauffälliger Update-Button direkt am Seitenende -->
@@ -14183,5 +14259,48 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         <button type="button" class="mgKeypadBtn" data-mgk="nx">↵</button>
       </div>
     </div>
+    <script>
+      (() => {
+        const selector =
+          '#settingsDetails button, #settingsDetails summary, #settingsDetails [role="button"], #legendOverlay button';
+        const findButton = (target) => {
+          const button = target?.closest?.(selector);
+          return button && !button.disabled ? button : null;
+        };
+        let pressed = null;
+        const release = () => {
+          pressed?.classList.remove("is-pressing");
+          pressed = null;
+        };
+
+        document.addEventListener("pointerdown", (event) => {
+          release();
+          pressed = findButton(event.target);
+          pressed?.classList.add("is-pressing");
+        }, true);
+        document.addEventListener("pointerup", release, true);
+        document.addEventListener("pointercancel", release, true);
+        document.addEventListener("keydown", (event) => {
+          if (event.key !== "Enter" && event.key !== " ") return;
+          release();
+          pressed = findButton(event.target);
+          pressed?.classList.add("is-pressing");
+        }, true);
+        document.addEventListener("keyup", release, true);
+
+        document.addEventListener("click", (event) => {
+          const button = findButton(event.target);
+          if (!button) return;
+          release();
+          button.classList.remove("did-press");
+          void button.offsetWidth; // Animation auch bei mehreren schnellen Klicks neu starten
+          button.classList.add("did-press");
+          clearTimeout(button._tapFeedbackTimer);
+          button._tapFeedbackTimer = setTimeout(() => {
+            button.classList.remove("did-press");
+          }, 400);
+        }, true);
+      })();
+    </script>
   </body>
 </html>
