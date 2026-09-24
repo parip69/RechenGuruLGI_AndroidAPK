@@ -5898,6 +5898,10 @@
 
       function getTaskInputA11yLabel(task) {
         if (!task) return t("Antwort eingeben");
+        if (task.operandCount === 3) {
+          const place = task.missing === 3 ? "Ergebnis" : `${task.missing + 1}. Zahl`;
+          return `${place} für ${task.a} ${task.sym} ${task.b} ${task.sym2} ${task.c} = ${task.res} eingeben`;
+        }
         if (task.fmt === "verdoppeln")
           return (
             t("Ergebnis für Verdoppeln von") + ` ${task.a} ` + t("eingeben")
@@ -5906,7 +5910,7 @@
           return (
             t("Ergebnis für Halbieren von") + ` ${task.a} ` + t("eingeben")
           );
-        if (task.fmt === "faktor") {
+        if (task.fmt === "faktor" && task.op !== "plus" && task.op !== "minus") {
           if (task.missing === 0)
             return (
               t("Ersten Faktor für Aufgabe mit Ergebnis") +
@@ -5972,7 +5976,7 @@
           aufg.setAttribute(
             "aria-label",
             t("Wahr oder falsch:") +
-              ` ${task.a} ${task.sym} ${task.b} = ${task.shownRes}`,
+              ` ${task.a} ${task.sym} ${task.b}${task.operandCount === 3 ? ` ${task.sym2} ${task.c}` : ""} = ${task.shownRes}`,
           );
           const buttons = aufg.querySelectorAll("button");
           if (buttons[0])
@@ -5983,15 +5987,18 @@
         }
 
         if (task.fmt === "operator") {
+          const expression = task.operandCount === 3
+            ? `${task.a} ${task.missingOp === 0 ? "?" : task.sym} ${task.b} ${task.missingOp === 1 ? "?" : task.sym2} ${task.c}`
+            : `${task.a} ? ${task.b}`;
           aufg.setAttribute(
             "aria-label",
-            t("Operator suchen:") + ` ${task.a} ? ${task.b} = ${task.res}`,
+            t("Operator suchen:") + ` ${expression} = ${task.res}`,
           );
           const sel = aufg.querySelector("select.inlineSelect");
           if (sel) {
             const label =
               t("Operator für") +
-              ` ${task.a} ? ${task.b} = ${task.res} ` +
+              ` ${expression} = ${task.res} ` +
               t("auswählen");
             sel.dataset.baseAriaLabel = label;
             sel.setAttribute("aria-label", label);
@@ -9458,9 +9465,8 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
               } else if (mode === "half") {
                 task = makeHalfTask(max);
               } else if (mode === "mix") {
-                const op = zufallszahl(0, 1) === 0 ? "plus" : "minus";
                 task = makeRandomTask(
-                  op,
+                  "mix",
                   max,
                   fmt,
                   effDiff,
@@ -9612,6 +9618,14 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       function taskToPrintHTML(task, max) {
         const blank = '<span class="pBlank"></span>';
         const sblank = '<span class="pSmallBlank"></span>';
+
+        if (task.operandCount === 3) {
+          if (task.fmt === "wahrfalsch")
+            return `${task.a} ${task.sym} ${task.b} ${task.sym2} ${task.c} = ${task.shownRes} &nbsp;&nbsp; ${sblank} Wahr &nbsp;&nbsp; ${sblank} Falsch`;
+          if (task.fmt === "operator")
+            return `${task.a} ${task.missingOp === 0 ? blank : task.sym} ${task.b} ${task.missingOp === 1 ? blank : task.sym2} ${task.c} = ${task.res}`;
+          return `${task.missing === 0 ? blank : task.a} ${task.sym} ${task.missing === 1 ? blank : task.b} ${task.sym2} ${task.missing === 2 ? blank : task.c} = ${task.missing === 3 ? blank : task.res}`;
+        }
 
         if (task.fmt === "wahrfalsch") {
           return `${task.a} ${task.sym} ${task.b} = ${task.shownRes} &nbsp;&nbsp; ${sblank} Wahr &nbsp;&nbsp; ${sblank} Falsch`;
@@ -10267,12 +10281,8 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         const sym1 = ops[0] === "plus" ? "+" : "\u2212";
         const sym2 = ops[1] === "plus" ? "+" : "\u2212";
 
-        let missing;
-        if (diff === "mixed") {
-          missing = zufallszahl(0, 3);
-        } else {
-          missing = 3;
-        }
+        // Die Schwierigkeit bestimmt nur die Zahlen, das Aufgabenformat die Lücke.
+        const missing = 3;
 
         const key = `3op|${ops[0]}${ops[1]}|${a}|${b}|${c}|${res}|${missing}`;
         return {
@@ -10356,6 +10366,30 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           getOperandCount() === 3 &&
           (mode === "plus" || mode === "minus" || mode === "mix")
         ) {
+          if (fmt === "compare") {
+            const left = makeThreeOperandTask(mode, max, effDiff);
+            const right = makeThreeOperandTask(mode, max, effDiff);
+            const leftTxt = `${left.a} ${left.sym} ${left.b} ${left.sym2} ${left.c}`;
+            const rightTxt = `${right.a} ${right.sym} ${right.b} ${right.sym2} ${right.c}`;
+            const correct = left.res === right.res ? "=" : left.res > right.res ? ">" : "<";
+            return {
+              op: "compare", fmt: "compare", leftTxt, rightTxt,
+              leftVal: left.res, rightVal: right.res, correct,
+              key: `cmp3|${leftTxt}|${rightTxt}|${correct}`,
+            };
+          }
+          if (fmt === "operator") {
+            let base, missingOp, attempts = 0;
+            do {
+              base = makeThreeOperandTask(mode, max, effDiff);
+              missingOp = zufallszahl(0, 1);
+            } while (++attempts < 100 && (missingOp === 0 ? base.b : base.c) === 0);
+            return {
+              ...base, fmt: "operator", missingOp,
+              correctOp: missingOp === 0 ? base.sym : base.sym2,
+              key: `opmiss3|${base.a}|${base.b}|${base.c}|${base.sym}|${base.sym2}|${missingOp}`,
+            };
+          }
           if (fmt === "wahrfalsch") {
             const base = makeThreeOperandTask(mode, max, effDiff);
             const makeWrong = zufallszahl(0, 1) === 1;
@@ -10378,7 +10412,12 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
               key: wfKey,
             };
           }
-          return makeThreeOperandTask(mode, max, effDiff);
+          const base = makeThreeOperandTask(mode, max, effDiff);
+          if (fmt === "faktor") {
+            const missing = zufallszahl(0, 2);
+            return { ...base, fmt: "faktor", missing, key: `${base.key}|faktor|${missing}` };
+          }
+          return base;
         }
 
         if (fmt === "verdoppeln") return makeDoubleTask(max);
@@ -10401,7 +10440,13 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
               rowTrain,
               mulProfile,
             );
-          return makeStandardTask(realOp, max, effDiff, rowTrain, mulProfile);
+          const base = applyOpRanges(
+            makeStandardTask(realOp, max, effDiff, rowTrain, mulProfile),
+            realOp, max, effDiff, rowTrain, mulProfile,
+          );
+          const missing = zufallszahl(0, 1);
+          return { ...base, fmt: "faktor", missing,
+            key: `${realOp}|faktor|${base.a}|${base.b}|${base.res}|${missing}` };
         }
 
         if (fmt === "operator")
@@ -11239,22 +11284,8 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           a = res * b;
         }
 
-        let missing;
-        // Standard-Anzeige: bei +/− ist nur im Modus "Gemischt" eine der drei Stellen zufällig leer.
-        // In allen anderen Schwierigkeits-Modi (Standard / (ohne|mit) Übergang / (ohne|mit) Entleihen)
-        // wird immer das Ergebnis gesucht – sonst würde man Umkehraufgaben (Minus) brauchen.
-        if (
-          op === "mal" ||
-          op === "geteilt" ||
-          op === "squareMal" ||
-          op === "squareDiv"
-        ) {
-          missing = 2;
-        } else if (op === "plus" || op === "minus") {
-          missing = diff === "mixed" ? zufallszahl(0, 2) : 2;
-        } else {
-          missing = zufallszahl(0, 2);
-        }
+        // "Ergebnis fehlt" bedeutet bei jeder Rechenart: Lücke nach dem =.
+        const missing = 2;
         const key = `${op}|std|${a}|${b}|${res}|${missing}`;
         return { op, fmt: "standard", a, b, res, sym, missing, key };
       }
@@ -11350,8 +11381,16 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           Array.isArray(allowedOps) && allowedOps.length
             ? allowedOps
             : ["plus", "minus", "mal", "geteilt"];
-        const realOp = ops[zufallszahl(0, ops.length - 1)];
-        const base = makeStandardTask(realOp, max, diff, rowTrain, mulProfile);
+        let realOp, base, attempts = 0;
+        // Ein Zeichen soll eindeutig richtig sein, auch bei 0 und 1.
+        do {
+          realOp = ops[zufallszahl(0, ops.length - 1)];
+          base = makeStandardTask(realOp, max, diff, rowTrain, mulProfile);
+          const candidates = [base.a + base.b, base.a - base.b, base.a * base.b];
+          if (base.b !== 0 && base.a % base.b === 0)
+            candidates.push(base.a / base.b);
+          if (candidates.filter((value) => value === base.res).length === 1) break;
+        } while (++attempts < 100);
         const symbolMap = {
           plus: "+",
           minus: "−",
@@ -11448,6 +11487,20 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
         // --- 3-Operanden-Aufgaben ---
         if (task.operandCount === 3) {
+          if (task.fmt === "operator") {
+            const opSelect = `<select class="inlineSelect" onchange="pruefeOperator(this)">
+              <option value="" selected>?</option><option value="+">+</option>
+              <option value="−">−</option></select>`;
+            aufg.innerHTML = `
+              <div class="stein">${task.a}</div>
+              ${task.missingOp === 0 ? opSelect : `<span>${task.sym}</span>`}
+              <div class="stein">${task.b}</div>
+              ${task.missingOp === 1 ? opSelect : `<span>${task.sym2}</span>`}
+              <div class="stein">${task.c}</div><span>=</span><div class="stein">${task.res}</div>`;
+            container.appendChild(aufg);
+            applyTaskAccessibility(aufg, task);
+            return;
+          }
           if (task.fmt === "wahrfalsch") {
             aufg.innerHTML = `
           <div class="stein">${task.a}</div>
@@ -11688,16 +11741,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             streak = 0;
             if (aufg.dataset.addedWrong !== "1") {
               aufg.dataset.addedWrong = "1";
-              addWrongTask({
-                op: "operator",
-                fmt: "operator",
-                a: t.a,
-                b: t.b,
-                res: t.res,
-                sym: "?",
-                missing: -1,
-                key: t.key,
-              });
+              addWrongTask(t);
               recordOutcome(false);
             }
             const msg = document.getElementById("statusMessage");
@@ -12837,7 +12881,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v70";
+        const SW_VERSION = "rechenguru-lgi-v71";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -14031,7 +14075,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="70"
+      data-app-version="71"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -14043,7 +14087,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">70</span>
+      <span id="appVersion">71</span>
     </footer>
 
     <!-- Unauffälliger Update-Button direkt am Seitenende -->
