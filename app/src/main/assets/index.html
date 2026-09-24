@@ -458,6 +458,7 @@
       #rowGroup { order: 11; }
       #mulProfileGroup { order: 12; }
       #advancedSettings { order: 13; }
+      #resetSelectedModeGroup { order: 14; flex-basis: 100%; }
 
       /* === Reihe-Chips (Mehrfachauswahl) === */
       .row-chips {
@@ -905,6 +906,13 @@
       .preset-row .btn-mini {
         min-width: 118px;
       }
+
+      .preset-row .btn-mini[aria-pressed="true"] {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+
+      #resetSelectedModeBtn { width: 100%; min-height: 44px; }
 
       .miniRow {
         display: grid;
@@ -2480,21 +2488,22 @@
           <div class="control-group" id="presetGroup">
             <label>Schnellstart (optional)</label>
             <div class="preset-row">
-              <button type="button" class="btn-mini" onclick="applyPreset(1)">
+              <button type="button" class="btn-mini" data-grade="0" aria-pressed="true" onclick="applyPreset(0)">Eigene Einstellungen</button>
+              <button type="button" class="btn-mini" data-grade="1" aria-pressed="false" onclick="applyPreset(1)">
                 Klasse 1
               </button>
-              <button type="button" class="btn-mini" onclick="applyPreset(2)">
+              <button type="button" class="btn-mini" data-grade="2" aria-pressed="false" onclick="applyPreset(2)">
                 Klasse 2
               </button>
-              <button type="button" class="btn-mini" onclick="applyPreset(3)">
+              <button type="button" class="btn-mini" data-grade="3" aria-pressed="false" onclick="applyPreset(3)">
                 Klasse 3
               </button>
-              <button type="button" class="btn-mini" onclick="applyPreset(4)">
+              <button type="button" class="btn-mini" data-grade="4" aria-pressed="false" onclick="applyPreset(4)">
                 Klasse 4
               </button>
             </div>
             <div class="hintSmall">
-              Stellt alle Aufgabenarten passend ein. Du kannst danach jedes Feld weiter anpassen.
+              Jede Klasse und jede Aufgabenart merkt sich ihre eigenen Einstellungen.
             </div>
           </div>
 
@@ -2618,7 +2627,6 @@
             <label>Kopfrechnen (Blitz)</label>
             <select
               id="flashMode"
-              data-mg-global="1"
               onchange="
                 saveFlashUI();
                 initGame(true);
@@ -2635,7 +2643,6 @@
                   type="text"
                   inputmode="numeric"
                   id="flashShowSec"
-                  data-mg-global="1"
                   class="ctrlInput numOnlyInput"
                   pattern="[0-9]*"
                   maxlength="2"
@@ -2668,7 +2675,6 @@
                   type="text"
                   inputmode="numeric"
                   id="flashPeekSec"
-                  data-mg-global="1"
                   class="ctrlInput numOnlyInput"
                   pattern="[0-9]*"
                   maxlength="2"
@@ -2704,7 +2710,6 @@
               type="text"
               inputmode="numeric"
               id="timeLimitSec"
-              data-mg-global="1"
               class="ctrlInput numOnlyInput"
               pattern="[0-9]*"
               maxlength="3"
@@ -2734,6 +2739,12 @@
           </div>
             </div>
           </details>
+
+          <div class="control-group" id="resetSelectedModeGroup">
+            <button id="resetSelectedModeBtn" type="button" class="btn-mini" onclick="resetSelectedModeSettings()">↩ Einstellungen dieser Aufgabenart zurücksetzen</button>
+            <div class="hintSmall">Nur die oben ausgewählte Aufgabenart in der aktiven Klasse wird zurückgesetzt.</div>
+            <div class="hintSmall" id="resetSelectedModeStatus" role="status" aria-live="polite"></div>
+          </div>
 
           <div class="control-group" id="taskCountGroup">
             <label>Aufgaben pro Runde</label>
@@ -3530,6 +3541,17 @@
           "Apasă sus pe „Adunare”, „Împărțire” sau alt tip de exercițiu.",
         "Schnellstart nach Klassenstufe": "Pornire rapidă după clasă",
         "Schnellstart (optional)": "Pornire rapidă (opțional)",
+        "Eigene Einstellungen": "Setări proprii",
+        "Jede Klasse und jede Aufgabenart merkt sich ihre eigenen Einstellungen.":
+          "Fiecare clasă și fiecare tip de exercițiu își păstrează setările.",
+        "↩ Einstellungen dieser Aufgabenart zurücksetzen":
+          "↩ Resetează setările acestui tip de exercițiu",
+        "Nur die oben ausgewählte Aufgabenart in der aktiven Klasse wird zurückgesetzt.":
+          "Se resetează doar tipul de exercițiu selectat în clasa activă.",
+        "Eigene Einstellungen aktiviert.": "Setările proprii au fost activate.",
+        "Einstellungen für {name} zurückgesetzt.": "Setările pentru {name} au fost resetate.",
+        "Einstellungen für {name} wirklich zurücksetzen?":
+          "Resetezi setările pentru {name}?",
         "Stellt alle Aufgabenarten passend ein. Du kannst danach jedes Feld weiter anpassen.":
           "Configurează toate tipurile de exerciții. Apoi poți ajusta fiecare câmp.",
         "Umfang und Schwierigkeit": "Volum și dificultate",
@@ -4929,23 +4951,21 @@
       }
 
       function getFlashEnabled() {
-        return (
-          clampInt(appStorage.getItem(FLASH_MODE_STORAGE_KEY), 0, 1, 0) === 1
-        );
+        return document.getElementById("flashMode")?.value === "1";
       }
       function getFlashShowMs() {
         return (
-          clampInt(appStorage.getItem(FLASH_SHOW_STORAGE_KEY), 0, 30, 4) * 1000
+          clampInt(document.getElementById("flashShowSec")?.value, 0, 30, 4) * 1000
         );
       }
       function getFlashPeekMs() {
         return (
-          clampInt(appStorage.getItem(FLASH_PEEK_STORAGE_KEY), 0, 30, 2) * 1000
+          clampInt(document.getElementById("flashPeekSec")?.value, 0, 30, 2) * 1000
         );
       }
       function getTimeLimitMs() {
         return (
-          clampInt(appStorage.getItem(TIME_LIMIT_STORAGE_KEY), 0, 999, 0) * 1000
+          clampInt(document.getElementById("timeLimitSec")?.value, 0, 999, 0) * 1000
         );
       }
 
@@ -4998,9 +5018,10 @@
         const showS = clampInt(show.value, 0, 30, 4);
         const peekS = clampInt(peek.value, 0, 30, 2);
 
-        appStorage.setItem(FLASH_MODE_STORAGE_KEY, String(en));
-        appStorage.setItem(FLASH_SHOW_STORAGE_KEY, String(showS));
-        appStorage.setItem(FLASH_PEEK_STORAGE_KEY, String(peekS));
+        sel.value = String(en);
+        show.value = String(showS);
+        peek.value = String(peekS);
+        saveModeSettings(document.getElementById("viewSelect").value);
 
         // UI sofort anpassen
         try {
@@ -5022,7 +5043,8 @@
         const inp = document.getElementById("timeLimitSec");
         if (!inp) return;
         const v = clampInt(inp.value, 0, 999, 0);
-        appStorage.setItem(TIME_LIMIT_STORAGE_KEY, String(v));
+        inp.value = String(v);
+        saveModeSettings(document.getElementById("viewSelect").value);
       }
 
       function clearFlashTimers() {
@@ -5367,10 +5389,7 @@
       function saveOnesOnlyUI() {
         const sel = document.getElementById("onesOnly");
         if (!sel) return;
-        const v = String(sel.value) === "1" ? "1" : "0";
-        try {
-          appStorage.setItem(ONESONLY_STORAGE_KEY, v);
-        } catch (e) {}
+        saveModeSettings(document.getElementById("viewSelect").value);
       }
 
       function updateParentConfettiButton() {
@@ -6499,8 +6518,15 @@
       upgradeWrongPoolCompareEntries();
 
       // --- Mode-spezifische Einstellungen (pro Aufgabebereich) ---
-      function modeSettingsKey(mode) {
-        return `mathModeSettings:${mode}`;
+      const savedGrade = appStorage.getItem("mathActiveGrade") || "0";
+      let activeGrade = /^[0-4]$/.test(savedGrade) ? savedGrade : "0";
+      let displayedMode = null;
+      let displayedGrade = null;
+
+      function modeSettingsKey(mode, grade = activeGrade) {
+        return grade === "0"
+          ? `mathModeSettings:${mode}` // bestehende eigene Einstellungen behalten
+          : `mathModeSettings:grade${grade}:${mode}`;
       }
 
       function getAllControlsInArea() {
@@ -6511,7 +6537,7 @@
         );
       }
 
-      function saveModeSettings(mode) {
+      function saveModeSettings(mode, grade = activeGrade) {
         if (!mode) return;
         const settings = {};
         getAllControlsInArea().forEach((el) => {
@@ -6519,14 +6545,14 @@
           else settings[el.id] = el.value;
         });
         try {
-          appStorage.setItem(modeSettingsKey(mode), JSON.stringify(settings));
+          appStorage.setItem(modeSettingsKey(mode, grade), JSON.stringify(settings));
         } catch (e) {}
       }
 
-      function loadModeSettings(mode) {
+      function loadModeSettings(mode, grade = activeGrade) {
         try {
           return JSON.parse(
-            appStorage.getItem(modeSettingsKey(mode)) || "null",
+            appStorage.getItem(modeSettingsKey(mode, grade)) || "null",
           );
         } catch (e) {
           return null;
@@ -6544,15 +6570,39 @@
 
         modes.forEach((mode) => {
           try {
-            const current = loadModeSettings(mode) || {};
-            current.taskCount = "1";
-            appStorage.setItem(modeSettingsKey(mode), JSON.stringify(current));
+            const current = loadModeSettings(mode, "0") || {};
+            if (current.taskCount == null) {
+              current.taskCount = "1";
+              appStorage.setItem(modeSettingsKey(mode, "0"), JSON.stringify(current));
+            }
           } catch (e) {}
         });
 
         const taskCount = document.getElementById("taskCount");
         if (taskCount) taskCount.value = "1";
         appStorage.setItem(migrationKey, "1");
+      }
+
+      function migrateLegacyModeExtras() {
+        const marker = "defaults:modeExtras:v1";
+        if (appStorage.getItem(marker) === "1") return;
+        const extras = {
+          onesOnly: appStorage.getItem(ONESONLY_STORAGE_KEY),
+          flashMode: appStorage.getItem(FLASH_MODE_STORAGE_KEY),
+          flashShowSec: appStorage.getItem(FLASH_SHOW_STORAGE_KEY),
+          flashPeekSec: appStorage.getItem(FLASH_PEEK_STORAGE_KEY),
+          timeLimitSec: appStorage.getItem(TIME_LIMIT_STORAGE_KEY),
+        };
+        const modes = [...document.getElementById("viewSelect").options].map(o => o.value);
+        modes.forEach(mode => {
+          const existing = loadModeSettings(mode, "0") || {};
+          for (const [id, value] of Object.entries(extras)) {
+            if (value != null && existing[id] == null) existing[id] = value;
+          }
+          if (Object.keys(existing).length)
+            appStorage.setItem(modeSettingsKey(mode, "0"), JSON.stringify(existing));
+        });
+        appStorage.setItem(marker, "1");
       }
 
       function normalizeRowSelection(raw) {
@@ -6746,18 +6796,31 @@
         try {
           const key = modeSettingsKey(mode);
           const cur = loadModeSettings(mode) || {};
-          const next = { ...cur, ...patch };
+          const next = { ...patch, ...cur }; // bereits angepasste Werte nie überschreiben
           appStorage.setItem(key, JSON.stringify(next));
         } catch (e) {}
       }
 
+      function updatePresetSelection() {
+        document.querySelectorAll("#presetGroup [data-grade]").forEach(btn => {
+          btn.setAttribute("aria-pressed", btn.dataset.grade === activeGrade ? "true" : "false");
+        });
+      }
+
       function applyPreset(grade) {
-        const g = String(grade || "");
+        const g = String(grade ?? "");
+        if (!/^[0-4]$/.test(g)) return;
+        if (displayedMode) saveModeSettings(displayedMode, displayedGrade);
+        activeGrade = g;
+        appStorage.setItem("mathActiveGrade", g);
+        updatePresetSelection();
         const status = document.getElementById("statusMessage");
         let msg = "";
 
         // Preset-Definitionen (konservativ, aber jederzeit änderbar)
-        if (g === "1") {
+        if (g === "0") {
+          msg = t("Eigene Einstellungen aktiviert.");
+        } else if (g === "1") {
           mergeModeSettings("pyramide", { maxWert: "20" });
           mergeModeSettings("traube", { maxWert: "20" });
 
@@ -7109,25 +7172,7 @@
         }
 
 
-        // Aufgaben pro Runde: Klassen-Presets setzen ausnahmslos ALLE Modi auf 1.
-        // Danach darf eine manuelle Auswahl (3/5/10/...) wieder gespeichert bleiben.
-        try {
-          const allModeSelect = document.getElementById("viewSelect");
-          const allModes = allModeSelect
-            ? [...allModeSelect.options]
-                .map((option) => String(option.value || "").trim())
-                .filter(Boolean)
-            : [];
-          [...new Set(allModes)].forEach((mode) => {
-            mergeModeSettings(mode, { taskCount: "1" });
-          });
-          const presetTaskCount = document.getElementById("taskCount");
-          if (presetTaskCount) presetTaskCount.value = "1";
-        } catch (e) {}
-
-        // Zum passenden Modus springen: ± Mix (damit man sofort etwas sieht)
-        const vs = document.getElementById("viewSelect");
-        if (vs) vs.value = "mix";
+        // Vorhandene Klassenprofile und die aktuell gewählte Aufgabenart bewahren.
         wechselAnsicht(true);
 
         if (status && msg) status.textContent = msg;
@@ -7137,9 +7182,19 @@
 
       function applyModeSettings(mode) {
         const s = loadModeSettings(mode);
-        if (!s) return;
 
-        Object.keys(s).forEach((id) => {
+        // Jedes Profil beginnt bei den HTML-Standardwerten. So übernimmt eine
+        // bisher unbenutzte Aufgabenart keine Werte aus der vorigen Auswahl.
+        getAllControlsInArea().forEach(el => {
+          if (el.type === "checkbox") el.checked = el.defaultChecked;
+          else if (el.tagName === "SELECT") {
+            const selected = [...el.options].find(o => o.defaultSelected);
+            if (selected || el.options[0]) el.value = (selected || el.options[0]).value;
+          } else el.value = el.defaultValue;
+        });
+        document.getElementById("maxWert").value = String(getDefaultMaxForMode(mode));
+
+        Object.keys(s || {}).forEach((id) => {
           const el = document.getElementById(id);
           if (!el) return;
 
@@ -7167,6 +7222,7 @@
         });
 
         normalizeMulProfileControls();
+        updateControlsVisibility();
         updateViewSelectLabels();
         updateOperandDigitsVisibility();
         updateParentConfettiButton();
@@ -7578,16 +7634,9 @@
         if (lastMode) document.getElementById("viewSelect").value = lastMode;
 
         ensureTaskCountOneDefaults();
+        migrateLegacyModeExtras();
         wireModeSettingListeners();
-
-        syncOnesOnlyUI();
-
-        try {
-          syncFlashUI();
-        } catch (e) {}
-        try {
-          syncTimeLimitUI();
-        } catch (e) {}
+        updatePresetSelection();
 
         // Prevent details toggle when interacting with the Adventure dropdown in the summary
         const advSel = document.getElementById("viewSelect");
@@ -8704,6 +8753,46 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         }
       }
 
+      function presetDefaultsForMode(grade, mode) {
+        if (grade === "0") return null;
+        const figures = mode === "pyramide" || mode === "traube";
+        const doubleHalf = mode === "double" || mode === "half";
+        const tableModes = ["mal", "geteilt", "squareMal", "squareDiv", "mixMD", "mixALL", "fehler"].includes(mode);
+        const max = grade === "1" ? "20"
+          : grade === "2" ? (tableModes && mode !== "mixALL" && mode !== "fehler" ? "81" : "100")
+          : grade === "3" ? (doubleHalf ? "200" : "100")
+          : doubleHalf ? "2000" : "1000";
+        const defaults = { maxWert: max, taskCount: "1" };
+        if (figures || doubleHalf) return defaults;
+        defaults.taskFormat = "standard";
+        defaults.difficulty = grade === "1" || grade === "2"
+          ? (mode === "plus" ? "noCarry" : mode === "minus" ? "noBorrow" : "easy")
+          : "mixed";
+        if (tableModes) {
+          defaults.rowTrain = mode === "squareMal" || mode === "squareDiv" ? "squares" : "mixed";
+          defaults.mulProfile = grade === "1" || grade === "2" ? "table9" : grade === "3" ? "table" : "free";
+        }
+        return defaults;
+      }
+
+      function resetSelectedModeSettings() {
+        const select = document.getElementById("viewSelect");
+        const mode = select?.value;
+        if (!mode) return;
+        const name = select.selectedOptions[0]?.dataset.baseLabel ||
+          select.selectedOptions[0]?.textContent.replace(/\s*\(0[–-]\d+\)\s*$/, "").trim() || mode;
+        if (!confirm(t("Einstellungen für {name} wirklich zurücksetzen?").replace("{name}", name))) return;
+        appStorage.removeItem(modeSettingsKey(mode));
+        const defaults = presetDefaultsForMode(activeGrade, mode);
+        if (defaults) appStorage.setItem(modeSettingsKey(mode), JSON.stringify(defaults));
+        updateControlsVisibility();
+        applyModeSettings(mode);
+        initGame(false);
+        const message = t("Einstellungen für {name} zurückgesetzt.").replace("{name}", name);
+        document.getElementById("resetSelectedModeStatus").textContent = message;
+        document.getElementById("statusMessage").textContent = message;
+      }
+
       function resetModeSettingsToDefault() {
         if (
           confirm(
@@ -8731,9 +8820,12 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           ];
           modes.forEach((mode) => {
             try {
-              appStorage.removeItem(modeSettingsKey(mode));
+              for (const grade of ["0", "1", "2", "3", "4"])
+                appStorage.removeItem(modeSettingsKey(mode, grade));
             } catch (e) {}
           });
+          activeGrade = "0";
+          appStorage.removeItem("mathActiveGrade");
 
           // Setze letzten Modus zurück
           appStorage.removeItem("mathLastMode");
@@ -8988,15 +9080,19 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
       function wechselAnsicht(shouldScroll = true) {
         const mode = document.getElementById("viewSelect").value;
-        const prevMode = appStorage.getItem("mathLastMode") || mode;
+        const resetStatus = document.getElementById("resetSelectedModeStatus");
+        if (resetStatus) resetStatus.textContent = "";
 
-        // Vor dem Umschalten: Einstellungen des bisherigen Modus sichern
-        if (prevMode !== mode) saveModeSettings(prevMode);
+        // Nur das wirklich angezeigte Profil sichern, nie ein altes beim Start.
+        if (displayedMode && (displayedMode !== mode || displayedGrade !== activeGrade))
+          saveModeSettings(displayedMode, displayedGrade);
         appStorage.setItem("mathLastMode", mode);
 
         // UI je Modus (Optionen/Labels) aktualisieren, dann gespeicherte Modus-Settings anwenden
         updateControlsVisibility();
         applyModeSettings(mode);
+        displayedMode = mode;
+        displayedGrade = activeGrade;
 
         updateViewSelectLabels();
 
@@ -13008,7 +13104,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v75";
+        const SW_VERSION = "rechenguru-lgi-v76";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -14202,7 +14298,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="75"
+      data-app-version="76"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -14214,7 +14310,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">75</span>
+      <span id="appVersion">76</span>
     </footer>
 
     <!-- Unauffälliger Update-Button direkt am Seitenende -->
