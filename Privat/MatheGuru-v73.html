@@ -867,37 +867,6 @@
         gap: 12px;
       }
 
-      #buttonRow {
-        width: 100%;
-      }
-
-      #refreshBtn {
-        width: 100%;
-        min-height: 62px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-        border-radius: 20px;
-        background: linear-gradient(135deg, #4f86ce, #7669c8);
-        box-shadow: 0 8px 20px rgba(69, 94, 177, 0.26);
-      }
-
-      #refreshBtn .newTaskIcon {
-        width: 25px;
-        height: 25px;
-        box-sizing: content-box;
-        padding: 5px;
-        border-radius: 11px;
-        background: rgba(255, 255, 255, 0.18);
-        flex: 0 0 auto;
-      }
-
-      #refreshBtn:active {
-        transform: translateY(2px) scale(0.985);
-        box-shadow: 0 3px 8px rgba(69, 94, 177, 0.25);
-      }
-
       .preset-row {
         display: flex;
         gap: 10px;
@@ -3051,27 +3020,29 @@
         <button
           id="refreshBtn"
           class="btn-action"
-          type="button"
           onclick="initGame(false, true)"
           aria-label="Neue Aufgaben laden"
         >
-          <svg class="newTaskIcon" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-            <rect x="7" y="4" width="16" height="19" rx="3" />
-            <path d="M11 10h8M11 14h3M15 18h6M18 15v6M4 9v14a3 3 0 0 0 3 3h12" />
-          </svg>
-          <span id="refreshBtnLabel">Neue Aufgaben</span>
+          🔄 Neue Aufgaben
+        </button>
+        <button
+          id="tipBtn"
+          class="btn-action"
+          onclick="showTip()"
+          aria-label="Tipp zur aktuellen Aufgabe anzeigen"
+        >
+          💡 Tipp
         </button>
       </div>
 
       <div class="button-row secondary" id="buttonRow2">
         <button
           class="btn-action btn-icon btn-icon-blue"
-          type="button"
-          onclick="printSheet()"
-          title="Arbeitsblatt drucken"
-          aria-label="Arbeitsblatt drucken"
+          onclick="factoryReset()"
+          title="Werkseinstellungen"
+          aria-label="App auf Werkseinstellungen zurücksetzen"
         >
-          🖨️
+          🏭
         </button>
         <button
           id="wrongBtn"
@@ -3082,14 +3053,12 @@
           🧽 Fehlerpool
         </button>
         <button
-          id="tipBtn"
           class="btn-action btn-icon btn-icon-blue"
-          type="button"
-          onclick="showTip()"
-          title="Tipp"
-          aria-label="Tipp zur aktuellen Aufgabe anzeigen"
+          onclick="printSheet()"
+          title="Arbeitsblatt drucken"
+          aria-label="Arbeitsblatt drucken"
         >
-          💡
+          🖨️
         </button>
         <button
           id="installBtn"
@@ -3350,20 +3319,6 @@
           <div class="parentLabel">Reset (Punkte + Fehlerpool)</div>
           <button class="btn-mini" type="button" onclick="parentResetScore()">
             ♻️ Reset
-          </button>
-        </div>
-
-        <div class="parentGrid" style="grid-template-columns: 1fr auto">
-          <div class="parentLabel">Werkseinstellungen</div>
-          <button
-            id="parentFactoryResetBtn"
-            class="btn-mini"
-            type="button"
-            onclick="factoryReset()"
-            title="Werkseinstellungen"
-            aria-label="App auf Werkseinstellungen zurücksetzen"
-          >
-            🏭 Zurücksetzen
           </button>
         </div>
 
@@ -3648,8 +3603,7 @@
         "Fehler üben öffnen": "Deschide exersarea greșelilor",
 
         // ── Buttons ──
-        "Neue Aufgaben": "Exerciții noi",
-        Tipp: "Indiciu",
+        "🔄 Neue Aufgaben": "🔄 Exerciții noi",
         "Neue Aufgaben laden": "Încarcă exerciții noi",
         "💡 Tipp": "💡 Indiciu",
         "Tipp zur aktuellen Aufgabe anzeigen":
@@ -3709,7 +3663,6 @@
           "Indiciu: PIN nou \u201E0000\u201C = protecție oprită",
         "Reset (Punkte + Fehlerpool)": "Resetare (Puncte + Lista greșeli)",
         "♻️ Reset": "♻️ Resetare",
-        "🏭 Zurücksetzen": "🏭 Resetare completă",
         Konfetti: "Confetti",
         Export: "Export",
         "Index HTML exportieren": "Exportă Index HTML",
@@ -4141,23 +4094,16 @@
         }
 
         // ── Buttons ──
-        _tEl("refreshBtnLabel", "textContent", "Neue Aufgaben");
+        _tEl("refreshBtn", "textContent", "🔄 Neue Aufgaben");
         _tEl("refreshBtn", "aria-label", "Neue Aufgaben laden");
-        _tEl("tipBtn", "textContent", "💡");
+        _tEl("tipBtn", "textContent", "💡 Tipp");
         _tEl("tipBtn", "aria-label", "Tipp zur aktuellen Aufgabe anzeigen");
-        const tipButton = document.getElementById("tipBtn");
-        if (tipButton) tipButton.title = t("Tipp");
         _tEl("wrongBtn", "textContent", "🧽 Fehlerpool");
         _tEl("wrongBtn", "aria-label", "Fehlerpool löschen");
         _tEl("installBtn", "textContent", "📲 App installieren");
         _tEl("installBtn", "aria-label", "App installieren");
 
-        // Werkseinstellungen im Elternbereich, Druck-Button unten
-        _tEl("parentFactoryResetBtn", "textContent", "🏭 Zurücksetzen");
-        _tEl("parentFactoryResetBtn", "aria-label", "App auf Werkseinstellungen zurücksetzen");
-        const factoryBtn = document.getElementById("parentFactoryResetBtn");
-        if (factoryBtn) factoryBtn.title = t("Werkseinstellungen");
-
+        // Factory/Print buttons (by aria-label)
         document.querySelectorAll("#buttonRow2 button").forEach((b) => {
           if (
             b.getAttribute("aria-label")?.includes("Werkseinstellung") ||
@@ -13011,7 +12957,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v74";
+        const SW_VERSION = "rechenguru-lgi-v73";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -14205,7 +14151,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="74"
+      data-app-version="73"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -14217,7 +14163,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">74</span>
+      <span id="appVersion">73</span>
     </footer>
 
     <!-- Unauffälliger Update-Button direkt am Seitenende -->
