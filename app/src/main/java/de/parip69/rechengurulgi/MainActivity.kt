@@ -176,7 +176,7 @@ class MainActivity : AppCompatActivity() {
         val data = source?.data
         if (data?.scheme == "rechengurulgi" && data.host == "settings") {
             val payload = data.getQueryParameter("data").orEmpty()
-            if (Regex("[A-Za-z0-9_-]{1,24000}").matches(payload)) {
+            if (Regex("[A-Za-z0-9_-]{1,60000}").matches(payload)) {
                 return "file:///android_asset/index.html#settings=$payload"
             }
         }

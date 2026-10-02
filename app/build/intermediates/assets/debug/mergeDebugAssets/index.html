@@ -13225,7 +13225,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v93";
+        const SW_VERSION = "rechenguru-lgi-v94";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -14466,7 +14466,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="93"
+      data-app-version="94"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -14478,7 +14478,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">93</span>
+      <span id="appVersion">94</span>
     </footer>
 
     <!-- Unauffälliger Update-Button direkt am Seitenende -->
@@ -14531,8 +14531,12 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         }
         function settingsLink() {
           const storage = (key) => appStorage.getItem(key);
-          const mode = storage("mathLastMode");
-          const grade = storage("mathActiveGrade") || "0";
+          const mode =
+            (typeof displayedMode === "string" && displayedMode) ||
+            document.getElementById("viewSelect")?.value ||
+            storage("mathLastMode") ||
+            "";
+          const grade = String(activeGrade ?? storage("mathActiveGrade") ?? "0");
 
           /* Die gerade sichtbare Rechenart zuerst sichern, damit auch die letzte Änderung im Link steckt. */
           try {
@@ -14549,6 +14553,11 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             if (value !== null && value !== undefined && String(value).length <= 12000) settings[key] = String(value);
           };
           ["mathLastMode", "mathActiveGrade", "mathTargetCorrect"].forEach(put);
+          settings.mathLastMode = String(mode);
+          settings.mathActiveGrade = grade;
+          if (!/^[A-Za-z0-9_-]{1,40}$/.test(settings.mathLastMode) || !/^[0-4]$/.test(grade)) {
+            throw new Error("Die aktive Rechenart oder Klassen-/Bereichszuordnung ist ungültig.");
+          }
 
           /* Alle gespeicherten Rechenarten-Einstellungen einsammeln – inklusive Klassenvarianten. */
           appStorage.ownKeys()
