@@ -1,4 +1,5 @@
-const CACHE_NAME = 'rechenguru-lgi-v88';
+const CACHE_NAME = 'rechenguru-lgi-v89';
+const CACHE_PREFIX = 'rechenguru-lgi-v';
 const PRECACHE_URLS = [
   './',
   './index.html',
@@ -9,81 +10,143 @@ const PRECACHE_URLS = [
   './icons/apple-touch-icon.png'
 ];
 
-function putResponseInCache(request, response) {
-  if (!response || response.status !== 200 || response.type === 'opaque') {
-    return response;
-  }
+function isCacheable(response) {
+  return Boolean(response && response.status === 200 && response.type !== 'opaque');
+}
 
-  const copy = response.clone();
-  caches.open(CACHE_NAME).then(cache => cache.put(request, copy)).catch(() => {});
+function versionOfCache(name) {
+  const match = String(name || '').match(/^rechenguru-lgi-v(\d+)$/);
+  return match ? Number(match[1]) : -1;
+}
+
+async function findLegacyCache() {
+  const keys = await caches.keys();
+  return keys
+    .filter(key => key !== CACHE_NAME && versionOfCache(key) >= 0)
+    .sort((a, b) => versionOfCache(b) - versionOfCache(a))[0] || '';
+}
+
+async function fetchFresh(url) {
+  const target = new URL(url, self.registration.scope);
+  target.searchParams.set('_install', String(Date.now()));
+  const response = await fetch(target.toString(), { cache: 'no-store' });
+  if (!isCacheable(response)) {
+    throw new Error('HTTP ' + (response ? response.status : '?') + ' bei ' + url);
+  }
   return response;
 }
 
-async function networkFirst(request) {
-  try {
-    const response = await fetch(request);
-    return putResponseInCache(request, response);
-  } catch (error) {
-    const cached = await caches.match(request);
-    if (cached) {
-      return cached;
+async function refreshInstalledShell() {
+  const cache = await caches.open(CACHE_NAME);
+  for (const url of PRECACHE_URLS) {
+    const response = await fetchFresh(url);
+    await cache.put(url, response.clone());
+  }
+}
+
+// Eine neue Version wird nicht automatisch installiert: Beim Wechsel wird die bisher
+// installierte Version uebernommen, bis der Nutzer bewusst aktualisiert.
+async function ensureInstalledShell() {
+  const cache = await caches.open(CACHE_NAME);
+  if (await cache.match('./index.html', { ignoreSearch: true })) return;
+
+  const legacyName = await findLegacyCache();
+  if (legacyName) {
+    const legacy = await caches.open(legacyName);
+    const index = await legacy.match('./index.html', { ignoreSearch: true });
+    if (index) {
+      for (const url of PRECACHE_URLS) {
+        const stored = await legacy.match(url, { ignoreSearch: true });
+        if (stored) await cache.put(url, stored.clone());
+      }
+      return;
     }
-    throw error;
-  }
-}
-
-async function cacheFirst(request) {
-  const cached = await caches.match(request);
-  if (cached) {
-    return cached;
   }
 
-  const response = await fetch(request);
-  return putResponseInCache(request, response);
+  await refreshInstalledShell();
 }
 
-function shouldUseNetworkFirst(request, url) {
-  if (request.mode === 'navigate' || request.destination === 'document') {
-    return true;
+function reply(event, payload) {
+  try {
+    if (event.ports && event.ports[0]) event.ports[0].postMessage(payload);
+  } catch (_) {}
+}
+
+self.addEventListener('message', event => {
+  const data = event.data || {};
+
+  if (data.type === 'APPLY_UPDATE') {
+    event.waitUntil(
+      refreshInstalledShell()
+        .then(() => reply(event, { ok: true }))
+        .catch(error => reply(event, { ok: false, error: error && error.message || String(error) }))
+    );
+    return;
   }
 
-  const pathname = url.pathname.toLowerCase();
-  return (
-    pathname.endsWith('/index.html') ||
-    pathname.endsWith('/manifest.webmanifest') ||
-    pathname.endsWith('/version.json')
-  );
-}
+  if (data.type === 'APPLY_UPDATE_AND_ACTIVATE' || data.type === 'SKIP_WAITING') {
+    event.waitUntil(
+      refreshInstalledShell()
+        .then(async () => {
+          reply(event, { ok: true });
+          await self.skipWaiting();
+        })
+        .catch(error => reply(event, { ok: false, error: error && error.message || String(error) }))
+    );
+  }
+});
 
 self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(PRECACHE_URLS)).then(() => self.skipWaiting())
-  );
+  event.waitUntil(ensureInstalledShell());
 });
 
 self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(keys => Promise.all(
-      keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
-    )).then(() => self.clients.claim())
-  );
+  event.waitUntil((async () => {
+    await ensureInstalledShell();
+    const keys = await caches.keys();
+    await Promise.all(
+      keys
+        .filter(key => key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME)
+        .map(key => caches.delete(key))
+    );
+    await self.clients.claim();
+  })());
 });
+
+async function shellFirst(request) {
+  const cache = await caches.open(CACHE_NAME);
+  const cached = await cache.match(request, { ignoreSearch: true });
+  if (cached) return cached;
+
+  const response = await fetch(request);
+  if (isCacheable(response)) await cache.put(request, response.clone());
+  return response;
+}
 
 self.addEventListener('fetch', event => {
   const request = event.request;
   if (request.method !== 'GET') return;
 
   const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
 
-  if (url.origin !== self.location.origin) {
-    event.respondWith(networkFirst(request));
+  // Versionspruefung: immer direkt vom Server, nie in den installierten Cache schreiben.
+  if (url.searchParams.has('update-check') || url.searchParams.has('_install')) {
+    event.respondWith(fetch(request, { cache: 'no-store' }));
     return;
   }
 
-  if (shouldUseNetworkFirst(request, url)) {
-    event.respondWith(networkFirst(request));
+  if (request.mode === 'navigate' || request.destination === 'document') {
+    event.respondWith(
+      caches.open(CACHE_NAME).then(async cache => {
+        const installed =
+          (await cache.match('./index.html', { ignoreSearch: true })) ||
+          (await cache.match('./', { ignoreSearch: true }));
+        return installed || fetch(request);
+      })
+    );
     return;
   }
 
-  event.respondWith(cacheFirst(request));
+  event.respondWith(shellFirst(request));
 });
