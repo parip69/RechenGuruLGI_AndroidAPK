@@ -14313,14 +14313,27 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           } catch (_) {}
 
           try {
-            if (isLocalFile) {
-              // Installierte APK: veröffentlichte Version im selben Fenster laden.
+            const isAndroid = /Android/i.test(navigator.userAgent || "");
+            if (isAndroid) {
+              // Android: neue APK von GitHub Pages laden und zur Installation übergeben.
+              const apkUrl = new URL("MatheGuru-latest.apk", RELEASE_INDEX);
+              apkUrl.searchParams.set("v", String(remoteVersion));
+              if (isLocalFile && window.AndroidInterface && typeof window.AndroidInterface.openExternal === "function") {
+                window.AndroidInterface.openExternal(apkUrl.toString());
+              } else {
+                location.href = apkUrl.toString();
+              }
+              openUpdateDialog({
+                title: "APK wird geladen",
+                text: `Öffne nach dem Download die Datei MatheGuru V${remoteVersion} und tippe auf „Installieren“.`,
+                kind: "new",
+              });
+            } else if (isLocalFile) {
               const u = new URL(RELEASE_INDEX);
               u.searchParams.set("update", String(remoteVersion));
               u.searchParams.set("t", String(Date.now()));
               location.href = u.toString();
             } else {
-              // Browser/PWA: im selben Dokument neu laden, kein Link-Wechsel.
               location.reload();
             }
           } catch (error) {
