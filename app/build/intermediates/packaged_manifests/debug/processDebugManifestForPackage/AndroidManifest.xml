@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="de.parip69.rechengurulgi"
-    android:versionCode="94"
-    android:versionName="94" >
+    android:versionCode="96"
+    android:versionName="96" >
 
     <uses-sdk
         android:minSdkVersion="24"

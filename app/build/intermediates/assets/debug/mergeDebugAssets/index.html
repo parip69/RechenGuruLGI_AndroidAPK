@@ -30,7 +30,6 @@
           /* Die Quellversion ist nur Information. Sie entscheidet ausdrücklich NICHT über die Übernahme. */
           window.__pendingSharedSettings = payload;
           window.__sharedSettingsPayload = match[1];
-          history.replaceState(null, "", location.pathname + location.search);
         } catch (error) {
           console.warn("Geteilte Einstellungen konnten nicht gelesen werden.", error);
         }
@@ -3542,6 +3541,15 @@
         const payload = window.__pendingSharedSettings;
         if (!payload || !payload.settings) return;
 
+        /* Kurzer Fingerabdruck, damit dieselben Daten in Browser und App nur einmal abgefragt werden. */
+        const raw = String(window.__sharedSettingsPayload || "");
+        let fp = 5381;
+        for (let i = 0; i < raw.length; i++) fp = ((fp * 33) ^ raw.charCodeAt(i)) >>> 0;
+        const fingerprint = raw.length + ":" + fp;
+        try {
+          if (appStorage.getItem("mathSharedSettingsApplied") === fingerprint) return;
+        } catch (_) {}
+
         try {
           const settings = payload.settings;
           const mode = String(settings.mathLastMode || "").trim();
@@ -3586,6 +3594,7 @@
             if (settings.mathTargetCorrect !== undefined) {
               appStorage.setItem("mathTargetCorrect", String(settings.mathTargetCorrect));
             }
+            appStorage.setItem("mathSharedSettingsApplied", fingerprint);
             window.__sharedSettingsApplied = true;
           }
         } catch (error) {
@@ -3597,6 +3606,14 @@
           window.__pendingSharedSettings = null;
         }
       })();
+
+      /* Wurden in einem anderen Fenster (z. B. Browser) Einstellungen übernommen, lädt ein bereits
+         geöffnetes Fenster (z. B. die installierte App) neu und nimmt sie damit auf. */
+      window.addEventListener("storage", (event) => {
+        if (event.key === APP_STORAGE_PREFIX + "mathSharedSettingsApplied" && event.newValue) {
+          location.reload();
+        }
+      });
 
       /* ═══════════════════════════════════════════════════════
          i18n – Deutsch / Rumänisch Sprachumschaltung
@@ -13225,7 +13242,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v94";
+        const SW_VERSION = "rechenguru-lgi-v96";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -14466,7 +14483,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="94"
+      data-app-version="96"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -14478,7 +14495,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">94</span>
+      <span id="appVersion">96</span>
     </footer>
 
     <!-- Unauffälliger Update-Button direkt am Seitenende -->
