@@ -134,6 +134,7 @@ try {
 
     $apkArchivePath = Join-Path $privatDir $apkFile.Name
     Copy-Item -LiteralPath $apkFile.FullName -Destination $apkArchivePath -Force
+    Copy-Item -LiteralPath $apkFile.FullName -Destination (Join-Path $scriptRoot "docs\MatheGuru-latest.apk") -Force
 
     Write-Host "Archivkopien erstellt:"
     Write-Host " - $htmlArchivePath"
