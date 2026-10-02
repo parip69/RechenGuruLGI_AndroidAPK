@@ -3547,7 +3547,10 @@
         for (let i = 0; i < raw.length; i++) fp = ((fp * 33) ^ raw.charCodeAt(i)) >>> 0;
         const fingerprint = raw.length + ":" + fp;
         try {
-          if (appStorage.getItem("mathSharedSettingsApplied") === fingerprint) return;
+          if (window.sessionStorage.getItem("RechenGuruLGI_sharedApplied") === fingerprint) {
+            window.sessionStorage.removeItem("RechenGuruLGI_sharedApplied");
+            return;
+          }
         } catch (_) {}
 
         try {
@@ -3583,7 +3586,8 @@
             if (settings.mathTargetCorrect !== undefined) {
               appStorage.setItem("mathTargetCorrect", String(settings.mathTargetCorrect));
             }
-            appStorage.setItem("mathSharedSettingsApplied", fingerprint);
+            try { window.sessionStorage.setItem("RechenGuruLGI_sharedApplied", fingerprint); } catch (_) {}
+            appStorage.setItem("mathSharedSettingsApplied", fingerprint + ":" + Date.now());
             window.__sharedSettingsApplied = true;
             location.reload();
           };
@@ -13278,7 +13282,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v97";
+        const SW_VERSION = "rechenguru-lgi-v98";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -14519,7 +14523,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="97"
+      data-app-version="98"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -14531,7 +14535,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">97</span>
+      <span id="appVersion">98</span>
     </footer>
 
     <!-- Unauffälliger Update-Button direkt am Seitenende -->
