@@ -13198,27 +13198,28 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           aria-hidden="true"
         />
         <div class="firstInstallChoiceTitle" id="firstInstallChoiceTitle">
-          Mathe Guru öffnen oder installieren?
+          Als Web-App starten
         </div>
         <div class="firstInstallChoiceText" id="firstInstallChoiceText">
-          Du kannst die Seite normal in Chrome öffnen oder als Web-App installieren.
+          Für die beste Darstellung diese Seite vom Startbildschirm öffnen. Die installierte Web-App startet ohne Browser-Tab und verhält sich damit näher an der APK-Ansicht.
         </div>
         <div class="firstInstallChoiceActions">
-          <button
-            class="firstInstallChoiceBtn browser"
-            id="firstInstallBrowserBtn"
-            type="button"
-          >
-            🌐 In Chrome öffnen
-          </button>
           <button
             class="firstInstallChoiceBtn"
             id="firstInstallAppBtn"
             type="button"
           >
-            📲 App installieren
+            App installieren
+          </button>
+          <button
+            class="firstInstallChoiceBtn browser"
+            id="firstInstallBrowserBtn"
+            type="button"
+          >
+            Schließen
           </button>
         </div>
+        <div class="firstInstallChoiceText" id="firstInstallChoiceHint" aria-live="polite" style="display:none;margin-top:10px;font-size:12px"></div>
       </div>
     </div>
 
@@ -13849,26 +13850,17 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
 
     <script>
-      /* Erstaufruf-Auswahl v69: In Chrome öffnen oder als PWA installieren. */
+      /* Start-Hinweis "Als Web-App starten" (wie im Barcode-Scanner): Installation direkt anbieten. */
       (function () {
-        const FIRST_INSTALL_CHOICE_KEY = "RechenGuruLGI_firstInstallChoice_v69";
-        let firstChoiceTimer = null;
+        const KEY = "RechenGuruLGI_installHintDismissed_v70";
 
-        function firstChoiceIsAndroid() {
-          return /Android/i.test(navigator.userAgent || "");
+        function isApk() {
+          try {
+            if (typeof getAndroidBridge === "function" && getAndroidBridge()) return true;
+          } catch (_) {}
+          return String(location.href || "").indexOf("file:///android_asset/") === 0;
         }
-
-        function firstChoiceIsChrome() {
-          const ua = navigator.userAgent || "";
-          return /Chrome\//i.test(ua) && !/EdgA|OPR|SamsungBrowser|DuckDuckGo/i.test(ua);
-        }
-
-        function firstChoiceIsInAppBrowser() {
-          const ua = navigator.userAgent || "";
-          return /FBAN|FBAV|Instagram|Line\/|Snapchat|TikTok|MicroMessenger|Telegram|WhatsApp|Messenger|\bwv\b|; wv\)/i.test(ua);
-        }
-
-        function firstChoiceIsStandalone() {
+        function isStandalone() {
           return (
             window.matchMedia("(display-mode: fullscreen)").matches ||
             window.matchMedia("(display-mode: standalone)").matches ||
@@ -13876,188 +13868,73 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             window.navigator.standalone === true
           );
         }
-
-        function firstChoiceIsNativeApk() {
-          try {
-            if (typeof getAndroidBridge === "function" && getAndroidBridge()) return true;
-          } catch (_) {}
-          return String(location.href || "").indexOf("file:///android_asset/") === 0;
+        function dismissed() {
+          try { return localStorage.getItem(KEY) === "1"; } catch (_) { return false; }
         }
-
-        function firstChoiceRequestedInstall() {
-          try {
-            return new URL(location.href).searchParams.get("install") === "1";
-          } catch (_) {
-            return false;
+        function remember() {
+          try { localStorage.setItem(KEY, "1"); } catch (_) {}
+        }
+        function modal() { return document.getElementById("firstInstallChoice"); }
+        function close(rememberChoice) {
+          const m = modal();
+          if (m) {
+            m.classList.remove("show");
+            m.setAttribute("aria-hidden", "true");
           }
+          if (rememberChoice) remember();
         }
-
-        function firstChoiceAlreadyHandled() {
-          try {
-            return localStorage.getItem(FIRST_INSTALL_CHOICE_KEY) === "1";
-          } catch (_) {
-            return false;
+        function show() {
+          if (isApk() || isStandalone() || dismissed()) return;
+          const m = modal();
+          if (!m) return;
+          try { if (typeof mgHideKeypad === "function") mgHideKeypad(); } catch (_) {}
+          try { document.activeElement?.blur?.(); } catch (_) {}
+          m.classList.add("show");
+          m.setAttribute("aria-hidden", "false");
+        }
+        function manualHint() {
+          const ua = navigator.userAgent || "";
+          if (/iphone|ipad|ipod/i.test(ua)) return "Safari öffnen → Teilen → Zum Home-Bildschirm.";
+          if (/FBAN|FBAV|Instagram|Telegram|Line\/|WhatsApp|; wv\)/i.test(ua)) {
+            return "Dieser In-App-Browser blockiert die Installation. Bitte die Seite in Chrome öffnen.";
           }
+          if (/Android/i.test(ua)) return "Browser-Menü ⋮ → „App installieren“ oder „Zum Startbildschirm“.";
+          return "Browser-Menü oder das Installieren-Symbol in der Adressleiste benutzen.";
         }
-
-        function firstChoiceMarkHandled() {
-          try {
-            localStorage.setItem(FIRST_INSTALL_CHOICE_KEY, "1");
-          } catch (_) {}
-          try {
-            const url = new URL(location.href);
-            if (url.searchParams.has("install")) {
-              url.searchParams.delete("install");
-              history.replaceState(null, "", url.toString());
-            }
-          } catch (_) {}
-        }
-
-        function firstChoiceClose(markHandled = true) {
-          if (firstChoiceTimer) {
-            clearTimeout(firstChoiceTimer);
-            firstChoiceTimer = null;
-          }
-          const modal = document.getElementById("firstInstallChoice");
-          if (modal) {
-            modal.classList.remove("show");
-            modal.setAttribute("aria-hidden", "true");
-          }
-          if (markHandled) firstChoiceMarkHandled();
-        }
-
-        function firstChoiceHideKeyboard() {
-          try {
-            if (typeof mgHideKeypad === "function") mgHideKeypad();
-          } catch (_) {}
-          try {
-            document.activeElement?.blur?.();
-          } catch (_) {}
-        }
-
-        function firstChoiceShow(force = false) {
-          if (!firstChoiceIsAndroid() || firstChoiceIsNativeApk() || firstChoiceIsStandalone()) return;
-          if (!force && firstChoiceAlreadyHandled()) return;
-
-          const modal = document.getElementById("firstInstallChoice");
-          const browserBtn = document.getElementById("firstInstallBrowserBtn");
-          const textEl = document.getElementById("firstInstallChoiceText");
-          if (!modal) return;
-
-          if (browserBtn) {
-            browserBtn.textContent = firstChoiceIsChrome()
-              ? "🌐 In Chrome geöffnet lassen"
-              : "🌐 In Chrome öffnen";
-          }
-
-          if (textEl) {
-            textEl.textContent = firstChoiceIsInAppBrowser()
-              ? "Öffne Mathe Guru in Chrome oder installiere es dort als Web-App."
-              : "Du kannst Mathe Guru normal in Chrome benutzen oder als Web-App installieren.";
-          }
-
-          firstChoiceHideKeyboard();
-          modal.classList.add("show");
-          modal.setAttribute("aria-hidden", "false");
-        }
-
-        function firstChoiceChromeIntent(installAfterOpen) {
-          const target = new URL(location.href);
-          if (installAfterOpen) target.searchParams.set("install", "1");
-          else target.searchParams.delete("install");
-
-          if (!firstChoiceIsAndroid() || firstChoiceIsChrome()) {
-            if (installAfterOpen) firstChoiceTryInstall();
-            else firstChoiceClose(true);
-            return;
-          }
-
-          const hostAndPath = target.host + target.pathname + target.search;
-          const fallback = encodeURIComponent(target.toString());
-          const intent =
-            "intent://" +
-            hostAndPath +
-            "#Intent;scheme=https;package=com.android.chrome;" +
-            "S.browser_fallback_url=" +
-            fallback +
-            ";end";
-
-          firstChoiceMarkHandled();
-          location.href = intent;
-        }
-
-        async function firstChoiceTryInstall() {
-          const installEvent = window.__deferredPwaPrompt;
-
-          if (installEvent && typeof installEvent.prompt === "function") {
-            firstChoiceClose(true);
+        async function install() {
+          const ev = window.__deferredPwaPrompt;
+          if (ev && typeof ev.prompt === "function") {
             try {
-              installEvent.prompt();
-              await installEvent.userChoice;
+              ev.prompt();
+              const choice = await ev.userChoice;
+              window.__deferredPwaPrompt = null;
+              if ((choice && choice.outcome === "accepted") || isStandalone()) close(true);
             } catch (_) {}
-            window.__deferredPwaPrompt = null;
             return;
           }
-
-          if (firstChoiceIsInAppBrowser() || !firstChoiceIsChrome()) {
-            firstChoiceChromeIntent(true);
-            return;
-          }
-
-          firstChoiceClose(true);
-          const installBtn = document.getElementById("installBtn");
-          const hint = document.getElementById("installHint");
-          if (installBtn) {
-            installBtn.style.display = "";
-            installBtn.textContent = "📲 App installieren";
-          }
+          const hint = document.getElementById("firstInstallChoiceHint");
           if (hint) {
-            hint.style.display = "";
-            hint.textContent =
-              "Falls kein Installationsfenster erscheint: Chrome-Menü ⋮ → App installieren.";
+            hint.textContent = manualHint();
+            hint.style.display = "block";
           }
         }
 
-        window.addEventListener("beforeinstallprompt", () => {
-          setTimeout(() => {
-            if (firstChoiceRequestedInstall()) firstChoiceShow(true);
-            else firstChoiceShow(false);
-          }, 0);
-        });
-
-        window.addEventListener("appinstalled", () => {
-          firstChoiceMarkHandled();
-          firstChoiceClose(false);
-        });
+        window.addEventListener("appinstalled", () => close(true));
 
         document.addEventListener("DOMContentLoaded", () => {
-          const modal = document.getElementById("firstInstallChoice");
-          const browserBtn = document.getElementById("firstInstallBrowserBtn");
-          const installBtn = document.getElementById("firstInstallAppBtn");
-
-          modal?.addEventListener("click", (event) => {
-            event.stopPropagation();
+          const m = modal();
+          m?.addEventListener("click", (e) => e.stopPropagation());
+          document.getElementById("firstInstallAppBtn")?.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            install();
           });
-
-          browserBtn?.addEventListener("click", (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            firstChoiceChromeIntent(false);
+          document.getElementById("firstInstallBrowserBtn")?.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            close(true);
           });
-
-          installBtn?.addEventListener("click", (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            firstChoiceTryInstall();
-          });
-
-          if (!firstChoiceIsAndroid() || firstChoiceIsNativeApk() || firstChoiceIsStandalone()) return;
-
-          const forceInstall = firstChoiceRequestedInstall();
-          const delay = firstChoiceIsInAppBrowser() ? 250 : 1200;
-          firstChoiceTimer = setTimeout(() => {
-            firstChoiceShow(forceInstall);
-          }, delay);
+          setTimeout(show, 800);
         });
       })();
     </script>
@@ -14314,7 +14191,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
           try {
             const isAndroid = /Android/i.test(navigator.userAgent || "");
-            if (isAndroid) {
+            if (isAndroid && isLocalFile) {
               // Android: neue APK von GitHub Pages laden und zur Installation übergeben.
               const apkUrl = new URL("MatheGuru-latest.apk", RELEASE_INDEX);
               apkUrl.searchParams.set("v", String(remoteVersion));
