@@ -3547,7 +3547,10 @@
         for (let i = 0; i < raw.length; i++) fp = ((fp * 33) ^ raw.charCodeAt(i)) >>> 0;
         const fingerprint = raw.length + ":" + fp;
         try {
-          if (appStorage.getItem("mathSharedSettingsApplied") === fingerprint) return;
+          if (window.sessionStorage.getItem("RechenGuruLGI_sharedApplied") === fingerprint) {
+            window.sessionStorage.removeItem("RechenGuruLGI_sharedApplied");
+            return;
+          }
         } catch (_) {}
 
         try {
@@ -3583,7 +3586,8 @@
             if (settings.mathTargetCorrect !== undefined) {
               appStorage.setItem("mathTargetCorrect", String(settings.mathTargetCorrect));
             }
-            appStorage.setItem("mathSharedSettingsApplied", fingerprint);
+            try { window.sessionStorage.setItem("RechenGuruLGI_sharedApplied", fingerprint); } catch (_) {}
+            appStorage.setItem("mathSharedSettingsApplied", fingerprint + ":" + Date.now());
             window.__sharedSettingsApplied = true;
             location.reload();
           };
