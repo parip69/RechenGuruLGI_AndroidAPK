@@ -3572,18 +3572,7 @@
             throw new Error("Das mitgesendete Aufgabenziel ist ungültig.");
           }
 
-          const accepted = window.confirm(
-            "Geteilte Rechen-Einstellungen erkannt.\n\n" +
-            "Enthaltene Einstellungsblöcke: " + modeKeys.length + "\n" +
-            "Aktive Rechenart danach: " + mode + "\n" +
-            (grade === "0" ? "Aktiver Bereich: individuell" : "Aktive Klasse: " + grade) + "\n" +
-            (settings.mathTargetCorrect !== undefined ? "Aufgabenziel: " + settings.mathTargetCorrect + "\n" : "") + "\n" +
-            "Wollen Sie diese Daten übernehmen?\n\n" +
-            "Es werden die Einstellungen aller mitgesendeten Rechenarten und das Aufgabenziel übernommen. " +
-            "Farben, Sprache, Fehler, Punkte, Fortschritt und sonstige App-Daten bleiben unverändert."
-          );
-
-          if (accepted) {
+          const applySettings = () => {
             /* Vorhandene Rechenarten-Einstellungen gezielt ersetzen, andere App-Daten niemals löschen. */
             appStorage.ownKeys()
               .filter((key) => /^mathModeSettings:[A-Za-z0-9:_-]{1,80}$/.test(key))
@@ -3596,11 +3585,58 @@
             }
             appStorage.setItem("mathSharedSettingsApplied", fingerprint);
             window.__sharedSettingsApplied = true;
-          }
+            location.reload();
+          };
+
+          const esc = (value) => String(value).replace(/[&<>"]/g, (c) =>
+            ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+          const overlay = document.createElement("div");
+          overlay.className = "firstInstallChoice show";
+          overlay.setAttribute("role", "dialog");
+          overlay.setAttribute("aria-modal", "true");
+          overlay.setAttribute("aria-labelledby", "sharedSettingsTitle");
+          overlay.innerHTML =
+            '<div class="firstInstallChoiceCard">' +
+            '<img class="firstInstallChoiceIcon" src="icons/icon-192.png" alt="" aria-hidden="true" />' +
+            '<div class="firstInstallChoiceTitle" id="sharedSettingsTitle">Geteilte Einstellungen übernehmen</div>' +
+            '<div class="firstInstallChoiceText">' +
+            "Enthaltene Einstellungsblöcke: " + modeKeys.length + "<br>" +
+            "Aktive Rechenart danach: " + esc(mode) + "<br>" +
+            (grade === "0" ? "Aktiver Bereich: individuell" : "Aktive Klasse: " + esc(grade)) + "<br>" +
+            (settings.mathTargetCorrect !== undefined ? "Aufgabenziel: " + esc(settings.mathTargetCorrect) + "<br>" : "") +
+            "</div>" +
+            '<div class="firstInstallChoiceActions">' +
+            '<button class="firstInstallChoiceBtn" type="button" data-act="ok">Übernehmen</button>' +
+            '<button class="firstInstallChoiceBtn browser" type="button" data-act="cancel">Schließen</button>' +
+            "</div>" +
+            '<div class="firstInstallChoiceText" style="margin:10px 0 0;font-size:12px">' +
+            "Farben, Sprache, Fehler, Punkte, Fortschritt und sonstige App-Daten bleiben unverändert." +
+            "</div></div>";
+          overlay.addEventListener("click", (event) => {
+            const act = event.target?.dataset?.act;
+            if (act === "ok") applySettings();
+            else if (act === "cancel" || event.target === overlay) overlay.remove();
+          });
+          document.body.appendChild(overlay);
         } catch (error) {
           console.warn("Geteilte Rechen-Einstellungen wurden verworfen.", error);
           window.setTimeout(() => {
-            window.alert("Die geteilten Rechen-Einstellungen sind ungültig und wurden nicht übernommen.");
+            const box = document.createElement("div");
+            box.className = "firstInstallChoice show";
+            box.setAttribute("role", "alertdialog");
+            box.setAttribute("aria-modal", "true");
+            box.innerHTML =
+              '<div class="firstInstallChoiceCard">' +
+              '<img class="firstInstallChoiceIcon" src="icons/icon-192.png" alt="" aria-hidden="true" />' +
+              '<div class="firstInstallChoiceTitle">Einstellungen ungültig</div>' +
+              '<div class="firstInstallChoiceText">Die geteilten Rechen-Einstellungen sind ungültig und wurden nicht übernommen.</div>' +
+              '<div class="firstInstallChoiceActions">' +
+              '<button class="firstInstallChoiceBtn browser" type="button" data-act="close">Schließen</button>' +
+              "</div></div>";
+            box.addEventListener("click", (event) => {
+              if (event.target?.dataset?.act === "close" || event.target === box) box.remove();
+            });
+            document.body.appendChild(box);
           }, 0);
         } finally {
           window.__pendingSharedSettings = null;
@@ -13242,7 +13278,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v96";
+        const SW_VERSION = "rechenguru-lgi-v97";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -14483,7 +14519,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="96"
+      data-app-version="97"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -14495,7 +14531,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">96</span>
+      <span id="appVersion">97</span>
     </footer>
 
     <!-- Unauffälliger Update-Button direkt am Seitenende -->
