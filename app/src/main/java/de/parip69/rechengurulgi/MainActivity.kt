@@ -290,6 +290,23 @@ class MainActivity : AppCompatActivity() {
         }
 
         @JavascriptInterface
+        fun shareLink(url: String?): Boolean {
+            if (url.isNullOrBlank()) return false
+            runOnUiThread {
+                try {
+                    val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(Intent.EXTRA_TEXT, url)
+                    }
+                    startActivity(Intent.createChooser(shareIntent, "App teilen"))
+                } catch (error: Exception) {
+                    showToast("Fehler beim Teilen: ${error.message ?: "Unbekannt"}")
+                }
+            }
+            return true
+        }
+
+        @JavascriptInterface
         fun shareTextFile(fileName: String, content: String): Boolean {
             return try {
                 val safeFileName = sanitizeFileName(fileName)

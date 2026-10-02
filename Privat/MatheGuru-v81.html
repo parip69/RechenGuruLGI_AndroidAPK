@@ -9,6 +9,37 @@
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
     <meta name="theme-color" content="#D9DFE8" />
+    <script>
+      /* Shared settings are applied before the app reads localStorage. */
+      (function () {
+        const match = location.hash.match(/^#settings=([A-Za-z0-9_-]+)$/);
+        if (!match || match[1].length > 24000) return;
+        try {
+          const binary = atob(match[1].replace(/-/g, "+").replace(/_/g, "/"));
+          const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+          const payload = JSON.parse(new TextDecoder().decode(bytes));
+          const allowed = (key) => /^mathModeSettings:[A-Za-z0-9:_-]{1,80}$/.test(key) ||
+            ["mathActiveGrade", "mathLang", "mathLastMode", "mathThemeIndex",
+             "mathCelebrateMode", "mathConfettiEnabled", "mathOnesOnly",
+             "mathFlashMode", "mathFlashShowSec", "mathFlashPeekSec",
+             "mathTimeLimitSec"].includes(key);
+          if (payload.kind !== "RechenGuru-settings" || payload.schema !== 1 ||
+              !payload.settings || typeof payload.settings !== "object" ||
+              Object.keys(payload.settings).length > 200 ||
+              Object.entries(payload.settings).some(([key, value]) =>
+                !allowed(key) || typeof value !== "string" || value.length > 12000)) return;
+          if (confirm("Geteilte Einstellungen übernehmen? Vorhandene Einstellungen für diese Bereiche werden ersetzt.")) {
+            Object.entries(payload.settings).forEach(([key, value]) =>
+              localStorage.setItem("RechenGuruLGI_" + key, value));
+            window.__sharedSettingsApplied = true;
+          }
+          window.__sharedSettingsPayload = match[1];
+          history.replaceState(null, "", location.pathname + location.search);
+        } catch (error) {
+          console.warn("Geteilte Einstellungen konnten nicht gelesen werden.", error);
+        }
+      })();
+    </script>
 
     <meta
       name="description"
@@ -458,6 +489,7 @@
       #rowGroup { order: 11; }
       #mulProfileGroup { order: 12; }
       #advancedSettings { order: 13; }
+      #resetSelectedModeGroup { order: 14; flex-basis: 100%; }
 
       /* === Reihe-Chips (Mehrfachauswahl) === */
       .row-chips {
@@ -504,6 +536,12 @@
       .row-chip[data-disabled="1"] {
         opacity: 0.35;
         pointer-events: none;
+      }
+
+      .row-selection-summary {
+        margin-top: 8px;
+        opacity: 0.9;
+        font-weight: 800;
       }
 
       label {
@@ -861,6 +899,34 @@
         gap: 12px;
       }
 
+      #buttonRow {
+        width: 100%;
+      }
+
+      #refreshBtn {
+        width: 100%;
+        min-height: 62px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        border-radius: 20px;
+      }
+
+      #refreshBtn .newTaskIcon {
+        width: 25px;
+        height: 25px;
+        box-sizing: content-box;
+        padding: 5px;
+        border-radius: 11px;
+        background: rgba(255, 255, 255, 0.18);
+        flex: 0 0 auto;
+      }
+
+      #refreshBtn:active {
+        transform: translateY(2px) scale(0.985);
+      }
+
       .preset-row {
         display: flex;
         gap: 10px;
@@ -871,6 +937,13 @@
       .preset-row .btn-mini {
         min-width: 118px;
       }
+
+      .preset-row .btn-mini[aria-pressed="true"] {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+
+      #resetSelectedModeBtn { width: 100%; min-height: 44px; }
 
       .miniRow {
         display: grid;
@@ -975,6 +1048,90 @@
         white-space: nowrap;
       }
 
+      /* Erstaufruf: Browser oder Web-App installieren */
+      .firstInstallChoice {
+        position: fixed;
+        inset: 0;
+        z-index: 30000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+        background: rgba(15, 23, 42, 0.56);
+        -webkit-backdrop-filter: blur(5px);
+        backdrop-filter: blur(5px);
+      }
+
+      .firstInstallChoice.show {
+        display: flex;
+      }
+
+      .firstInstallChoiceCard {
+        width: min(430px, 94vw);
+        padding: 20px;
+        border-radius: 22px;
+        background: var(--surface92);
+        border: 1px solid var(--glass-border);
+        box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+        text-align: center;
+        color: var(--text);
+      }
+
+      .firstInstallChoiceIcon {
+        width: 76px;
+        height: 76px;
+        border-radius: 18px;
+        display: block;
+        margin: 0 auto 12px;
+      }
+
+      .firstInstallChoiceTitle {
+        font-size: 1.22rem;
+        font-weight: 900;
+        margin-bottom: 7px;
+      }
+
+      .firstInstallChoiceText {
+        color: var(--textMuted);
+        font-size: 0.94rem;
+        font-weight: 700;
+        line-height: 1.35;
+        margin-bottom: 16px;
+      }
+
+      .firstInstallChoiceActions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .firstInstallChoiceBtn {
+        min-height: 48px;
+        border: none;
+        border-radius: 16px;
+        padding: 10px 12px;
+        cursor: pointer;
+        font-size: 0.98rem;
+        font-weight: 900;
+        color: #fff;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.14);
+        touch-action: manipulation;
+      }
+
+      .firstInstallChoiceBtn.browser {
+        color: var(--text);
+        background: var(--surface70);
+        border: 1px solid var(--dividerStrong);
+        box-shadow: none;
+      }
+
+      @media (max-width: 420px) {
+        .firstInstallChoiceActions {
+          grid-template-columns: 1fr;
+        }
+      }
+
       .btn-action:hover {
         transform: translateY(-2px);
         box-shadow: 0 12px 24px rgba(0, 0, 0, 0.16);
@@ -999,6 +1156,56 @@
         opacity: 0.45;
         cursor: not-allowed;
         box-shadow: none;
+      }
+
+      /* Sichtbare Rückmeldung für alle Tasten im Einstellungsmenü. */
+      #settingsDetails button:not(:disabled),
+      #settingsDetails summary,
+      #settingsDetails [role="button"],
+      #legendOverlay button:not(:disabled) {
+        transition: transform 0.14s ease, filter 0.14s ease, box-shadow 0.14s ease;
+        transform-origin: center;
+      }
+
+      #settingsDetails .is-pressing,
+      #legendOverlay .is-pressing {
+        transform: translateY(2px) scale(0.92) !important;
+        filter: brightness(1.16);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18) !important;
+      }
+
+      #settingsDetails .did-press,
+      #legendOverlay .did-press {
+        animation: settingsButtonTap 0.38s ease-out;
+      }
+
+      @keyframes settingsButtonTap {
+        0% { transform: translateY(2px) scale(0.92); filter: brightness(1.16); }
+        55% { transform: translateY(-1px) scale(1.04); }
+        100% { transform: translateY(0) scale(1); filter: brightness(1); }
+      }
+
+      #settingsDetails button:focus-visible,
+      #settingsDetails summary:focus-visible,
+      #settingsDetails [role="button"]:focus-visible,
+      #legendOverlay button:focus-visible {
+        outline: 3px solid var(--accent);
+        outline-offset: 3px;
+      }
+
+      #parentSaveTargetBtn.save-confirmed {
+        background: #2d6a4f;
+        color: #fff;
+      }
+
+      #parentSaveTargetBtn.save-error {
+        background: #bc4749;
+        color: #fff;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        #settingsDetails .did-press,
+        #legendOverlay .did-press { animation: none; }
       }
 
       #statusMessage {
@@ -2136,28 +2343,94 @@
         }
       }
     
-      /* === Update-Prüfung v63 === */
+      /* === Update-Prüfung v66: unauffällig am Seitenende, nicht schwebend === */
       .appUpdateWidget {
-        position: fixed; right: max(14px, env(safe-area-inset-right));
-        bottom: max(14px, env(safe-area-inset-bottom)); z-index: 9998;
-        display: flex; flex-direction: column; align-items: flex-end; gap: 7px;
+        position: static;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 6px auto 2px;
         font-family: "Outfit", sans-serif;
       }
       .appUpdateBtn {
-        border: 1px solid var(--glass-border); border-radius: 999px; padding: 10px 14px;
-        background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff;
-        box-shadow: 0 8px 22px rgba(0,0,0,.20); font-weight: 900; cursor: pointer;
-        font-size: .88rem; white-space: nowrap; touch-action: manipulation;
+        border: 1px solid var(--dividerStrong);
+        border-radius: 999px;
+        padding: 5px 11px;
+        background: var(--surface45);
+        color: var(--textMuted);
+        box-shadow: none;
+        font-weight: 700;
+        cursor: pointer;
+        font-size: .72rem;
+        line-height: 1.1;
+        white-space: nowrap;
+        touch-action: manipulation;
+        opacity: .78;
       }
-      .appUpdateBtn:disabled { opacity: .65; cursor: wait; }
-      .appUpdateStatus {
-        display: none; max-width: min(340px, calc(100vw - 28px)); padding: 9px 11px;
-        border-radius: 13px; background: var(--surface92); color: var(--text);
-        border: 1px solid var(--dividerStrong); box-shadow: 0 8px 22px rgba(0,0,0,.18);
-        font-size: .82rem; font-weight: 800; line-height: 1.3; text-align: left;
+      .appUpdateBtn:hover { background: var(--surface60); opacity: 1; }
+      .appUpdateBtn:disabled { opacity: .48; cursor: wait; }
+      .appUpdateStatus { display: none !important; }
+
+      .appShareBtn {
+        width: 28px; height: 24px; margin-left: 6px; padding: 0;
+        border: 1px solid var(--dividerStrong); border-radius: 999px;
+        background: var(--surface45); color: var(--textMuted);
+        display: inline-grid; place-items: center; cursor: pointer;
+        opacity: .78; touch-action: manipulation;
       }
-      .appUpdateStatus.show { display: block; }
-      @media print { .appUpdateWidget { display: none !important; } }
+      .appShareBtn:hover { background: var(--surface60); opacity: 1; }
+      .appShareBtn svg { width: 14px; height: 14px; }
+      .appShareChoice {
+        display: flex; gap: 10px; align-items: flex-start; text-align: left;
+        padding: 12px; margin: 8px 0; cursor: pointer;
+        border: 1px solid var(--dividerStrong); border-radius: 14px;
+        background: var(--surface78); color: var(--text);
+      }
+      .appShareChoice input { margin-top: 4px; accent-color: var(--primary); }
+      .appShareChoice strong { display: block; font-weight: 900; }
+      .appShareChoice small { display: block; margin-top: 3px; color: var(--textMuted); font-weight: 600; line-height: 1.35; }
+      .appShareChoice:has(input:checked) { border-color: var(--primary); }
+      .appShareOpenLink { display: block; margin-top: 10px; color: var(--primary); font-weight: 800; text-align: center; }
+      @media print { .appShareBtn { display: none !important; } }
+
+      /* Update-Ergebnis als gut sichtbares, modales Fenster. */
+      .appUpdateDialog {
+        position: fixed; inset: 0; z-index: 20050; display: none;
+        align-items: center; justify-content: center; padding: 20px;
+        background: rgba(15, 23, 42, .48);
+        -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+      }
+      .appUpdateDialog.show { display: flex; }
+      .appUpdateDialogCard {
+        width: min(520px, calc(100vw - 32px));
+        max-height: min(78vh, 520px); overflow: auto;
+        background: var(--surface92); color: var(--text);
+        border: 1px solid var(--glass-border); border-radius: 20px;
+        box-shadow: 0 22px 60px rgba(0,0,0,.34); padding: 20px;
+        text-align: center;
+      }
+      .appUpdateDialogIcon { font-size: 2.3rem; line-height: 1; margin-bottom: 10px; }
+      .appUpdateDialogTitle { font-size: 1.25rem; font-weight: 900; margin-bottom: 10px; }
+      .appUpdateDialogText {
+        font-size: 1rem; font-weight: 800; line-height: 1.45;
+        white-space: pre-line; overflow-wrap: anywhere;
+      }
+      .appUpdateDialogActions {
+        display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;
+        margin-top: 18px;
+      }
+      .appUpdateDialogBtn {
+        border: none; border-radius: 16px; padding: 11px 18px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: #fff; font: inherit; font-weight: 900; cursor: pointer;
+        min-width: 120px; box-shadow: 0 7px 18px rgba(0,0,0,.16);
+      }
+      .appUpdateDialogBtn.secondary {
+        background: var(--surface78); color: var(--text);
+        border: 1px solid var(--dividerStrong); box-shadow: none;
+      }
+      .appUpdateDialogBtn:disabled { opacity: .55; cursor: wait; }
+      @media print { .appUpdateWidget, .appUpdateDialog { display: none !important; } }
 
     </style>
   </head>
@@ -2248,7 +2521,7 @@
               </select>
             </div>
             <div id="currentSetupSummary" class="currentSetupSummary">
-              bis 10 · 3 Aufgaben · Normal
+              bis 10 · 1 Aufgabe · Normal
             </div>
           </div>
           <span class="settingsTitle"
@@ -2268,21 +2541,22 @@
           <div class="control-group" id="presetGroup">
             <label>Schnellstart (optional)</label>
             <div class="preset-row">
-              <button type="button" class="btn-mini" onclick="applyPreset(1)">
+              <button type="button" class="btn-mini" data-grade="0" aria-pressed="true" onclick="applyPreset(0)">Eigene Einstellungen</button>
+              <button type="button" class="btn-mini" data-grade="1" aria-pressed="false" onclick="applyPreset(1)">
                 Klasse 1
               </button>
-              <button type="button" class="btn-mini" onclick="applyPreset(2)">
+              <button type="button" class="btn-mini" data-grade="2" aria-pressed="false" onclick="applyPreset(2)">
                 Klasse 2
               </button>
-              <button type="button" class="btn-mini" onclick="applyPreset(3)">
+              <button type="button" class="btn-mini" data-grade="3" aria-pressed="false" onclick="applyPreset(3)">
                 Klasse 3
               </button>
-              <button type="button" class="btn-mini" onclick="applyPreset(4)">
+              <button type="button" class="btn-mini" data-grade="4" aria-pressed="false" onclick="applyPreset(4)">
                 Klasse 4
               </button>
             </div>
             <div class="hintSmall">
-              Stellt alle Aufgabenarten passend ein. Du kannst danach jedes Feld weiter anpassen.
+              Jede Klasse und jede Aufgabenart merkt sich ihre eigenen Einstellungen.
             </div>
           </div>
 
@@ -2406,7 +2680,6 @@
             <label>Kopfrechnen (Blitz)</label>
             <select
               id="flashMode"
-              data-mg-global="1"
               onchange="
                 saveFlashUI();
                 initGame(true);
@@ -2423,7 +2696,6 @@
                   type="text"
                   inputmode="numeric"
                   id="flashShowSec"
-                  data-mg-global="1"
                   class="ctrlInput numOnlyInput"
                   pattern="[0-9]*"
                   maxlength="2"
@@ -2456,7 +2728,6 @@
                   type="text"
                   inputmode="numeric"
                   id="flashPeekSec"
-                  data-mg-global="1"
                   class="ctrlInput numOnlyInput"
                   pattern="[0-9]*"
                   maxlength="2"
@@ -2492,7 +2763,6 @@
               type="text"
               inputmode="numeric"
               id="timeLimitSec"
-              data-mg-global="1"
               class="ctrlInput numOnlyInput"
               pattern="[0-9]*"
               maxlength="3"
@@ -2523,10 +2793,16 @@
             </div>
           </details>
 
+          <div class="control-group" id="resetSelectedModeGroup">
+            <button id="resetSelectedModeBtn" type="button" class="btn-mini" onclick="resetSelectedModeSettings()">↩ Einstellungen dieser Aufgabenart zurücksetzen</button>
+            <div class="hintSmall">Nur die oben ausgewählte Aufgabenart in der aktiven Klasse wird zurückgesetzt.</div>
+            <div class="hintSmall" id="resetSelectedModeStatus" role="status" aria-live="polite"></div>
+          </div>
+
           <div class="control-group" id="taskCountGroup">
             <label>Aufgaben pro Runde</label>
             <select id="taskCount" onchange="initGame(true)">
-              <option value="1">1</option>
+              <option value="1" selected>1</option>
               <option value="3">3</option>
               <option value="5">5</option>
               <option value="10">10</option>
@@ -2679,7 +2955,8 @@
                 Quadratzahlen
               </button>
             </div>
-            <div class="hintSmall">Eine oder mehrere Reihen antippen.</div>
+            <div class="hintSmall">Gemischt oder einzelne Reihen wählen. Quadratzahlen können zusätzlich dazugewählt werden.</div>
+            <div class="hintSmall row-selection-summary" id="rowSelectionSummary" aria-live="polite">Ausgewählt: Gemischt</div>
           </div>
 
           <div class="control-group" id="mulProfileGroup">
@@ -2835,29 +3112,27 @@
         <button
           id="refreshBtn"
           class="btn-action"
+          type="button"
           onclick="initGame(false, true)"
           aria-label="Neue Aufgaben laden"
         >
-          🔄 Neue Aufgaben
-        </button>
-        <button
-          id="tipBtn"
-          class="btn-action"
-          onclick="showTip()"
-          aria-label="Tipp zur aktuellen Aufgabe anzeigen"
-        >
-          💡 Tipp
+          <svg class="newTaskIcon" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <rect x="7" y="4" width="16" height="19" rx="3" />
+            <path d="M11 10h8M11 14h3M15 18h6M18 15v6M4 9v14a3 3 0 0 0 3 3h12" />
+          </svg>
+          <span id="refreshBtnLabel">Neue Aufgaben</span>
         </button>
       </div>
 
       <div class="button-row secondary" id="buttonRow2">
         <button
           class="btn-action btn-icon btn-icon-blue"
-          onclick="factoryReset()"
-          title="Werkseinstellungen"
-          aria-label="App auf Werkseinstellungen zurücksetzen"
+          type="button"
+          onclick="printSheet()"
+          title="Arbeitsblatt drucken"
+          aria-label="Arbeitsblatt drucken"
         >
-          🏭
+          🖨️
         </button>
         <button
           id="wrongBtn"
@@ -2868,12 +3143,14 @@
           🧽 Fehlerpool
         </button>
         <button
+          id="tipBtn"
           class="btn-action btn-icon btn-icon-blue"
-          onclick="printSheet()"
-          title="Arbeitsblatt drucken"
-          aria-label="Arbeitsblatt drucken"
+          type="button"
+          onclick="showTip()"
+          title="Tipp"
+          aria-label="Tipp zur aktuellen Aufgabe anzeigen"
         >
-          🖨️
+          💡
         </button>
         <button
           id="installBtn"
@@ -3030,7 +3307,7 @@
           >
             🎯 Ziel resetten
           </button>
-          <button class="btn-mini" type="button" onclick="parentSaveTarget()">
+          <button id="parentSaveTargetBtn" class="btn-mini" type="button" onclick="parentSaveTarget()">
             Speichern
           </button>
         </div>
@@ -3138,6 +3415,20 @@
         </div>
 
         <div class="parentGrid" style="grid-template-columns: 1fr auto">
+          <div class="parentLabel">Werkseinstellungen</div>
+          <button
+            id="parentFactoryResetBtn"
+            class="btn-mini"
+            type="button"
+            onclick="factoryReset()"
+            title="Werkseinstellungen"
+            aria-label="App auf Werkseinstellungen zurücksetzen"
+          >
+            🏭 Zurücksetzen
+          </button>
+        </div>
+
+        <div class="parentGrid" style="grid-template-columns: 1fr auto">
           <div class="parentLabel">Konfetti</div>
           <button
             id="parentConfettiBtn"
@@ -3203,7 +3494,7 @@
     </div>
 
     <script>
-      const APP_VERSION = 3;
+      const APP_VERSION = 69;
       const APP_STORAGE_PREFIX = "RechenGuruLGI_";
       const APP_NAME_FALLBACK = "Mathe Guru Web";
       const PORTABLE_HTML_MARKER_PREFIX = "__portableBootstrapApplied_";
@@ -3303,6 +3594,17 @@
           "Apasă sus pe „Adunare”, „Împărțire” sau alt tip de exercițiu.",
         "Schnellstart nach Klassenstufe": "Pornire rapidă după clasă",
         "Schnellstart (optional)": "Pornire rapidă (opțional)",
+        "Eigene Einstellungen": "Setări proprii",
+        "Jede Klasse und jede Aufgabenart merkt sich ihre eigenen Einstellungen.":
+          "Fiecare clasă și fiecare tip de exercițiu își păstrează setările.",
+        "↩ Einstellungen dieser Aufgabenart zurücksetzen":
+          "↩ Resetează setările acestui tip de exercițiu",
+        "Nur die oben ausgewählte Aufgabenart in der aktiven Klasse wird zurückgesetzt.":
+          "Se resetează doar tipul de exercițiu selectat în clasa activă.",
+        "Eigene Einstellungen aktiviert.": "Setările proprii au fost activate.",
+        "Einstellungen für {name} zurückgesetzt.": "Setările pentru {name} au fost resetate.",
+        "Einstellungen für {name} wirklich zurücksetzen?":
+          "Resetezi setările pentru {name}?",
         "Stellt alle Aufgabenarten passend ein. Du kannst danach jedes Feld weiter anpassen.":
           "Configurează toate tipurile de exerciții. Apoi poți ajusta fiecare câmp.",
         "Umfang und Schwierigkeit": "Volum și dificultate",
@@ -3377,6 +3679,9 @@
         "Reihe (×/÷)": "Seria (×/÷)",
         "Welche Reihen?": "Ce serii?",
         "Eine oder mehrere Reihen antippen.": "Alege una sau mai multe serii.",
+        "Gemischt oder einzelne Reihen wählen. Quadratzahlen können zusätzlich dazugewählt werden.":
+          "Alege una sau mai multe serii. Pătratele perfecte pot fi adăugate separat.",
+        "Ausgewählt:": "Selectat:",
         Quadratzahlen: "Pătrate perfecte",
         "×/÷ Zahlenart": "Tip numere ×/÷",
         "×/÷ Zahlenbereich": "Interval ×/÷",
@@ -3415,7 +3720,8 @@
         "Fehler üben öffnen": "Deschide exersarea greșelilor",
 
         // ── Buttons ──
-        "🔄 Neue Aufgaben": "🔄 Exerciții noi",
+        "Neue Aufgaben": "Exerciții noi",
+        Tipp: "Indiciu",
         "Neue Aufgaben laden": "Încarcă exerciții noi",
         "💡 Tipp": "💡 Indiciu",
         "Tipp zur aktuellen Aufgabe anzeigen":
@@ -3456,6 +3762,7 @@
           "Obiectiv pentru exerciții corecte",
         "🎯 Ziel resetten": "🎯 Resetare obiectiv",
         Speichern: "Salvează",
+        Gespeichert: "Salvat",
         "0 = aus": "0 = oprit",
         "Aktueller Ziel-Stand (🎯):": "Progres curent obiectiv (🎯):",
         "\u201E🎯 Ziel resetten\u201C setzt nur die Zahl nach dem / auf 0 (✅ bleibt)":
@@ -3474,6 +3781,7 @@
           "Indiciu: PIN nou \u201E0000\u201C = protecție oprită",
         "Reset (Punkte + Fehlerpool)": "Resetare (Puncte + Lista greșeli)",
         "♻️ Reset": "♻️ Resetare",
+        "🏭 Zurücksetzen": "🏭 Resetare completă",
         Konfetti: "Confetti",
         Export: "Export",
         "Index HTML exportieren": "Exportă Index HTML",
@@ -3905,16 +4213,23 @@
         }
 
         // ── Buttons ──
-        _tEl("refreshBtn", "textContent", "🔄 Neue Aufgaben");
+        _tEl("refreshBtnLabel", "textContent", "Neue Aufgaben");
         _tEl("refreshBtn", "aria-label", "Neue Aufgaben laden");
-        _tEl("tipBtn", "textContent", "💡 Tipp");
+        _tEl("tipBtn", "textContent", "💡");
         _tEl("tipBtn", "aria-label", "Tipp zur aktuellen Aufgabe anzeigen");
+        const tipButton = document.getElementById("tipBtn");
+        if (tipButton) tipButton.title = t("Tipp");
         _tEl("wrongBtn", "textContent", "🧽 Fehlerpool");
         _tEl("wrongBtn", "aria-label", "Fehlerpool löschen");
         _tEl("installBtn", "textContent", "📲 App installieren");
         _tEl("installBtn", "aria-label", "App installieren");
 
-        // Factory/Print buttons (by aria-label)
+        // Werkseinstellungen im Elternbereich, Druck-Button unten
+        _tEl("parentFactoryResetBtn", "textContent", "🏭 Zurücksetzen");
+        _tEl("parentFactoryResetBtn", "aria-label", "App auf Werkseinstellungen zurücksetzen");
+        const factoryBtn = document.getElementById("parentFactoryResetBtn");
+        if (factoryBtn) factoryBtn.title = t("Werkseinstellungen");
+
         document.querySelectorAll("#buttonRow2 button").forEach((b) => {
           if (
             b.getAttribute("aria-label")?.includes("Werkseinstellung") ||
@@ -4046,6 +4361,7 @@
         updateMaxValueHelp(
           document.getElementById("viewSelect")?.value || "plus",
         );
+        updateRowSelectionSummary();
         updateSettingsSummary();
       }
 
@@ -4688,23 +5004,21 @@
       }
 
       function getFlashEnabled() {
-        return (
-          clampInt(appStorage.getItem(FLASH_MODE_STORAGE_KEY), 0, 1, 0) === 1
-        );
+        return document.getElementById("flashMode")?.value === "1";
       }
       function getFlashShowMs() {
         return (
-          clampInt(appStorage.getItem(FLASH_SHOW_STORAGE_KEY), 0, 30, 4) * 1000
+          clampInt(document.getElementById("flashShowSec")?.value, 0, 30, 4) * 1000
         );
       }
       function getFlashPeekMs() {
         return (
-          clampInt(appStorage.getItem(FLASH_PEEK_STORAGE_KEY), 0, 30, 2) * 1000
+          clampInt(document.getElementById("flashPeekSec")?.value, 0, 30, 2) * 1000
         );
       }
       function getTimeLimitMs() {
         return (
-          clampInt(appStorage.getItem(TIME_LIMIT_STORAGE_KEY), 0, 999, 0) * 1000
+          clampInt(document.getElementById("timeLimitSec")?.value, 0, 999, 0) * 1000
         );
       }
 
@@ -4757,9 +5071,10 @@
         const showS = clampInt(show.value, 0, 30, 4);
         const peekS = clampInt(peek.value, 0, 30, 2);
 
-        appStorage.setItem(FLASH_MODE_STORAGE_KEY, String(en));
-        appStorage.setItem(FLASH_SHOW_STORAGE_KEY, String(showS));
-        appStorage.setItem(FLASH_PEEK_STORAGE_KEY, String(peekS));
+        sel.value = String(en);
+        show.value = String(showS);
+        peek.value = String(peekS);
+        saveModeSettings(document.getElementById("viewSelect").value);
 
         // UI sofort anpassen
         try {
@@ -4781,7 +5096,8 @@
         const inp = document.getElementById("timeLimitSec");
         if (!inp) return;
         const v = clampInt(inp.value, 0, 999, 0);
-        appStorage.setItem(TIME_LIMIT_STORAGE_KEY, String(v));
+        inp.value = String(v);
+        saveModeSettings(document.getElementById("viewSelect").value);
       }
 
       function clearFlashTimers() {
@@ -5126,10 +5442,7 @@
       function saveOnesOnlyUI() {
         const sel = document.getElementById("onesOnly");
         if (!sel) return;
-        const v = String(sel.value) === "1" ? "1" : "0";
-        try {
-          appStorage.setItem(ONESONLY_STORAGE_KEY, v);
-        } catch (e) {}
+        saveModeSettings(document.getElementById("viewSelect").value);
       }
 
       function updateParentConfettiButton() {
@@ -5759,6 +6072,10 @@
 
       function getTaskInputA11yLabel(task) {
         if (!task) return t("Antwort eingeben");
+        if (task.operandCount === 3) {
+          const place = task.missing === 3 ? "Ergebnis" : `${task.missing + 1}. Zahl`;
+          return `${place} für ${task.a} ${task.sym} ${task.b} ${task.sym2} ${task.c} = ${task.res} eingeben`;
+        }
         if (task.fmt === "verdoppeln")
           return (
             t("Ergebnis für Verdoppeln von") + ` ${task.a} ` + t("eingeben")
@@ -5767,7 +6084,7 @@
           return (
             t("Ergebnis für Halbieren von") + ` ${task.a} ` + t("eingeben")
           );
-        if (task.fmt === "faktor") {
+        if (task.fmt === "faktor" && task.op !== "plus" && task.op !== "minus") {
           if (task.missing === 0)
             return (
               t("Ersten Faktor für Aufgabe mit Ergebnis") +
@@ -5833,7 +6150,7 @@
           aufg.setAttribute(
             "aria-label",
             t("Wahr oder falsch:") +
-              ` ${task.a} ${task.sym} ${task.b} = ${task.shownRes}`,
+              ` ${task.a} ${task.sym} ${task.b}${task.operandCount === 3 ? ` ${task.sym2} ${task.c}` : ""} = ${task.shownRes}`,
           );
           const buttons = aufg.querySelectorAll("button");
           if (buttons[0])
@@ -5844,15 +6161,18 @@
         }
 
         if (task.fmt === "operator") {
+          const expression = task.operandCount === 3
+            ? `${task.a} ${task.missingOp === 0 ? "?" : task.sym} ${task.b} ${task.missingOp === 1 ? "?" : task.sym2} ${task.c}`
+            : `${task.a} ? ${task.b}`;
           aufg.setAttribute(
             "aria-label",
-            t("Operator suchen:") + ` ${task.a} ? ${task.b} = ${task.res}`,
+            t("Operator suchen:") + ` ${expression} = ${task.res}`,
           );
           const sel = aufg.querySelector("select.inlineSelect");
           if (sel) {
             const label =
               t("Operator für") +
-              ` ${task.a} ? ${task.b} = ${task.res} ` +
+              ` ${expression} = ${task.res} ` +
               t("auswählen");
             sel.dataset.baseAriaLabel = label;
             sel.setAttribute("aria-label", label);
@@ -6046,6 +6366,17 @@
           );
           if (entered !== pin) {
             setParentMsg(t("Falsche PIN."), false);
+            const saveBtn = document.getElementById("parentSaveTargetBtn");
+            if (saveBtn) {
+              clearTimeout(saveBtn._saveFeedbackTimer);
+              saveBtn.classList.remove("save-confirmed");
+              saveBtn.classList.add("save-error");
+              saveBtn.textContent = t("Falsche PIN.");
+              saveBtn._saveFeedbackTimer = setTimeout(() => {
+                saveBtn.classList.remove("save-error");
+                saveBtn.textContent = t("Speichern");
+              }, 1600);
+            }
             return;
           }
         }
@@ -6069,6 +6400,20 @@
         );
         applyGoalLock();
         updateParentProgressDisplay();
+
+        // Die Meldung am Ende des Menüs ist hier oft nicht im Blickfeld.
+        // Deshalb bestätigt auch der gedrückte Button selbst den Erfolg.
+        const saveBtn = document.getElementById("parentSaveTargetBtn");
+        if (saveBtn) {
+          clearTimeout(saveBtn._saveFeedbackTimer);
+          saveBtn.classList.remove("save-error");
+          saveBtn.classList.add("save-confirmed");
+          saveBtn.textContent = "✓ " + t("Gespeichert");
+          saveBtn._saveFeedbackTimer = setTimeout(() => {
+            saveBtn.classList.remove("save-confirmed");
+            saveBtn.textContent = t("Speichern");
+          }, 1600);
+        }
       }
 
       function parentSetPin() {
@@ -6226,8 +6571,15 @@
       upgradeWrongPoolCompareEntries();
 
       // --- Mode-spezifische Einstellungen (pro Aufgabebereich) ---
-      function modeSettingsKey(mode) {
-        return `mathModeSettings:${mode}`;
+      const savedGrade = appStorage.getItem("mathActiveGrade") || "0";
+      let activeGrade = /^[0-4]$/.test(savedGrade) ? savedGrade : "0";
+      let displayedMode = null;
+      let displayedGrade = null;
+
+      function modeSettingsKey(mode, grade = activeGrade) {
+        return grade === "0"
+          ? `mathModeSettings:${mode}` // bestehende eigene Einstellungen behalten
+          : `mathModeSettings:grade${grade}:${mode}`;
       }
 
       function getAllControlsInArea() {
@@ -6238,7 +6590,7 @@
         );
       }
 
-      function saveModeSettings(mode) {
+      function saveModeSettings(mode, grade = activeGrade) {
         if (!mode) return;
         const settings = {};
         getAllControlsInArea().forEach((el) => {
@@ -6246,57 +6598,119 @@
           else settings[el.id] = el.value;
         });
         try {
-          appStorage.setItem(modeSettingsKey(mode), JSON.stringify(settings));
+          appStorage.setItem(modeSettingsKey(mode, grade), JSON.stringify(settings));
         } catch (e) {}
       }
 
-      function loadModeSettings(mode) {
+      function loadModeSettings(mode, grade = activeGrade) {
         try {
           return JSON.parse(
-            appStorage.getItem(modeSettingsKey(mode)) || "null",
+            appStorage.getItem(modeSettingsKey(mode, grade)) || "null",
           );
         } catch (e) {
           return null;
         }
       }
 
+      function ensureTaskCountOneDefaults() {
+        const migrationKey = "defaults:taskCount1:v69";
+        if (appStorage.getItem(migrationKey) === "1") return;
+
+        const modeSelect = document.getElementById("viewSelect");
+        const modes = modeSelect
+          ? [...modeSelect.options].map((o) => String(o.value || "")).filter(Boolean)
+          : [];
+
+        modes.forEach((mode) => {
+          try {
+            const current = loadModeSettings(mode, "0") || {};
+            if (current.taskCount == null) {
+              current.taskCount = "1";
+              appStorage.setItem(modeSettingsKey(mode, "0"), JSON.stringify(current));
+            }
+          } catch (e) {}
+        });
+
+        const taskCount = document.getElementById("taskCount");
+        if (taskCount) taskCount.value = "1";
+        appStorage.setItem(migrationKey, "1");
+      }
+
+      function migrateLegacyModeExtras() {
+        const marker = "defaults:modeExtras:v1";
+        if (appStorage.getItem(marker) === "1") return;
+        const extras = {
+          onesOnly: appStorage.getItem(ONESONLY_STORAGE_KEY),
+          flashMode: appStorage.getItem(FLASH_MODE_STORAGE_KEY),
+          flashShowSec: appStorage.getItem(FLASH_SHOW_STORAGE_KEY),
+          flashPeekSec: appStorage.getItem(FLASH_PEEK_STORAGE_KEY),
+          timeLimitSec: appStorage.getItem(TIME_LIMIT_STORAGE_KEY),
+        };
+        const modes = [...document.getElementById("viewSelect").options].map(o => o.value);
+        modes.forEach(mode => {
+          const existing = loadModeSettings(mode, "0") || {};
+          for (const [id, value] of Object.entries(extras)) {
+            if (value != null && existing[id] == null) existing[id] = value;
+          }
+          if (Object.keys(existing).length)
+            appStorage.setItem(modeSettingsKey(mode, "0"), JSON.stringify(existing));
+        });
+        appStorage.setItem(marker, "1");
+      }
+
       function normalizeRowSelection(raw) {
-        const normalizeNumbers = (values) => {
-          const rows = [];
-          const seen = new Set();
+        const normalizeTokens = (values) => {
+          const numericRows = [];
+          const seenNumbers = new Set();
+          let hasMixed = false;
+          let hasSquares = false;
+
           values.forEach((value) => {
-            const n =
-              typeof value === "number"
-                ? value
-                : Number(String(value ?? "").trim());
-            if (!Number.isInteger(n) || n < 1 || n > 10 || seen.has(n))
+            const token = String(value ?? "").trim().toLowerCase();
+            if (!token) return;
+
+            if (token === "mixed") {
+              hasMixed = true;
               return;
-            rows.push(n);
-            seen.add(n);
+            }
+            if (token === "squares") {
+              hasSquares = true;
+              return;
+            }
+
+            const n = Number(token);
+            if (!Number.isInteger(n) || n < 1 || n > 10 || seenNumbers.has(n))
+              return;
+            numericRows.push(n);
+            seenNumbers.add(n);
           });
-          if (rows.length === 0) return "mixed";
-          if (rows.length === 1) return rows[0];
-          return rows;
+
+          // "Gemischt" steht für die normalen Reihen insgesamt und ersetzt
+          // deshalb einzelne Reihen. Quadratzahlen dürfen aber zusätzlich aktiv sein.
+          let result = [];
+          if (hasMixed) result.push("mixed");
+          else result.push(...numericRows.sort((a, b) => a - b));
+          if (hasSquares) result.push("squares");
+
+          if (result.length === 0) return "mixed";
+          if (result.length === 1) return result[0];
+          return result;
         };
 
-        if (Array.isArray(raw)) return normalizeNumbers(raw);
+        if (Array.isArray(raw)) return normalizeTokens(raw);
 
         const value = String(raw ?? "mixed").trim();
-        if (!value || value === "mixed") return "mixed";
-        if (value === "squares") return "squares";
+        if (!value) return "mixed";
 
         if (value.startsWith("[") && value.endsWith("]")) {
           try {
             const parsed = JSON.parse(value);
-            if (Array.isArray(parsed)) return normalizeNumbers(parsed);
+            if (Array.isArray(parsed)) return normalizeTokens(parsed);
           } catch (e) {}
         }
 
-        if (value.includes(",")) {
-          return normalizeNumbers(value.split(","));
-        }
-
-        return normalizeNumbers([value]);
+        if (value.includes(",")) return normalizeTokens(value.split(","));
+        return normalizeTokens([value]);
       }
 
       function serializeRowTrainValue(selection) {
@@ -6314,17 +6728,28 @@
 
       function formatRowTrainLabel(selection) {
         const normalized = normalizeRowSelection(selection);
-        if (normalized === "mixed") return t("Gemischt");
-        if (normalized === "squares") return t("Quadratzahlen");
-        if (Array.isArray(normalized))
-          return normalized.map((row) => row + "er").join(", ");
-        return normalized + "er";
+        const oneLabel = (value) => {
+          if (value === "mixed") return t("Gemischt");
+          if (value === "squares") return t("Quadratzahlen");
+          return value + "er";
+        };
+        if (Array.isArray(normalized)) return normalized.map(oneLabel).join(" + ");
+        return oneLabel(normalized);
       }
 
       function setRowChipPressed(chip, active) {
         if (!chip) return;
         chip.classList.toggle("active", !!active);
         chip.setAttribute("aria-pressed", active ? "true" : "false");
+      }
+
+      function updateRowSelectionSummary(selection) {
+        const el = document.getElementById("rowSelectionSummary");
+        if (!el) return;
+        const current = normalizeRowSelection(
+          selection ?? document.getElementById("rowTrain")?.value ?? "mixed",
+        );
+        el.textContent = `${t("Ausgewählt:")} ${formatRowTrainLabel(current)}`;
       }
 
       function syncRowTrainInputFromChips() {
@@ -6335,30 +6760,37 @@
             chip.classList.contains("active") &&
             chip.getAttribute("data-disabled") !== "1",
         );
-        const special = active.find((chip) => {
-          const value = chip.dataset.value;
-          return value === "mixed" || value === "squares";
-        });
 
-        let selection = "mixed";
-        if (special) {
-          selection = special.dataset.value;
-          chips.forEach((chip) => setRowChipPressed(chip, chip === special));
+        const hasMixed = active.some((chip) => chip.dataset.value === "mixed");
+        const hasSquares = active.some((chip) => chip.dataset.value === "squares");
+        const numeric = active
+          .filter((chip) => /^\d+$/.test(String(chip.dataset.value || "")))
+          .map((chip) => chip.dataset.value);
+
+        let selection;
+        if (hasMixed) {
+          // Gemischt + Quadratzahlen ist erlaubt; einzelne Reihen sind bei Gemischt redundant.
+          chips.forEach((chip) => {
+            if (/^\d+$/.test(String(chip.dataset.value || "")))
+              setRowChipPressed(chip, false);
+          });
+          selection = hasSquares ? ["mixed", "squares"] : "mixed";
+        } else if (numeric.length || hasSquares) {
+          selection = normalizeRowSelection([
+            ...numeric,
+            ...(hasSquares ? ["squares"] : []),
+          ]);
         } else {
-          selection = normalizeRowSelection(
-            active.map((chip) => chip.dataset.value),
-          );
-          if (selection === "mixed") {
-            const mixedBtn = document.querySelector("#rowChips .chip-mixed");
-            chips.forEach((chip) =>
-              setRowChipPressed(chip, chip === mixedBtn),
-            );
-          }
+          const mixedBtn = document.querySelector("#rowChips .chip-mixed");
+          setRowChipPressed(mixedBtn, true);
+          selection = "mixed";
         }
 
         if (rowTrainInput)
           rowTrainInput.value = serializeRowTrainValue(selection);
-        return normalizeRowSelection(selection);
+        const normalized = normalizeRowSelection(selection);
+        updateRowSelectionSummary(normalized);
+        return normalized;
       }
 
       function syncRowChipsFromValue(raw) {
@@ -6377,7 +6809,7 @@
         chips.forEach((chip) => {
           const active =
             chip.getAttribute("data-disabled") !== "1" &&
-            selectedValues.has(chip.dataset.value);
+            selectedValues.has(String(chip.dataset.value));
           setRowChipPressed(chip, active);
           if (active) hasActive = true;
         });
@@ -6417,37 +6849,50 @@
         try {
           const key = modeSettingsKey(mode);
           const cur = loadModeSettings(mode) || {};
-          const next = { ...cur, ...patch };
+          const next = { ...patch, ...cur }; // bereits angepasste Werte nie überschreiben
           appStorage.setItem(key, JSON.stringify(next));
         } catch (e) {}
       }
 
+      function updatePresetSelection() {
+        document.querySelectorAll("#presetGroup [data-grade]").forEach(btn => {
+          btn.setAttribute("aria-pressed", btn.dataset.grade === activeGrade ? "true" : "false");
+        });
+      }
+
       function applyPreset(grade) {
-        const g = String(grade || "");
+        const g = String(grade ?? "");
+        if (!/^[0-4]$/.test(g)) return;
+        if (displayedMode) saveModeSettings(displayedMode, displayedGrade);
+        activeGrade = g;
+        appStorage.setItem("mathActiveGrade", g);
+        updatePresetSelection();
         const status = document.getElementById("statusMessage");
         let msg = "";
 
         // Preset-Definitionen (konservativ, aber jederzeit änderbar)
-        if (g === "1") {
+        if (g === "0") {
+          msg = t("Eigene Einstellungen aktiviert.");
+        } else if (g === "1") {
           mergeModeSettings("pyramide", { maxWert: "20" });
           mergeModeSettings("traube", { maxWert: "20" });
 
           // Klasse 1: Fokus auf Zahlzerlegung & sichere Strategien (ohne Zehnerübergang/Entleihen)
           mergeModeSettings("plus", {
             maxWert: "20",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "noCarry",
           });
           mergeModeSettings("minus", {
             maxWert: "20",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "noBorrow",
           });
           mergeModeSettings("mix", {
             maxWert: "20",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
           });
@@ -6455,7 +6900,7 @@
           // ×/÷ ist in Klasse 1 normalerweise noch nicht dran – Preset hält es klein (optional auswählbar)
           mergeModeSettings("mal", {
             maxWert: "20",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
             rowTrain: "mixed",
@@ -6463,7 +6908,7 @@
           });
           mergeModeSettings("squareMal", {
             maxWert: "20",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
             rowTrain: "squares",
@@ -6471,7 +6916,7 @@
           });
           mergeModeSettings("geteilt", {
             maxWert: "20",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
             rowTrain: "mixed",
@@ -6479,7 +6924,7 @@
           });
           mergeModeSettings("squareDiv", {
             maxWert: "20",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
             rowTrain: "squares",
@@ -6487,7 +6932,7 @@
           });
           mergeModeSettings("mixMD", {
             maxWert: "20",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
             rowTrain: "mixed",
@@ -6495,7 +6940,7 @@
           });
           mergeModeSettings("mixALL", {
             maxWert: "20",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
             rowTrain: "mixed",
@@ -6507,7 +6952,7 @@
 
           mergeModeSettings("fehler", {
             maxWert: "20",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
             rowTrain: "mixed",
@@ -6522,26 +6967,26 @@
 
           mergeModeSettings("plus", {
             maxWert: "100",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "noCarry",
           });
           mergeModeSettings("minus", {
             maxWert: "100",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "noBorrow",
           });
           mergeModeSettings("mix", {
             maxWert: "100",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
           });
 
           mergeModeSettings("mal", {
             maxWert: "81",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
             rowTrain: "mixed",
@@ -6549,7 +6994,7 @@
           });
           mergeModeSettings("squareMal", {
             maxWert: "81",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
             rowTrain: "squares",
@@ -6557,7 +7002,7 @@
           });
           mergeModeSettings("geteilt", {
             maxWert: "81",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
             rowTrain: "mixed",
@@ -6565,7 +7010,7 @@
           });
           mergeModeSettings("squareDiv", {
             maxWert: "81",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
             rowTrain: "squares",
@@ -6573,7 +7018,7 @@
           });
           mergeModeSettings("mixMD", {
             maxWert: "81",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
             rowTrain: "mixed",
@@ -6581,7 +7026,7 @@
           });
           mergeModeSettings("mixALL", {
             maxWert: "100",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
             rowTrain: "mixed",
@@ -6593,7 +7038,7 @@
 
           mergeModeSettings("fehler", {
             maxWert: "100",
-            taskCount: "5",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "easy",
             rowTrain: "mixed",
@@ -6609,26 +7054,26 @@
 
           mergeModeSettings("plus", {
             maxWert: "100",
-            taskCount: "10",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
           });
           mergeModeSettings("minus", {
             maxWert: "100",
-            taskCount: "10",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
           });
           mergeModeSettings("mix", {
             maxWert: "100",
-            taskCount: "10",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
           });
 
           mergeModeSettings("mal", {
             maxWert: "100",
-            taskCount: "10",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
             rowTrain: "mixed",
@@ -6636,7 +7081,7 @@
           });
           mergeModeSettings("squareMal", {
             maxWert: "100",
-            taskCount: "10",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
             rowTrain: "squares",
@@ -6644,7 +7089,7 @@
           });
           mergeModeSettings("geteilt", {
             maxWert: "100",
-            taskCount: "10",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
             rowTrain: "mixed",
@@ -6652,7 +7097,7 @@
           });
           mergeModeSettings("squareDiv", {
             maxWert: "100",
-            taskCount: "10",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
             rowTrain: "squares",
@@ -6660,7 +7105,7 @@
           });
           mergeModeSettings("mixMD", {
             maxWert: "100",
-            taskCount: "10",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
             rowTrain: "mixed",
@@ -6668,7 +7113,7 @@
           });
           mergeModeSettings("mixALL", {
             maxWert: "100",
-            taskCount: "10",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
             rowTrain: "mixed",
@@ -6680,7 +7125,7 @@
 
           mergeModeSettings("fehler", {
             maxWert: "100",
-            taskCount: "10",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
             rowTrain: "mixed",
@@ -6696,26 +7141,26 @@
 
           mergeModeSettings("plus", {
             maxWert: "1000",
-            taskCount: "12",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
           });
           mergeModeSettings("minus", {
             maxWert: "1000",
-            taskCount: "12",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
           });
           mergeModeSettings("mix", {
             maxWert: "1000",
-            taskCount: "12",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
           });
 
           mergeModeSettings("mal", {
             maxWert: "1000",
-            taskCount: "12",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
             rowTrain: "mixed",
@@ -6723,7 +7168,7 @@
           });
           mergeModeSettings("squareMal", {
             maxWert: "1000",
-            taskCount: "12",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
             rowTrain: "squares",
@@ -6731,7 +7176,7 @@
           });
           mergeModeSettings("geteilt", {
             maxWert: "1000",
-            taskCount: "12",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
             rowTrain: "mixed",
@@ -6739,7 +7184,7 @@
           });
           mergeModeSettings("squareDiv", {
             maxWert: "1000",
-            taskCount: "12",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
             rowTrain: "squares",
@@ -6747,7 +7192,7 @@
           });
           mergeModeSettings("mixMD", {
             maxWert: "1000",
-            taskCount: "12",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
             rowTrain: "mixed",
@@ -6755,7 +7200,7 @@
           });
           mergeModeSettings("mixALL", {
             maxWert: "1000",
-            taskCount: "12",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
             rowTrain: "mixed",
@@ -6767,7 +7212,7 @@
 
           mergeModeSettings("fehler", {
             maxWert: "1000",
-            taskCount: "12",
+            taskCount: "1",
             taskFormat: "standard",
             difficulty: "mixed",
             rowTrain: "mixed",
@@ -6779,9 +7224,8 @@
           msg = "Unbekanntes Preset.";
         }
 
-        // Zum passenden Modus springen: ± Mix (damit man sofort etwas sieht)
-        const vs = document.getElementById("viewSelect");
-        if (vs) vs.value = "mix";
+
+        // Vorhandene Klassenprofile und die aktuell gewählte Aufgabenart bewahren.
         wechselAnsicht(true);
 
         if (status && msg) status.textContent = msg;
@@ -6791,9 +7235,19 @@
 
       function applyModeSettings(mode) {
         const s = loadModeSettings(mode);
-        if (!s) return;
 
-        Object.keys(s).forEach((id) => {
+        // Jedes Profil beginnt bei den HTML-Standardwerten. So übernimmt eine
+        // bisher unbenutzte Aufgabenart keine Werte aus der vorigen Auswahl.
+        getAllControlsInArea().forEach(el => {
+          if (el.type === "checkbox") el.checked = el.defaultChecked;
+          else if (el.tagName === "SELECT") {
+            const selected = [...el.options].find(o => o.defaultSelected);
+            if (selected || el.options[0]) el.value = (selected || el.options[0]).value;
+          } else el.value = el.defaultValue;
+        });
+        document.getElementById("maxWert").value = String(getDefaultMaxForMode(mode));
+
+        Object.keys(s || {}).forEach((id) => {
           const el = document.getElementById(id);
           if (!el) return;
 
@@ -6821,6 +7275,7 @@
         });
 
         normalizeMulProfileControls();
+        updateControlsVisibility();
         updateViewSelectLabels();
         updateOperandDigitsVisibility();
         updateParentConfettiButton();
@@ -7045,6 +7500,7 @@
       }
 
       function mgSetActiveInput(inp) {
+        if (window.__appUpdateDialogOpen) return;
         if (!inp) return;
         mgActiveInput = inp;
 
@@ -7230,16 +7686,10 @@
         const lastMode = appStorage.getItem("mathLastMode");
         if (lastMode) document.getElementById("viewSelect").value = lastMode;
 
+        ensureTaskCountOneDefaults();
+        migrateLegacyModeExtras();
         wireModeSettingListeners();
-
-        syncOnesOnlyUI();
-
-        try {
-          syncFlashUI();
-        } catch (e) {}
-        try {
-          syncTimeLimitUI();
-        } catch (e) {}
+        updatePresetSelection();
 
         // Prevent details toggle when interacting with the Adventure dropdown in the summary
         const advSel = document.getElementById("viewSelect");
@@ -7579,6 +8029,7 @@
       }
 
       function focusWithoutAutofill(el, opts = {}) {
+        if (window.__appUpdateDialogOpen) return;
         if (!el || el.disabled) return;
         const moveCaretToEnd = opts && opts.moveCaretToEnd !== false;
 
@@ -7708,6 +8159,7 @@
       }
 
       function focusFirstTaskInput(openKeyboard = false) {
+        if (window.__appUpdateDialogOpen) return;
         const settingsOpen = !!document.getElementById("settingsDetails")?.open;
         if (settingsOpen) return;
 
@@ -8354,6 +8806,46 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         }
       }
 
+      function presetDefaultsForMode(grade, mode) {
+        if (grade === "0") return null;
+        const figures = mode === "pyramide" || mode === "traube";
+        const doubleHalf = mode === "double" || mode === "half";
+        const tableModes = ["mal", "geteilt", "squareMal", "squareDiv", "mixMD", "mixALL", "fehler"].includes(mode);
+        const max = grade === "1" ? "20"
+          : grade === "2" ? (tableModes && mode !== "mixALL" && mode !== "fehler" ? "81" : "100")
+          : grade === "3" ? (doubleHalf ? "200" : "100")
+          : doubleHalf ? "2000" : "1000";
+        const defaults = { maxWert: max, taskCount: "1" };
+        if (figures || doubleHalf) return defaults;
+        defaults.taskFormat = "standard";
+        defaults.difficulty = grade === "1" || grade === "2"
+          ? (mode === "plus" ? "noCarry" : mode === "minus" ? "noBorrow" : "easy")
+          : "mixed";
+        if (tableModes) {
+          defaults.rowTrain = mode === "squareMal" || mode === "squareDiv" ? "squares" : "mixed";
+          defaults.mulProfile = grade === "1" || grade === "2" ? "table9" : grade === "3" ? "table" : "free";
+        }
+        return defaults;
+      }
+
+      function resetSelectedModeSettings() {
+        const select = document.getElementById("viewSelect");
+        const mode = select?.value;
+        if (!mode) return;
+        const name = select.selectedOptions[0]?.dataset.baseLabel ||
+          select.selectedOptions[0]?.textContent.replace(/\s*\(0[–-]\d+\)\s*$/, "").trim() || mode;
+        if (!confirm(t("Einstellungen für {name} wirklich zurücksetzen?").replace("{name}", name))) return;
+        appStorage.removeItem(modeSettingsKey(mode));
+        const defaults = presetDefaultsForMode(activeGrade, mode);
+        if (defaults) appStorage.setItem(modeSettingsKey(mode), JSON.stringify(defaults));
+        updateControlsVisibility();
+        applyModeSettings(mode);
+        initGame(false);
+        const message = t("Einstellungen für {name} zurückgesetzt.").replace("{name}", name);
+        document.getElementById("resetSelectedModeStatus").textContent = message;
+        document.getElementById("statusMessage").textContent = message;
+      }
+
       function resetModeSettingsToDefault() {
         if (
           confirm(
@@ -8381,9 +8873,12 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           ];
           modes.forEach((mode) => {
             try {
-              appStorage.removeItem(modeSettingsKey(mode));
+              for (const grade of ["0", "1", "2", "3", "4"])
+                appStorage.removeItem(modeSettingsKey(mode, grade));
             } catch (e) {}
           });
+          activeGrade = "0";
+          appStorage.removeItem("mathActiveGrade");
 
           // Setze letzten Modus zurück
           appStorage.removeItem("mathLastMode");
@@ -8463,6 +8958,12 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         ) {
           parts.push(difficulty.selectedOptions[0].textContent.trim());
         }
+
+        const rowGroup = document.getElementById("rowGroup");
+        if (rowGroup && rowGroup.style.display !== "none") {
+          parts.push(formatRowTrainLabel(getRowTrain()));
+        }
+
         target.textContent = parts.join(" · ");
       }
 
@@ -8632,15 +9133,19 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
       function wechselAnsicht(shouldScroll = true) {
         const mode = document.getElementById("viewSelect").value;
-        const prevMode = appStorage.getItem("mathLastMode") || mode;
+        const resetStatus = document.getElementById("resetSelectedModeStatus");
+        if (resetStatus) resetStatus.textContent = "";
 
-        // Vor dem Umschalten: Einstellungen des bisherigen Modus sichern
-        if (prevMode !== mode) saveModeSettings(prevMode);
+        // Nur das wirklich angezeigte Profil sichern, nie ein altes beim Start.
+        if (displayedMode && (displayedMode !== mode || displayedGrade !== activeGrade))
+          saveModeSettings(displayedMode, displayedGrade);
         appStorage.setItem("mathLastMode", mode);
 
         // UI je Modus (Optionen/Labels) aktualisieren, dann gespeicherte Modus-Settings anwenden
         updateControlsVisibility();
         applyModeSettings(mode);
+        displayedMode = mode;
+        displayedGrade = activeGrade;
 
         updateViewSelectLabels();
 
@@ -8767,7 +9272,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         const mode = document.getElementById("viewSelect")?.value;
         if (isFlashActiveForMode(mode)) return 1;
         const v = parseInt(document.getElementById("taskCount").value, 10);
-        return isNaN(v) ? 3 : Math.max(1, Math.min(20, v));
+        return isNaN(v) ? 1 : Math.max(1, Math.min(20, v));
       }
       function getTaskFormat() {
         const mode = document.getElementById("viewSelect")?.value;
@@ -9236,9 +9741,8 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
               } else if (mode === "half") {
                 task = makeHalfTask(max);
               } else if (mode === "mix") {
-                const op = zufallszahl(0, 1) === 0 ? "plus" : "minus";
                 task = makeRandomTask(
-                  op,
+                  "mix",
                   max,
                   fmt,
                   effDiff,
@@ -9391,6 +9895,14 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         const blank = '<span class="pBlank"></span>';
         const sblank = '<span class="pSmallBlank"></span>';
 
+        if (task.operandCount === 3) {
+          if (task.fmt === "wahrfalsch")
+            return `${task.a} ${task.sym} ${task.b} ${task.sym2} ${task.c} = ${task.shownRes} &nbsp;&nbsp; ${sblank} Wahr &nbsp;&nbsp; ${sblank} Falsch`;
+          if (task.fmt === "operator")
+            return `${task.a} ${task.missingOp === 0 ? blank : task.sym} ${task.b} ${task.missingOp === 1 ? blank : task.sym2} ${task.c} = ${task.res}`;
+          return `${task.missing === 0 ? blank : task.a} ${task.sym} ${task.missing === 1 ? blank : task.b} ${task.sym2} ${task.missing === 2 ? blank : task.c} = ${task.missing === 3 ? blank : task.res}`;
+        }
+
         if (task.fmt === "wahrfalsch") {
           return `${task.a} ${task.sym} ${task.b} = ${task.shownRes} &nbsp;&nbsp; ${sblank} Wahr &nbsp;&nbsp; ${sblank} Falsch`;
         }
@@ -9429,53 +9941,57 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       }
 
       function rowChipClick(btn) {
-        if (btn.hasAttribute('data-disabled') && btn.getAttribute('data-disabled') === '1') {
+        if (
+          btn.hasAttribute("data-disabled") &&
+          btn.getAttribute("data-disabled") === "1"
+        ) {
           return;
         }
 
         const value = String(btn.dataset.value || "mixed");
         const chips = [...document.querySelectorAll("#rowChips .row-chip")];
+        const mixedBtn = document.querySelector("#rowChips .chip-mixed");
+        const squaresBtn = document.querySelector("#rowChips .chip-squares");
 
-        if (value === "mixed" || value === "squares") {
-          chips.forEach((chip) => setRowChipPressed(chip, chip === btn));
-        } else {
-          const wasActive = btn.classList.contains("active");
+        if (value === "mixed") {
+          // Gemischt wählt alle normalen Reihen. Quadratzahlen bleiben als Zusatz erhalten.
           chips.forEach((chip) => {
-            if (
-              chip.dataset.value === "mixed" ||
-              chip.dataset.value === "squares"
-            ) {
-              setRowChipPressed(chip, false);
-            }
+            const chipValue = String(chip.dataset.value || "");
+            if (/^\d+$/.test(chipValue)) setRowChipPressed(chip, false);
           });
-          setRowChipPressed(btn, !wasActive);
-
-          const anyNumericActive = chips.some((chip) => {
-            const chipValue = chip.dataset.value;
-            return (
-              chip.classList.contains("active") &&
-              chip.getAttribute("data-disabled") !== "1" &&
-              chipValue !== "mixed" &&
-              chipValue !== "squares"
-            );
-          });
-          if (!anyNumericActive) {
-            const mixedBtn = document.querySelector("#rowChips .chip-mixed");
-            setRowChipPressed(mixedBtn, true);
-          }
+          setRowChipPressed(mixedBtn, true);
+        } else if (value === "squares") {
+          // Quadratzahlen sind bewusst KEINE Exklusiv-Auswahl mehr.
+          setRowChipPressed(squaresBtn, !squaresBtn.classList.contains("active"));
+        } else {
+          // Einzelne Reihe: Gemischt ausschalten, andere Reihen + Quadratzahlen behalten.
+          setRowChipPressed(mixedBtn, false);
+          setRowChipPressed(btn, !btn.classList.contains("active"));
         }
+
+        const anyBaseSelection = chips.some((chip) => {
+          if (chip.getAttribute("data-disabled") === "1") return false;
+          const chipValue = String(chip.dataset.value || "");
+          return (
+            chip.classList.contains("active") &&
+            (chipValue === "mixed" || /^\d+$/.test(chipValue))
+          );
+        });
+        const squaresActive = Boolean(squaresBtn?.classList.contains("active"));
+
+        // Wenn wirklich gar nichts ausgewählt ist, sinnvoll auf Gemischt zurückfallen.
+        // "Nur Quadratzahlen" ist dagegen weiterhin eine gültige Auswahl.
+        if (!anyBaseSelection && !squaresActive) setRowChipPressed(mixedBtn, true);
 
         syncRowTrainInputFromChips();
 
-        const modeSelect = document.getElementById('viewSelect');
-        if (modeSelect && typeof saveModeSettings === 'function') {
+        const modeSelect = document.getElementById("viewSelect");
+        if (modeSelect && typeof saveModeSettings === "function") {
           saveModeSettings(modeSelect.value);
         }
         updateSettingsSummary();
-        
-        if (typeof initGame === 'function') {
-          initGame(true);
-        }
+
+        if (typeof initGame === "function") initGame(true);
       }
 
       function initGame(shouldScroll = true, fromRefresh = false) {
@@ -10041,12 +10557,8 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         const sym1 = ops[0] === "plus" ? "+" : "\u2212";
         const sym2 = ops[1] === "plus" ? "+" : "\u2212";
 
-        let missing;
-        if (diff === "mixed") {
-          missing = zufallszahl(0, 3);
-        } else {
-          missing = 3;
-        }
+        // Die Schwierigkeit bestimmt nur die Zahlen, das Aufgabenformat die Lücke.
+        const missing = 3;
 
         const key = `3op|${ops[0]}${ops[1]}|${a}|${b}|${c}|${res}|${missing}`;
         return {
@@ -10130,6 +10642,30 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           getOperandCount() === 3 &&
           (mode === "plus" || mode === "minus" || mode === "mix")
         ) {
+          if (fmt === "compare") {
+            const left = makeThreeOperandTask(mode, max, effDiff);
+            const right = makeThreeOperandTask(mode, max, effDiff);
+            const leftTxt = `${left.a} ${left.sym} ${left.b} ${left.sym2} ${left.c}`;
+            const rightTxt = `${right.a} ${right.sym} ${right.b} ${right.sym2} ${right.c}`;
+            const correct = left.res === right.res ? "=" : left.res > right.res ? ">" : "<";
+            return {
+              op: "compare", fmt: "compare", leftTxt, rightTxt,
+              leftVal: left.res, rightVal: right.res, correct,
+              key: `cmp3|${leftTxt}|${rightTxt}|${correct}`,
+            };
+          }
+          if (fmt === "operator") {
+            let base, missingOp, attempts = 0;
+            do {
+              base = makeThreeOperandTask(mode, max, effDiff);
+              missingOp = zufallszahl(0, 1);
+            } while (++attempts < 100 && (missingOp === 0 ? base.b : base.c) === 0);
+            return {
+              ...base, fmt: "operator", missingOp,
+              correctOp: missingOp === 0 ? base.sym : base.sym2,
+              key: `opmiss3|${base.a}|${base.b}|${base.c}|${base.sym}|${base.sym2}|${missingOp}`,
+            };
+          }
           if (fmt === "wahrfalsch") {
             const base = makeThreeOperandTask(mode, max, effDiff);
             const makeWrong = zufallszahl(0, 1) === 1;
@@ -10152,7 +10688,12 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
               key: wfKey,
             };
           }
-          return makeThreeOperandTask(mode, max, effDiff);
+          const base = makeThreeOperandTask(mode, max, effDiff);
+          if (fmt === "faktor") {
+            const missing = zufallszahl(0, 2);
+            return { ...base, fmt: "faktor", missing, key: `${base.key}|faktor|${missing}` };
+          }
+          return base;
         }
 
         if (fmt === "verdoppeln") return makeDoubleTask(max);
@@ -10175,7 +10716,13 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
               rowTrain,
               mulProfile,
             );
-          return makeStandardTask(realOp, max, effDiff, rowTrain, mulProfile);
+          const base = applyOpRanges(
+            makeStandardTask(realOp, max, effDiff, rowTrain, mulProfile),
+            realOp, max, effDiff, rowTrain, mulProfile,
+          );
+          const missing = zufallszahl(0, 1);
+          return { ...base, fmt: "faktor", missing,
+            key: `${realOp}|faktor|${base.a}|${base.b}|${base.res}|${missing}` };
         }
 
         if (fmt === "operator")
@@ -11013,22 +11560,8 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           a = res * b;
         }
 
-        let missing;
-        // Standard-Anzeige: bei +/− ist nur im Modus "Gemischt" eine der drei Stellen zufällig leer.
-        // In allen anderen Schwierigkeits-Modi (Standard / (ohne|mit) Übergang / (ohne|mit) Entleihen)
-        // wird immer das Ergebnis gesucht – sonst würde man Umkehraufgaben (Minus) brauchen.
-        if (
-          op === "mal" ||
-          op === "geteilt" ||
-          op === "squareMal" ||
-          op === "squareDiv"
-        ) {
-          missing = 2;
-        } else if (op === "plus" || op === "minus") {
-          missing = diff === "mixed" ? zufallszahl(0, 2) : 2;
-        } else {
-          missing = zufallszahl(0, 2);
-        }
+        // "Ergebnis fehlt" bedeutet bei jeder Rechenart: Lücke nach dem =.
+        const missing = 2;
         const key = `${op}|std|${a}|${b}|${res}|${missing}`;
         return { op, fmt: "standard", a, b, res, sym, missing, key };
       }
@@ -11124,8 +11657,16 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           Array.isArray(allowedOps) && allowedOps.length
             ? allowedOps
             : ["plus", "minus", "mal", "geteilt"];
-        const realOp = ops[zufallszahl(0, ops.length - 1)];
-        const base = makeStandardTask(realOp, max, diff, rowTrain, mulProfile);
+        let realOp, base, attempts = 0;
+        // Ein Zeichen soll eindeutig richtig sein, auch bei 0 und 1.
+        do {
+          realOp = ops[zufallszahl(0, ops.length - 1)];
+          base = makeStandardTask(realOp, max, diff, rowTrain, mulProfile);
+          const candidates = [base.a + base.b, base.a - base.b, base.a * base.b];
+          if (base.b !== 0 && base.a % base.b === 0)
+            candidates.push(base.a / base.b);
+          if (candidates.filter((value) => value === base.res).length === 1) break;
+        } while (++attempts < 100);
         const symbolMap = {
           plus: "+",
           minus: "−",
@@ -11222,6 +11763,20 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
         // --- 3-Operanden-Aufgaben ---
         if (task.operandCount === 3) {
+          if (task.fmt === "operator") {
+            const opSelect = `<select class="inlineSelect" onchange="pruefeOperator(this)">
+              <option value="" selected>?</option><option value="+">+</option>
+              <option value="−">−</option></select>`;
+            aufg.innerHTML = `
+              <div class="stein">${task.a}</div>
+              ${task.missingOp === 0 ? opSelect : `<span>${task.sym}</span>`}
+              <div class="stein">${task.b}</div>
+              ${task.missingOp === 1 ? opSelect : `<span>${task.sym2}</span>`}
+              <div class="stein">${task.c}</div><span>=</span><div class="stein">${task.res}</div>`;
+            container.appendChild(aufg);
+            applyTaskAccessibility(aufg, task);
+            return;
+          }
           if (task.fmt === "wahrfalsch") {
             aufg.innerHTML = `
           <div class="stein">${task.a}</div>
@@ -11462,16 +12017,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             streak = 0;
             if (aufg.dataset.addedWrong !== "1") {
               aufg.dataset.addedWrong = "1";
-              addWrongTask({
-                op: "operator",
-                fmt: "operator",
-                a: t.a,
-                b: t.b,
-                res: t.res,
-                sym: "?",
-                missing: -1,
-                key: t.key,
-              });
+              addWrongTask(t);
               recordOutcome(false);
             }
             const msg = document.getElementById("statusMessage");
@@ -12567,9 +13113,51 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       }
     </script>
 
+
+    <!-- Beim ersten Android-Aufruf: Browser oder PWA installieren -->
+    <div
+      class="firstInstallChoice"
+      id="firstInstallChoice"
+      role="dialog"
+      aria-modal="true"
+      aria-hidden="true"
+      aria-labelledby="firstInstallChoiceTitle"
+    >
+      <div class="firstInstallChoiceCard">
+        <img
+          class="firstInstallChoiceIcon"
+          src="icons/icon-192.png"
+          alt=""
+          aria-hidden="true"
+        />
+        <div class="firstInstallChoiceTitle" id="firstInstallChoiceTitle">
+          Mathe Guru öffnen oder installieren?
+        </div>
+        <div class="firstInstallChoiceText" id="firstInstallChoiceText">
+          Du kannst die Seite normal in Chrome öffnen oder als Web-App installieren.
+        </div>
+        <div class="firstInstallChoiceActions">
+          <button
+            class="firstInstallChoiceBtn browser"
+            id="firstInstallBrowserBtn"
+            type="button"
+          >
+            🌐 In Chrome öffnen
+          </button>
+          <button
+            class="firstInstallChoiceBtn"
+            id="firstInstallAppBtn"
+            type="button"
+          >
+            📲 App installieren
+          </button>
+        </div>
+      </div>
+    </div>
+
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v64";
+        const SW_VERSION = "rechenguru-lgi-v81";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -13192,22 +13780,286 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       })();
     </script>
 
-    <script>
-      /* Update-Prüfung v63 – vergleicht die veröffentlichte GitHub-Pages-Version. */
-      (function () {
-        const LOCAL_VERSION = 63;
-        const RELEASE_INDEX = "https://parip69.github.io/RechenGuruLGI_AndroidAPK/";
 
-        function versionFromHtml(html) {
-          const m = String(html || "").match(/data-app-version=["'](\d+)["']/i);
-          if (m) return Number(m[1]);
-          const m2 = String(html || "").match(/id=["']appVersion["'][^>]*>\s*(\d+)/i);
-          return m2 ? Number(m2[1]) : NaN;
+    <script>
+      /* Erstaufruf-Auswahl v69: In Chrome öffnen oder als PWA installieren. */
+      (function () {
+        const FIRST_INSTALL_CHOICE_KEY = "RechenGuruLGI_firstInstallChoice_v69";
+        let firstChoiceTimer = null;
+
+        function firstChoiceIsAndroid() {
+          return /Android/i.test(navigator.userAgent || "");
         }
 
-        function isAndroidWebView() {
+        function firstChoiceIsChrome() {
           const ua = navigator.userAgent || "";
-          return /^file:\/\/\/android_asset\//i.test(location.href) || /\bwv\b/i.test(ua) || /; wv\)/i.test(ua);
+          return /Chrome\//i.test(ua) && !/EdgA|OPR|SamsungBrowser|DuckDuckGo/i.test(ua);
+        }
+
+        function firstChoiceIsInAppBrowser() {
+          const ua = navigator.userAgent || "";
+          return /FBAN|FBAV|Instagram|Line\/|Snapchat|TikTok|MicroMessenger|Telegram|WhatsApp|Messenger|\bwv\b|; wv\)/i.test(ua);
+        }
+
+        function firstChoiceIsStandalone() {
+          return (
+            window.matchMedia("(display-mode: fullscreen)").matches ||
+            window.matchMedia("(display-mode: standalone)").matches ||
+            window.matchMedia("(display-mode: minimal-ui)").matches ||
+            window.navigator.standalone === true
+          );
+        }
+
+        function firstChoiceIsNativeApk() {
+          try {
+            if (typeof getAndroidBridge === "function" && getAndroidBridge()) return true;
+          } catch (_) {}
+          return String(location.href || "").indexOf("file:///android_asset/") === 0;
+        }
+
+        function firstChoiceRequestedInstall() {
+          try {
+            return new URL(location.href).searchParams.get("install") === "1";
+          } catch (_) {
+            return false;
+          }
+        }
+
+        function firstChoiceAlreadyHandled() {
+          try {
+            return localStorage.getItem(FIRST_INSTALL_CHOICE_KEY) === "1";
+          } catch (_) {
+            return false;
+          }
+        }
+
+        function firstChoiceMarkHandled() {
+          try {
+            localStorage.setItem(FIRST_INSTALL_CHOICE_KEY, "1");
+          } catch (_) {}
+          try {
+            const url = new URL(location.href);
+            if (url.searchParams.has("install")) {
+              url.searchParams.delete("install");
+              history.replaceState(null, "", url.toString());
+            }
+          } catch (_) {}
+        }
+
+        function firstChoiceClose(markHandled = true) {
+          if (firstChoiceTimer) {
+            clearTimeout(firstChoiceTimer);
+            firstChoiceTimer = null;
+          }
+          const modal = document.getElementById("firstInstallChoice");
+          if (modal) {
+            modal.classList.remove("show");
+            modal.setAttribute("aria-hidden", "true");
+          }
+          if (markHandled) firstChoiceMarkHandled();
+        }
+
+        function firstChoiceHideKeyboard() {
+          try {
+            if (typeof mgHideKeypad === "function") mgHideKeypad();
+          } catch (_) {}
+          try {
+            document.activeElement?.blur?.();
+          } catch (_) {}
+        }
+
+        function firstChoiceShow(force = false) {
+          if (!firstChoiceIsAndroid() || firstChoiceIsNativeApk() || firstChoiceIsStandalone()) return;
+          if (!force && firstChoiceAlreadyHandled()) return;
+
+          const modal = document.getElementById("firstInstallChoice");
+          const browserBtn = document.getElementById("firstInstallBrowserBtn");
+          const textEl = document.getElementById("firstInstallChoiceText");
+          if (!modal) return;
+
+          if (browserBtn) {
+            browserBtn.textContent = firstChoiceIsChrome()
+              ? "🌐 In Chrome geöffnet lassen"
+              : "🌐 In Chrome öffnen";
+          }
+
+          if (textEl) {
+            textEl.textContent = firstChoiceIsInAppBrowser()
+              ? "Öffne Mathe Guru in Chrome oder installiere es dort als Web-App."
+              : "Du kannst Mathe Guru normal in Chrome benutzen oder als Web-App installieren.";
+          }
+
+          firstChoiceHideKeyboard();
+          modal.classList.add("show");
+          modal.setAttribute("aria-hidden", "false");
+        }
+
+        function firstChoiceChromeIntent(installAfterOpen) {
+          const target = new URL(location.href);
+          if (installAfterOpen) target.searchParams.set("install", "1");
+          else target.searchParams.delete("install");
+
+          if (!firstChoiceIsAndroid() || firstChoiceIsChrome()) {
+            if (installAfterOpen) firstChoiceTryInstall();
+            else firstChoiceClose(true);
+            return;
+          }
+
+          const hostAndPath = target.host + target.pathname + target.search;
+          const fallback = encodeURIComponent(target.toString());
+          const intent =
+            "intent://" +
+            hostAndPath +
+            "#Intent;scheme=https;package=com.android.chrome;" +
+            "S.browser_fallback_url=" +
+            fallback +
+            ";end";
+
+          firstChoiceMarkHandled();
+          location.href = intent;
+        }
+
+        async function firstChoiceTryInstall() {
+          const installEvent = window.__deferredPwaPrompt;
+
+          if (installEvent && typeof installEvent.prompt === "function") {
+            firstChoiceClose(true);
+            try {
+              installEvent.prompt();
+              await installEvent.userChoice;
+            } catch (_) {}
+            window.__deferredPwaPrompt = null;
+            return;
+          }
+
+          if (firstChoiceIsInAppBrowser() || !firstChoiceIsChrome()) {
+            firstChoiceChromeIntent(true);
+            return;
+          }
+
+          firstChoiceClose(true);
+          const installBtn = document.getElementById("installBtn");
+          const hint = document.getElementById("installHint");
+          if (installBtn) {
+            installBtn.style.display = "";
+            installBtn.textContent = "📲 App installieren";
+          }
+          if (hint) {
+            hint.style.display = "";
+            hint.textContent =
+              "Falls kein Installationsfenster erscheint: Chrome-Menü ⋮ → App installieren.";
+          }
+        }
+
+        window.addEventListener("beforeinstallprompt", () => {
+          setTimeout(() => {
+            if (firstChoiceRequestedInstall()) firstChoiceShow(true);
+            else firstChoiceShow(false);
+          }, 0);
+        });
+
+        window.addEventListener("appinstalled", () => {
+          firstChoiceMarkHandled();
+          firstChoiceClose(false);
+        });
+
+        document.addEventListener("DOMContentLoaded", () => {
+          const modal = document.getElementById("firstInstallChoice");
+          const browserBtn = document.getElementById("firstInstallBrowserBtn");
+          const installBtn = document.getElementById("firstInstallAppBtn");
+
+          modal?.addEventListener("click", (event) => {
+            event.stopPropagation();
+          });
+
+          browserBtn?.addEventListener("click", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            firstChoiceChromeIntent(false);
+          });
+
+          installBtn?.addEventListener("click", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            firstChoiceTryInstall();
+          });
+
+          if (!firstChoiceIsAndroid() || firstChoiceIsNativeApk() || firstChoiceIsStandalone()) return;
+
+          const forceInstall = firstChoiceRequestedInstall();
+          const delay = firstChoiceIsInAppBrowser() ? 250 : 1200;
+          firstChoiceTimer = setTimeout(() => {
+            firstChoiceShow(forceInstall);
+          }, delay);
+        });
+      })();
+    </script>
+
+    <script>
+      /* Update-Prüfung v66 – sichtbarer Dialog, Fokus-/Tastatur-Sperre während der Prüfung. */
+      (function () {
+        const WEB_FALLBACK_VERSION = 69;
+        const RELEASE_INDEX = "https://parip69.github.io/RechenGuruLGI_AndroidAPK/";
+        window.__appUpdateDialogOpen = false;
+
+        function versionNumber(value) {
+          const text = String(value ?? "").trim();
+          if (!text) return NaN;
+          const matches = text.match(/\d+/g);
+          if (!matches || !matches.length) return NaN;
+          return Number(matches[matches.length - 1]);
+        }
+
+        function getInstalledVersion() {
+          try {
+            if (typeof getCurrentAppVersion === "function") {
+              const detected = versionNumber(getCurrentAppVersion());
+              if (Number.isFinite(detected)) return detected;
+            }
+          } catch (_) {}
+
+          const footer = document.getElementById("appFooter");
+          const fromFooter = versionNumber(footer?.getAttribute("data-app-version"));
+          return Number.isFinite(fromFooter) ? fromFooter : WEB_FALLBACK_VERSION;
+        }
+
+        function versionFromHtml(html) {
+          const text = String(html || "");
+          const patterns = [
+            /data-app-version=["']([^"']+)["']/i,
+            /id=["']appVersion["'][^>]*>\s*([^<\s]+)/i,
+            /Bachner\s+Gerhard\s*&\s*Isabella\s*-\s*Ver\.\s*([0-9]+)/i,
+          ];
+          for (const pattern of patterns) {
+            const match = text.match(pattern);
+            if (!match) continue;
+            const parsed = versionNumber(match[1]);
+            if (Number.isFinite(parsed)) return parsed;
+          }
+          return NaN;
+        }
+
+        function isAndroidApp() {
+          try {
+            if (typeof isAndroidAppWebView === "function" && isAndroidAppWebView()) return true;
+            if (typeof getAndroidBridge === "function" && getAndroidBridge()) return true;
+          } catch (_) {}
+          const ua = navigator.userAgent || "";
+          return (
+            String(location.href || "").indexOf("file:///android_asset/") === 0 ||
+            /\bwv\b/i.test(ua) ||
+            /; wv\)/i.test(ua)
+          );
+        }
+
+        function closeKeyboardAndTaskFocus() {
+          try {
+            if (typeof mgHideKeypad === "function") mgHideKeypad();
+          } catch (_) {}
+          try {
+            const active = document.activeElement;
+            if (active && typeof active.blur === "function") active.blur();
+          } catch (_) {}
         }
 
         function showUpdateStatus(text, kind) {
@@ -13215,78 +14067,291 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           if (!el) return;
           el.textContent = text;
           el.classList.add("show");
-          el.style.borderColor = kind === "ok" ? "rgba(45,106,79,.55)" : kind === "new" ? "rgba(37,99,235,.55)" : "rgba(188,71,73,.55)";
+          el.style.borderColor =
+            kind === "ok"
+              ? "rgba(45,106,79,.55)"
+              : kind === "new"
+                ? "rgba(37,99,235,.55)"
+                : "rgba(188,71,73,.55)";
+        }
+
+        function hideCompactStatus() {
+          const el = document.getElementById("appUpdateStatus");
+          if (el) el.classList.remove("show");
+        }
+
+        function setDialogContent({ title, text, kind = "ok", busy = false, installVersion = null }) {
+          const dialog = document.getElementById("appUpdateDialog");
+          const titleEl = document.getElementById("appUpdateDialogTitle");
+          const textEl = document.getElementById("appUpdateDialogText");
+          const iconEl = document.getElementById("appUpdateDialogIcon");
+          const okBtn = document.getElementById("appUpdateDialogOk");
+          const installBtn = document.getElementById("appUpdateDialogInstall");
+          if (!dialog || !titleEl || !textEl || !iconEl || !okBtn || !installBtn) return;
+
+          titleEl.textContent = title || "Update-Prüfung";
+          textEl.textContent = text || "";
+          iconEl.textContent = busy ? "⏳" : kind === "new" ? "⬆️" : kind === "error" ? "⚠️" : "✅";
+          okBtn.disabled = !!busy;
+          okBtn.style.display = busy ? "none" : "";
+
+          if (Number.isFinite(installVersion)) {
+            installBtn.style.display = "";
+            installBtn.disabled = false;
+            installBtn.dataset.version = String(installVersion);
+          } else {
+            installBtn.style.display = "none";
+            installBtn.disabled = false;
+            delete installBtn.dataset.version;
+          }
+        }
+
+        function openUpdateDialog(options) {
+          closeKeyboardAndTaskFocus();
+          window.__appUpdateDialogOpen = true;
+          const dialog = document.getElementById("appUpdateDialog");
+          if (!dialog) return;
+          setDialogContent(options || {});
+          dialog.classList.add("show");
+          dialog.setAttribute("aria-hidden", "false");
+          document.body.style.overflow = "hidden";
+        }
+
+        function closeUpdateDialog() {
+          const dialog = document.getElementById("appUpdateDialog");
+          if (dialog) {
+            dialog.classList.remove("show");
+            dialog.setAttribute("aria-hidden", "true");
+          }
+          document.body.style.overflow = "";
+          window.__appUpdateDialogOpen = false;
+          hideCompactStatus();
+          // Absichtlich KEIN automatischer Rückfokus auf die Aufgabe.
+          // Die Tastatur öffnet sich erst wieder, wenn die Aufgabe angetippt wird.
+          closeKeyboardAndTaskFocus();
+        }
+
+        function updateUrls() {
+          const stamp = Date.now();
+          const urls = [];
+
+          if (
+            location.protocol === "https:" &&
+            location.hostname === "parip69.github.io" &&
+            location.pathname.indexOf("/RechenGuruLGI_AndroidAPK/") === 0
+          ) {
+            urls.push("./?update-check=" + stamp);
+          }
+
+          urls.push(RELEASE_INDEX + "?update-check=" + stamp);
+          urls.push(RELEASE_INDEX + "index.html?update-check=" + stamp);
+          return Array.from(new Set(urls));
+        }
+
+        async function fetchRemoteVersion() {
+          let lastError = null;
+          for (const url of updateUrls()) {
+            const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+            const timeout = controller ? setTimeout(() => controller.abort(), 12000) : null;
+            try {
+              const response = await fetch(url, {
+                cache: "no-store",
+                credentials: "omit",
+                signal: controller?.signal,
+              });
+              if (!response.ok) throw new Error("HTTP " + response.status);
+              const remoteVersion = versionFromHtml(await response.text());
+              if (!Number.isFinite(remoteVersion)) throw new Error("Versionsnummer nicht gefunden");
+              return remoteVersion;
+            } catch (error) {
+              lastError = error;
+            } finally {
+              if (timeout) clearTimeout(timeout);
+            }
+          }
+
+          if (lastError?.name === "AbortError") {
+            throw new Error("Zeitüberschreitung beim Serverzugriff");
+          }
+          throw lastError || new Error("Server nicht erreichbar");
         }
 
         async function forceWebUpdate(remoteVersion) {
-          showUpdateStatus(`Update V${remoteVersion} wird geladen …`, "new");
+          openUpdateDialog({
+            title: "Update wird installiert",
+            text: `Version V${remoteVersion} wird geladen. Die App startet danach neu.`,
+            kind: "new",
+            busy: true,
+          });
           try {
             if ("serviceWorker" in navigator) {
               const regs = await navigator.serviceWorker.getRegistrations();
-              await Promise.all(regs.map(async (reg) => { try { await reg.update(); } catch (_) {} }));
+              await Promise.all(
+                regs.map(async (reg) => {
+                  try { await reg.update(); } catch (_) {}
+                }),
+              );
             }
             if ("caches" in window) {
               const keys = await caches.keys();
               await Promise.all(keys.map((key) => caches.delete(key)));
             }
           } catch (_) {}
+
           const u = new URL(RELEASE_INDEX);
           u.searchParams.set("update", String(remoteVersion));
           u.searchParams.set("t", String(Date.now()));
           location.replace(u.toString());
         }
 
-        async function checkForUpdate() {
-          const btn = document.getElementById("appUpdateBtn");
-          if (btn) { btn.disabled = true; btn.textContent = "↻ Prüfe …"; }
-          showUpdateStatus(`Installiert: V${LOCAL_VERSION} · Suche neue Revision …`, "ok");
+        async function checkForUpdate(event) {
           try {
-            const url = RELEASE_INDEX + "?update-check=" + Date.now();
-            const response = await fetch(url, { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
-            if (!response.ok) throw new Error("HTTP " + response.status);
-            const remoteVersion = versionFromHtml(await response.text());
-            if (!Number.isFinite(remoteVersion)) throw new Error("Versionsnummer nicht gefunden");
+            event?.preventDefault?.();
+            event?.stopPropagation?.();
+          } catch (_) {}
 
-            if (remoteVersion > LOCAL_VERSION) {
-              if (isAndroidWebView() && location.protocol === "file:") {
-                showUpdateStatus(`Installiert: V${LOCAL_VERSION} · Neu: V${remoteVersion}. Für die Android-App ist eine neue APK nötig.`, "new");
-                if (btn) { btn.textContent = `APK V${remoteVersion} verfügbar`; btn.disabled = false; }
+          const btn = document.getElementById("appUpdateBtn");
+          const installedVersion = getInstalledVersion();
+          closeKeyboardAndTaskFocus();
+
+          if (btn) {
+            btn.disabled = true;
+            btn.textContent = "Update";
+          }
+
+          showUpdateStatus(`Installiert: V${installedVersion} · Suche neue Revision …`, "ok");
+          openUpdateDialog({
+            title: "Update wird geprüft",
+            text: `Installiert: V${installedVersion}\nSuche nach einer neuen Revision …`,
+            kind: "ok",
+            busy: true,
+          });
+
+          try {
+            const remoteVersion = await fetchRemoteVersion();
+
+            if (remoteVersion > installedVersion) {
+              if (isAndroidApp()) {
+                const text = `Installiert: V${installedVersion}\nNeue Version: V${remoteVersion}\n\nEine neue Android-App/APK ist verfügbar.`;
+                showUpdateStatus(text.replace(/\n/g, " · "), "new");
+                setDialogContent({
+                  title: "Neue Version verfügbar",
+                  text,
+                  kind: "new",
+                });
+                if (btn) btn.textContent = "Update";
                 return;
               }
-              showUpdateStatus(`Installiert: V${LOCAL_VERSION} · Neu: V${remoteVersion}. Update wird installiert …`, "new");
-              if (btn) btn.textContent = `Update auf V${remoteVersion}`;
-              await forceWebUpdate(remoteVersion);
+
+              const text = `Installiert: V${installedVersion}\nNeue Version: V${remoteVersion}\n\nDas Update kann jetzt installiert werden.`;
+              showUpdateStatus(text.replace(/\n/g, " · "), "new");
+              setDialogContent({
+                title: "Update verfügbar",
+                text,
+                kind: "new",
+                installVersion: remoteVersion,
+              });
+              if (btn) btn.textContent = "Update";
               return;
             }
 
-            if (remoteVersion === LOCAL_VERSION) {
-              showUpdateStatus(`Installiert: V${LOCAL_VERSION} · Keine neue Version. Du bist aktuell.`, "ok");
+            if (remoteVersion === installedVersion) {
+              const text = `Installiert: V${installedVersion}\nOnline: V${remoteVersion}\n\nKeine neue Version. Du bist aktuell.`;
+              showUpdateStatus(text.replace(/\n/g, " · "), "ok");
+              setDialogContent({
+                title: "Alles aktuell",
+                text,
+                kind: "ok",
+              });
             } else {
-              showUpdateStatus(`Installiert: V${LOCAL_VERSION} · Veröffentlicht: V${remoteVersion}. Diese Installation ist neuer.`, "ok");
+              const text = `Installiert: V${installedVersion}\nOnline: V${remoteVersion}\n\nDiese Installation ist neuer als die veröffentlichte Version.`;
+              showUpdateStatus(text.replace(/\n/g, " · "), "ok");
+              setDialogContent({
+                title: "Installation ist neuer",
+                text,
+                kind: "ok",
+              });
             }
           } catch (err) {
-            showUpdateStatus(`Installiert: V${LOCAL_VERSION} · Update-Prüfung nicht möglich: ${err.message || err}`, "error");
+            const detail = err?.message || String(err || "Unbekannter Fehler");
+            const text = `Installiert: V${installedVersion}\n\nUpdate-Prüfung nicht möglich:\n${detail}`;
+            showUpdateStatus(text.replace(/\n/g, " · "), "error");
+            setDialogContent({
+              title: "Update-Prüfung fehlgeschlagen",
+              text,
+              kind: "error",
+            });
           } finally {
-            if (btn) { btn.disabled = false; btn.textContent = `↻ Update prüfen · V${LOCAL_VERSION}`; }
+            if (btn) {
+              btn.disabled = false;
+              btn.textContent = "Update";
+            }
           }
         }
 
         document.addEventListener("DOMContentLoaded", function () {
           const btn = document.getElementById("appUpdateBtn");
-          if (btn) btn.addEventListener("click", checkForUpdate);
+          const okBtn = document.getElementById("appUpdateDialogOk");
+          const installBtn = document.getElementById("appUpdateDialogInstall");
+          const dialog = document.getElementById("appUpdateDialog");
+
+          if (btn) {
+            const installedVersion = getInstalledVersion();
+            btn.textContent = "Update";
+            ["pointerdown", "mousedown", "touchstart"].forEach((type) => {
+              btn.addEventListener(type, (e) => e.stopPropagation(), { passive: true });
+            });
+            btn.addEventListener("click", checkForUpdate);
+          }
+
+          okBtn?.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeUpdateDialog();
+          });
+
+          installBtn?.addEventListener("click", async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const remoteVersion = versionNumber(installBtn.dataset.version);
+            if (!Number.isFinite(remoteVersion)) return;
+            installBtn.disabled = true;
+            await forceWebUpdate(remoteVersion);
+          });
+
+          dialog?.addEventListener("click", (e) => {
+            // Klick auf den dunklen Hintergrund schließt NICHT automatisch.
+            e.stopPropagation();
+          });
+
+          // Falls irgendeine bereits geplante Fokus-Routine versucht, während des
+          // Update-Fensters wieder ein Aufgabenfeld zu aktivieren, sofort abfangen.
+          document.addEventListener("focusin", (e) => {
+            if (!window.__appUpdateDialogOpen) return;
+            const modal = document.getElementById("appUpdateDialog");
+            if (modal?.contains(e.target)) return;
+            try { e.target?.blur?.(); } catch (_) {}
+            closeKeyboardAndTaskFocus();
+          }, true);
         });
       })();
     </script>
 
-    <!-- Update-Prüfung: feste Schaltfläche unten rechts -->
-    <div class="appUpdateWidget" id="appUpdateWidget">
-      <div class="appUpdateStatus" id="appUpdateStatus" role="status" aria-live="polite"></div>
-      <button class="appUpdateBtn" id="appUpdateBtn" type="button" title="Nach neuer Revision suchen">↻ Update prüfen · V63</button>
+    <div class="appUpdateDialog" id="appUpdateDialog" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="appUpdateDialogTitle">
+      <div class="appUpdateDialogCard">
+        <div class="appUpdateDialogIcon" id="appUpdateDialogIcon" aria-hidden="true">⏳</div>
+        <div class="appUpdateDialogTitle" id="appUpdateDialogTitle">Update-Prüfung</div>
+        <div class="appUpdateDialogText" id="appUpdateDialogText"></div>
+        <div class="appUpdateDialogActions">
+          <button class="appUpdateDialogBtn secondary" id="appUpdateDialogOk" type="button">OK</button>
+          <button class="appUpdateDialogBtn" id="appUpdateDialogInstall" type="button" style="display:none">Update installieren</button>
+        </div>
+      </div>
     </div>
 
     <footer
       id="appFooter"
-      data-app-version="64"
+      data-app-version="81"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -13298,8 +14363,91 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">64</span>
+      <span id="appVersion">81</span>
     </footer>
+
+    <!-- Unauffälliger Update-Button direkt am Seitenende -->
+    <div class="appUpdateWidget" id="appUpdateWidget">
+      <button class="appUpdateBtn" id="appUpdateBtn" type="button" title="Update">Update</button>
+    </div>
+
+    <div class="appUpdateDialog" id="appShareDialog" role="dialog" aria-modal="true" aria-labelledby="appShareTitle">
+      <div class="appUpdateDialogCard">
+        <div class="appUpdateDialogTitle" id="appShareTitle">App teilen</div>
+        <label class="appShareChoice">
+          <input type="radio" name="appShareMode" value="app" checked>
+          <span><strong>Nur App senden</strong><small>Teilt nur den normalen Link zur App.</small></span>
+        </label>
+        <label class="appShareChoice">
+          <input type="radio" name="appShareMode" value="data">
+          <span><strong>App + Einstellungen senden</strong><small>Deine Einstellungen werden im Link mitgegeben und beim Öffnen übernommen.</small></span>
+        </label>
+        <a class="appShareOpenLink" id="openSharedSettingsInApp" hidden>In installierter APK übernehmen</a>
+        <div class="appUpdateDialogActions">
+          <button class="appUpdateDialogBtn secondary" type="button" id="appShareCancel">Abbrechen</button>
+          <button class="appUpdateDialogBtn" type="button" id="appShareStart">Teilen</button>
+        </div>
+      </div>
+    </div>
+    <script>
+      (function () {
+        const baseUrl = "https://parip69.github.io/RechenGuruLGI_AndroidAPK/";
+        const allowed = (key) => /^mathModeSettings:[A-Za-z0-9:_-]{1,80}$/.test(key) ||
+          ["mathActiveGrade", "mathLang", "mathLastMode", "mathThemeIndex",
+           "mathCelebrateMode", "mathConfettiEnabled", "mathOnesOnly",
+           "mathFlashMode", "mathFlashShowSec", "mathFlashPeekSec",
+           "mathTimeLimitSec"].includes(key);
+        const updateWidget = document.getElementById("appUpdateWidget");
+        const dialog = document.getElementById("appShareDialog");
+        const appLink = document.getElementById("openSharedSettingsInApp");
+        const button = document.createElement("button");
+        button.className = "appShareBtn";
+        button.type = "button";
+        button.title = "App teilen";
+        button.setAttribute("aria-label", "App teilen");
+        button.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="18" cy="5" r="2"/><circle cx="5" cy="12" r="2"/><circle cx="18" cy="19" r="2"/><path d="m7 11 9-5M7 13l9 5"/></svg>';
+        updateWidget.appendChild(button);
+        const open = () => dialog.classList.add("show");
+        const close = () => dialog.classList.remove("show");
+        button.addEventListener("click", open);
+        document.getElementById("appShareCancel").addEventListener("click", close);
+        dialog.addEventListener("click", (event) => { if (event.target === dialog) close(); });
+        document.addEventListener("keydown", (event) => { if (event.key === "Escape") close(); });
+        if (window.__sharedSettingsPayload && !location.href.startsWith("file:")) {
+          appLink.href = "rechengurulgi://settings?data=" + window.__sharedSettingsPayload;
+          appLink.hidden = false;
+        }
+        function settingsLink() {
+          const settings = {};
+          appStorage.ownKeys().filter(allowed).forEach((key) => {
+            const value = appStorage.getItem(key);
+            if (value !== null && value.length <= 12000) settings[key] = value;
+          });
+          const bytes = new TextEncoder().encode(JSON.stringify({kind: "RechenGuru-settings", schema: 1, settings}));
+          let binary = "";
+          bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
+          const encoded = btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+          if (encoded.length > 24000) throw new Error("Die Einstellungen sind für einen Link zu groß.");
+          return baseUrl + "#settings=" + encoded;
+        }
+        async function share(url) {
+          close();
+          try {
+            const native = typeof getAndroidBridge === "function" ? getAndroidBridge() : null;
+            if (native && typeof native.shareLink === "function" && native.shareLink(url)) return;
+            if (navigator.share) { await navigator.share({title: "Mathe Guru", url}); return; }
+            await navigator.clipboard.writeText(url);
+            alert("Link kopiert.");
+          } catch (error) {
+            if (error?.name !== "AbortError") alert(error?.message || "Link konnte nicht geteilt werden.");
+          }
+        }
+        document.getElementById("appShareStart").addEventListener("click", () => {
+          const withData = document.querySelector('input[name="appShareMode"]:checked')?.value === "data";
+          try { share(withData ? settingsLink() : baseUrl); } catch (error) { alert(error.message); }
+        });
+      })();
+    </script>
 
     <!-- ❌ Fehler-Aktionen (Zurücksetzen / Drucken) -->
     <div
@@ -13389,5 +14537,48 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         <button type="button" class="mgKeypadBtn" data-mgk="nx">↵</button>
       </div>
     </div>
+    <script>
+      (() => {
+        const selector =
+          '#settingsDetails button, #settingsDetails summary, #settingsDetails [role="button"], #legendOverlay button';
+        const findButton = (target) => {
+          const button = target?.closest?.(selector);
+          return button && !button.disabled ? button : null;
+        };
+        let pressed = null;
+        const release = () => {
+          pressed?.classList.remove("is-pressing");
+          pressed = null;
+        };
+
+        document.addEventListener("pointerdown", (event) => {
+          release();
+          pressed = findButton(event.target);
+          pressed?.classList.add("is-pressing");
+        }, true);
+        document.addEventListener("pointerup", release, true);
+        document.addEventListener("pointercancel", release, true);
+        document.addEventListener("keydown", (event) => {
+          if (event.key !== "Enter" && event.key !== " ") return;
+          release();
+          pressed = findButton(event.target);
+          pressed?.classList.add("is-pressing");
+        }, true);
+        document.addEventListener("keyup", release, true);
+
+        document.addEventListener("click", (event) => {
+          const button = findButton(event.target);
+          if (!button) return;
+          release();
+          button.classList.remove("did-press");
+          void button.offsetWidth; // Animation auch bei mehreren schnellen Klicks neu starten
+          button.classList.add("did-press");
+          clearTimeout(button._tapFeedbackTimer);
+          button._tapFeedbackTimer = setTimeout(() => {
+            button.classList.remove("did-press");
+          }, 400);
+        }, true);
+      })();
+    </script>
   </body>
 </html>

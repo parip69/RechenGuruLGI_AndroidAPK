@@ -2371,13 +2371,27 @@
       .appUpdateBtn:disabled { opacity: .48; cursor: wait; }
       .appUpdateStatus { display: none !important; }
 
-      .shareSettingsWidget { position: fixed; right: 14px; bottom: calc(14px + env(safe-area-inset-bottom)); z-index: 10020; }
-      .shareSettingsButton { width: 48px; height: 48px; border: 1px solid var(--dividerStrong); border-radius: 50%; background: var(--card, #fff); color: var(--text, #222); box-shadow: 0 4px 14px #0003; cursor: pointer; display: grid; place-items: center; }
-      .shareSettingsMenu { position: absolute; right: 0; bottom: 56px; min-width: 235px; padding: 8px; border-radius: 14px; background: var(--card, #fff); color: var(--text, #222); box-shadow: 0 5px 24px #0004; border: 1px solid var(--dividerStrong); }
-      .shareSettingsMenu[hidden], .shareSettingsMenu [hidden] { display: none; }
-      .shareSettingsMenu button, .shareSettingsMenu a { display: block; box-sizing: border-box; width: 100%; padding: 11px; border: 0; border-radius: 8px; background: transparent; color: inherit; text-align: left; font: inherit; text-decoration: none; cursor: pointer; }
-      .shareSettingsMenu button:hover, .shareSettingsMenu a:hover { background: var(--surface60, #eee); }
-      @media print { .shareSettingsWidget { display: none !important; } }
+      .appShareBtn {
+        width: 28px; height: 24px; margin-left: 6px; padding: 0;
+        border: 1px solid var(--dividerStrong); border-radius: 999px;
+        background: var(--surface45); color: var(--textMuted);
+        display: inline-grid; place-items: center; cursor: pointer;
+        opacity: .78; touch-action: manipulation;
+      }
+      .appShareBtn:hover { background: var(--surface60); opacity: 1; }
+      .appShareBtn svg { width: 14px; height: 14px; }
+      .appShareChoice {
+        display: flex; gap: 10px; align-items: flex-start; text-align: left;
+        padding: 12px; margin: 8px 0; cursor: pointer;
+        border: 1px solid var(--dividerStrong); border-radius: 14px;
+        background: var(--surface78); color: var(--text);
+      }
+      .appShareChoice input { margin-top: 4px; accent-color: var(--primary); }
+      .appShareChoice strong { display: block; font-weight: 900; }
+      .appShareChoice small { display: block; margin-top: 3px; color: var(--textMuted); font-weight: 600; line-height: 1.35; }
+      .appShareChoice:has(input:checked) { border-color: var(--primary); }
+      .appShareOpenLink { display: block; margin-top: 10px; color: var(--primary); font-weight: 800; text-align: center; }
+      @media print { .appShareBtn { display: none !important; } }
 
       /* Update-Ergebnis als gut sichtbares, modales Fenster. */
       .appUpdateDialog {
@@ -13143,7 +13157,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v80";
+        const SW_VERSION = "rechenguru-lgi-v81";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -14337,7 +14351,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="80"
+      data-app-version="81"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -14349,7 +14363,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">80</span>
+      <span id="appVersion">81</span>
     </footer>
 
     <!-- Unauffälliger Update-Button direkt am Seitenende -->
@@ -14357,16 +14371,23 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       <button class="appUpdateBtn" id="appUpdateBtn" type="button" title="Update">Update</button>
     </div>
 
-    <div class="shareSettingsWidget">
-      <div class="shareSettingsMenu" id="shareSettingsMenu" hidden>
-        <button type="button" id="shareWithSettings">Link mit Einstellungen teilen</button>
-        <button type="button" id="shareWithoutSettings">Link ohne Einstellungen teilen</button>
-        <a id="downloadCurrentApk">Aktuelle APK herunterladen</a>
-        <a id="openSharedSettingsInApp" hidden>In installierter APK übernehmen</a>
+    <div class="appUpdateDialog" id="appShareDialog" role="dialog" aria-modal="true" aria-labelledby="appShareTitle">
+      <div class="appUpdateDialogCard">
+        <div class="appUpdateDialogTitle" id="appShareTitle">App teilen</div>
+        <label class="appShareChoice">
+          <input type="radio" name="appShareMode" value="app" checked>
+          <span><strong>Nur App senden</strong><small>Teilt nur den normalen Link zur App.</small></span>
+        </label>
+        <label class="appShareChoice">
+          <input type="radio" name="appShareMode" value="data">
+          <span><strong>App + Einstellungen senden</strong><small>Deine Einstellungen werden im Link mitgegeben und beim Öffnen übernommen.</small></span>
+        </label>
+        <a class="appShareOpenLink" id="openSharedSettingsInApp" hidden>In installierter APK übernehmen</a>
+        <div class="appUpdateDialogActions">
+          <button class="appUpdateDialogBtn secondary" type="button" id="appShareCancel">Abbrechen</button>
+          <button class="appUpdateDialogBtn" type="button" id="appShareStart">Teilen</button>
+        </div>
       </div>
-      <button class="shareSettingsButton" id="shareSettingsButton" type="button" aria-label="App teilen" aria-expanded="false" aria-controls="shareSettingsMenu" title="App teilen">
-        <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="18" cy="5" r="2"/><circle cx="5" cy="12" r="2"/><circle cx="18" cy="19" r="2"/><path d="m7 11 9-5M7 13l9 5"/></svg>
-      </button>
     </div>
     <script>
       (function () {
@@ -14376,20 +14397,22 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
            "mathCelebrateMode", "mathConfettiEnabled", "mathOnesOnly",
            "mathFlashMode", "mathFlashShowSec", "mathFlashPeekSec",
            "mathTimeLimitSec"].includes(key);
-        const button = document.getElementById("shareSettingsButton");
-        const menu = document.getElementById("shareSettingsMenu");
+        const updateWidget = document.getElementById("appUpdateWidget");
+        const dialog = document.getElementById("appShareDialog");
         const appLink = document.getElementById("openSharedSettingsInApp");
-        document.getElementById("downloadCurrentApk").href =
-          baseUrl + "MatheGuru-v" + encodeURIComponent(getCurrentAppVersion()) + ".apk";
-        function closeMenu() { menu.hidden = true; button.setAttribute("aria-expanded", "false"); }
-        button.addEventListener("click", () => {
-          menu.hidden = !menu.hidden;
-          button.setAttribute("aria-expanded", String(!menu.hidden));
-        });
-        document.addEventListener("click", (event) => {
-          if (!event.target.closest(".shareSettingsWidget")) closeMenu();
-        });
-        document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeMenu(); });
+        const button = document.createElement("button");
+        button.className = "appShareBtn";
+        button.type = "button";
+        button.title = "App teilen";
+        button.setAttribute("aria-label", "App teilen");
+        button.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="18" cy="5" r="2"/><circle cx="5" cy="12" r="2"/><circle cx="18" cy="19" r="2"/><path d="m7 11 9-5M7 13l9 5"/></svg>';
+        updateWidget.appendChild(button);
+        const open = () => dialog.classList.add("show");
+        const close = () => dialog.classList.remove("show");
+        button.addEventListener("click", open);
+        document.getElementById("appShareCancel").addEventListener("click", close);
+        dialog.addEventListener("click", (event) => { if (event.target === dialog) close(); });
+        document.addEventListener("keydown", (event) => { if (event.key === "Escape") close(); });
         if (window.__sharedSettingsPayload && !location.href.startsWith("file:")) {
           appLink.href = "rechengurulgi://settings?data=" + window.__sharedSettingsPayload;
           appLink.hidden = false;
@@ -14408,7 +14431,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           return baseUrl + "#settings=" + encoded;
         }
         async function share(url) {
-          closeMenu();
+          close();
           try {
             const native = typeof getAndroidBridge === "function" ? getAndroidBridge() : null;
             if (native && typeof native.shareLink === "function" && native.shareLink(url)) return;
@@ -14419,10 +14442,10 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             if (error?.name !== "AbortError") alert(error?.message || "Link konnte nicht geteilt werden.");
           }
         }
-        document.getElementById("shareWithSettings").addEventListener("click", () => {
-          try { share(settingsLink()); } catch (error) { alert(error.message); }
+        document.getElementById("appShareStart").addEventListener("click", () => {
+          const withData = document.querySelector('input[name="appShareMode"]:checked')?.value === "data";
+          try { share(withData ? settingsLink() : baseUrl); } catch (error) { alert(error.message); }
         });
-        document.getElementById("shareWithoutSettings").addEventListener("click", () => share(baseUrl));
       })();
     </script>
 
