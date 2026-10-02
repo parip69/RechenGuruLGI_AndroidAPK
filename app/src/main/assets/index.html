@@ -13225,7 +13225,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v89";
+        const SW_VERSION = "rechenguru-lgi-v90";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -14211,7 +14211,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             });
             await new Promise((resolve, reject) => {
               const channel = new MessageChannel();
-              const timer = setTimeout(() => reject(new Error("Zeitüberschreitung beim Aktualisieren.")), 12000);
+              const timer = setTimeout(() => reject(new Error("Zeitüberschreitung beim Aktualisieren.")), 5000);
               channel.port1.onmessage = (event) => {
                 clearTimeout(timer);
                 const answer = event.data || {};
@@ -14225,7 +14225,16 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           }
 
           try {
-            const applied = await applyServiceWorkerUpdate();
+            let applied = false;
+            try {
+              applied = await applyServiceWorkerUpdate();
+            } catch (_) {
+              applied = false;
+            }
+            if (!applied && !isLocalFile && "serviceWorker" in navigator) {
+              const regs = await navigator.serviceWorker.getRegistrations();
+              await Promise.all(regs.map((reg) => reg.unregister().catch(() => false)));
+            }
             if (isLocalFile) {
               // Installierte APK: veröffentlichte Version im selben Fenster laden.
               const u = new URL(RELEASE_INDEX);
@@ -14457,7 +14466,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="89"
+      data-app-version="90"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -14469,7 +14478,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">89</span>
+      <span id="appVersion">90</span>
     </footer>
 
     <!-- Unauffälliger Update-Button direkt am Seitenende -->
@@ -14553,7 +14562,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             throw new Error("Das Aufgabenziel ist ungültig und kann nicht geteilt werden.");
           }
 
-          const bytes = new TextEncoder().encode(JSON.stringify({kind: "RechenGuru-settings", schema: 1, sourceVersion: String(document.getElementById("appVersion")?.textContent || ""), settings}));
+          const bytes = new TextEncoder().encode(JSON.stringify({kind: "RechenGuru-settings", schema: 1, settings}));
           let binary = "";
           bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
           const encoded = btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
@@ -14565,7 +14574,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           try {
             const native = typeof getAndroidBridge === "function" ? getAndroidBridge() : null;
             if (native && typeof native.shareLink === "function" && native.shareLink(url)) return;
-            if (navigator.share) { await navigator.share({title: "Mathe Guru", url}); return; }
+            if (navigator.share) { await navigator.share({url}); return; }
             await navigator.clipboard.writeText(url);
             alert("Link kopiert.");
           } catch (error) {
