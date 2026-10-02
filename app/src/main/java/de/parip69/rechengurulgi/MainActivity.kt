@@ -159,7 +159,7 @@ class MainActivity : AppCompatActivity() {
         configureEdgeToEdge()
         configurePullToRefresh()
         configureWebView(binding.webView)
-        binding.webView.loadUrl("file:///android_asset/index.html")
+        binding.webView.loadUrl(resolveStartUrl(intent))
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -170,6 +170,25 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    private fun resolveStartUrl(source: Intent?): String {
+        val data = source?.data
+        if (data?.scheme == "rechengurulgi" && data.host == "settings") {
+            val payload = data.getQueryParameter("data").orEmpty()
+            if (Regex("[A-Za-z0-9_-]{1,24000}").matches(payload)) {
+                return "file:///android_asset/index.html#settings=$payload"
+            }
+        }
+        return "file:///android_asset/index.html"
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (intent.data?.scheme == "rechengurulgi") {
+            binding.webView.loadUrl(resolveStartUrl(intent))
+        }
     }
 
     private fun configurePullToRefresh() {
@@ -287,6 +306,19 @@ class MainActivity : AppCompatActivity() {
             runOnUiThread {
                 applyChromeTheme(chromeTheme)
             }
+        }
+
+        @JavascriptInterface
+        fun openExternal(url: String?): Boolean {
+            if (url.isNullOrBlank() || !url.startsWith("https://")) return false
+            runOnUiThread {
+                try {
+                    startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url)))
+                } catch (error: Exception) {
+                    showToast("Fehler beim Öffnen: ${error.message ?: "Unbekannt"}")
+                }
+            }
+            return true
         }
 
         @JavascriptInterface

@@ -19,18 +19,18 @@
           const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
           const payload = JSON.parse(new TextDecoder().decode(bytes));
           const allowed = (key) => /^mathModeSettings:[A-Za-z0-9:_-]{1,80}$/.test(key) ||
-            ["mathActiveGrade", "mathLang", "mathLastMode", "mathThemeIndex",
-             "mathCelebrateMode", "mathConfettiEnabled", "mathOnesOnly",
-             "mathFlashMode", "mathFlashShowSec", "mathFlashPeekSec",
-             "mathTimeLimitSec"].includes(key);
+            ["mathActiveGrade", "mathLastMode", "mathThemeIndex", "mathThemeSchema",
+             "mathTargetCorrect"].includes(key);
           if (payload.kind !== "RechenGuru-settings" || payload.schema !== 1 ||
               !payload.settings || typeof payload.settings !== "object" ||
               Object.keys(payload.settings).length > 200 ||
               Object.entries(payload.settings).some(([key, value]) =>
                 !allowed(key) || typeof value !== "string" || value.length > 12000)) return;
-          if (confirm("Geteilte Einstellungen übernehmen? Vorhandene Einstellungen für diese Bereiche werden ersetzt.")) {
+          if (confirm("Neue Einstellungen übernehmen?\n\nNur Aufgabenbereich, Einstellungen, Ziel und Farbe werden geändert. Fehler und Fortschritt bleiben erhalten.")) {
             Object.entries(payload.settings).forEach(([key, value]) =>
               localStorage.setItem("RechenGuruLGI_" + key, value));
+            if (payload.settings.mathTargetCorrect !== undefined)
+              localStorage.setItem("RechenGuruLGI_mathTargetProgress", "0");
             window.__sharedSettingsApplied = true;
           }
           window.__sharedSettingsPayload = match[1];
@@ -13157,7 +13157,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v81";
+        const SW_VERSION = "rechenguru-lgi-v82";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -14095,6 +14095,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           okBtn.disabled = !!busy;
           okBtn.style.display = busy ? "none" : "";
 
+          okBtn.textContent = Number.isFinite(installVersion) ? "Später" : "OK";
           if (Number.isFinite(installVersion)) {
             installBtn.style.display = "";
             installBtn.disabled = false;
@@ -14204,7 +14205,73 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           location.replace(u.toString());
         }
 
-        async function checkForUpdate(event) {
+        function showUpdateToast(message) {
+          let el = document.getElementById("appUpdateToast");
+          if (!el) {
+            el = document.createElement("div");
+            el.id = "appUpdateToast";
+            el.setAttribute("role", "status");
+            el.style.cssText = "position:fixed;left:50%;bottom:calc(70px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:20060;padding:10px 18px;border-radius:8px;background:#2d936c;color:#fff;font:600 15px Outfit,Arial,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.3);transition:opacity .3s;pointer-events:none;";
+            document.body.appendChild(el);
+          }
+          el.textContent = message;
+          el.style.opacity = "1";
+          clearTimeout(el._timer);
+          el._timer = setTimeout(() => { el.style.opacity = "0"; }, 2500);
+        }
+        const UPDATE_MODE_KEY = "mathUpdateMode";
+        function getUpdateMode() {
+          try { return appStorage.getItem(UPDATE_MODE_KEY) === "auto" ? "auto" : "ask"; } catch (_) { return "ask"; }
+        }
+
+        async function installRemote(remoteVersion) {
+          if (isAndroidApp()) {
+            const apkUrl = RELEASE_INDEX + "MatheGuru-v" + encodeURIComponent(remoteVersion) + ".apk";
+            try {
+              const native = typeof getAndroidBridge === "function" ? getAndroidBridge() : null;
+              if (native && typeof native.openExternal === "function" && native.openExternal(apkUrl)) {
+                closeUpdateDialog();
+                return;
+              }
+            } catch (_) {}
+            location.href = apkUrl;
+            return;
+          }
+          await forceWebUpdate(remoteVersion);
+        }
+
+        function openUpdateModeDialog() {
+          closeKeyboardAndTaskFocus();
+          const current = getUpdateMode();
+          const overlay = document.createElement("div");
+          overlay.className = "appUpdateDialog show";
+          overlay.setAttribute("role", "dialog");
+          overlay.setAttribute("aria-modal", "true");
+          overlay.innerHTML =
+            '<div class="appUpdateDialogCard">' +
+            '<div class="appUpdateDialogTitle">Update-Einstellung</div>' +
+            '<label class="appShareChoice"><input type="radio" name="appUpdateMode" value="ask"><span><strong>Manuell</strong><small>Beim Antippen von „Update“ wird geprüft und nachgefragt, ob installiert werden soll.</small></span></label>' +
+            '<label class="appShareChoice"><input type="radio" name="appUpdateMode" value="auto"><span><strong>Vollautomatisch</strong><small>Beim Start wird geprüft und eine neue Version ohne Nachfrage installiert.</small></span></label>' +
+            '<div class="appUpdateDialogActions">' +
+            '<button class="appUpdateDialogBtn secondary" type="button" data-act="cancel">Abbrechen</button>' +
+            '<button class="appUpdateDialogBtn" type="button" data-act="save">Speichern</button></div></div>';
+          overlay.querySelector('input[value="' + current + '"]').checked = true;
+          const close = () => overlay.remove();
+          overlay.addEventListener("click", (e) => {
+            const act = e.target?.dataset?.act;
+            if (e.target === overlay || act === "cancel") close();
+            if (act === "save") {
+              const mode = overlay.querySelector("input:checked")?.value === "auto" ? "auto" : "ask";
+              try { appStorage.setItem(UPDATE_MODE_KEY, mode); } catch (_) {}
+              close();
+              showUpdateToast(mode === "auto" ? "Update: vollautomatisch" : "Update: manuell");
+            }
+          });
+          document.body.appendChild(overlay);
+        }
+
+        async function checkForUpdate(event, options) {
+          const auto = options?.auto === true;
           try {
             event?.preventDefault?.();
             event?.stopPropagation?.();
@@ -14216,36 +14283,36 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
           if (btn) {
             btn.disabled = true;
-            btn.textContent = "Update";
+            btn.textContent = "…";
           }
 
-          showUpdateStatus(`Installiert: V${installedVersion} · Suche neue Revision …`, "ok");
-          openUpdateDialog({
-            title: "Update wird geprüft",
-            text: `Installiert: V${installedVersion}\nSuche nach einer neuen Revision …`,
-            kind: "ok",
-            busy: true,
-          });
+          if (!auto) showUpdateStatus(`Installiert: V${installedVersion} · Suche neue Revision …`, "ok");
+
 
           try {
             const remoteVersion = await fetchRemoteVersion();
 
             if (remoteVersion > installedVersion) {
+              if (auto || getUpdateMode() === "auto") {
+                await installRemote(remoteVersion);
+                return;
+              }
               if (isAndroidApp()) {
-                const text = `Installiert: V${installedVersion}\nNeue Version: V${remoteVersion}\n\nEine neue Android-App/APK ist verfügbar.`;
+                const text = `Auf diesem Gerät: V${installedVersion}\nAuf dem Server: V${remoteVersion}\n\nNeue APK jetzt herunterladen und installieren?`;
                 showUpdateStatus(text.replace(/\n/g, " · "), "new");
-                setDialogContent({
+                openUpdateDialog({
                   title: "Neue Version verfügbar",
                   text,
                   kind: "new",
+                  installVersion: remoteVersion,
                 });
                 if (btn) btn.textContent = "Update";
                 return;
               }
 
-              const text = `Installiert: V${installedVersion}\nNeue Version: V${remoteVersion}\n\nDas Update kann jetzt installiert werden.`;
+              const text = `Auf diesem Gerät: V${installedVersion}\nAuf dem Server: V${remoteVersion}\n\nDas Update kann jetzt installiert werden.`;
               showUpdateStatus(text.replace(/\n/g, " · "), "new");
-              setDialogContent({
+              openUpdateDialog({
                 title: "Update verfügbar",
                 text,
                 kind: "new",
@@ -14256,27 +14323,23 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             }
 
             if (remoteVersion === installedVersion) {
-              const text = `Installiert: V${installedVersion}\nOnline: V${remoteVersion}\n\nKeine neue Version. Du bist aktuell.`;
+              hideCompactStatus();
+              if (!auto) showUpdateToast(`Version ist gleich: Ver.${installedVersion}`);
+            } else if (!auto) {
+              const text = `Auf diesem Gerät: V${installedVersion}\nAuf dem Server: V${remoteVersion}\n\nDiese Installation ist neuer als die veröffentlichte Version.`;
               showUpdateStatus(text.replace(/\n/g, " · "), "ok");
-              setDialogContent({
-                title: "Alles aktuell",
-                text,
-                kind: "ok",
-              });
-            } else {
-              const text = `Installiert: V${installedVersion}\nOnline: V${remoteVersion}\n\nDiese Installation ist neuer als die veröffentlichte Version.`;
-              showUpdateStatus(text.replace(/\n/g, " · "), "ok");
-              setDialogContent({
+              openUpdateDialog({
                 title: "Installation ist neuer",
                 text,
                 kind: "ok",
               });
             }
           } catch (err) {
+            if (auto) return;
             const detail = err?.message || String(err || "Unbekannter Fehler");
             const text = `Installiert: V${installedVersion}\n\nUpdate-Prüfung nicht möglich:\n${detail}`;
             showUpdateStatus(text.replace(/\n/g, " · "), "error");
-            setDialogContent({
+            openUpdateDialog({
               title: "Update-Prüfung fehlgeschlagen",
               text,
               kind: "error",
@@ -14301,7 +14364,23 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             ["pointerdown", "mousedown", "touchstart"].forEach((type) => {
               btn.addEventListener(type, (e) => e.stopPropagation(), { passive: true });
             });
-            btn.addEventListener("click", checkForUpdate);
+            let pressTimer = null;
+            let longPressed = false;
+            const cancelPress = () => { clearTimeout(pressTimer); pressTimer = null; };
+            btn.addEventListener("pointerdown", () => {
+              longPressed = false;
+              cancelPress();
+              pressTimer = setTimeout(() => { longPressed = true; openUpdateModeDialog(); }, 650);
+            });
+            ["pointerup", "pointerleave", "pointercancel"].forEach((type) => btn.addEventListener(type, cancelPress));
+            btn.addEventListener("contextmenu", (e) => e.preventDefault());
+            btn.addEventListener("click", (e) => {
+              if (longPressed) { longPressed = false; e.preventDefault(); return; }
+              checkForUpdate(e);
+            });
+            if (getUpdateMode() === "auto" && navigator.onLine !== false) {
+              setTimeout(() => checkForUpdate(null, { auto: true }), 2500);
+            }
           }
 
           okBtn?.addEventListener("click", (e) => {
@@ -14316,7 +14395,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             const remoteVersion = versionNumber(installBtn.dataset.version);
             if (!Number.isFinite(remoteVersion)) return;
             installBtn.disabled = true;
-            await forceWebUpdate(remoteVersion);
+            await installRemote(remoteVersion);
           });
 
           dialog?.addEventListener("click", (e) => {
@@ -14344,14 +14423,14 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         <div class="appUpdateDialogText" id="appUpdateDialogText"></div>
         <div class="appUpdateDialogActions">
           <button class="appUpdateDialogBtn secondary" id="appUpdateDialogOk" type="button">OK</button>
-          <button class="appUpdateDialogBtn" id="appUpdateDialogInstall" type="button" style="display:none">Update installieren</button>
+          <button class="appUpdateDialogBtn" id="appUpdateDialogInstall" type="button" style="display:none">Jetzt installieren</button>
         </div>
       </div>
     </div>
 
     <footer
       id="appFooter"
-      data-app-version="81"
+      data-app-version="82"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -14363,7 +14442,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">81</span>
+      <span id="appVersion">82</span>
     </footer>
 
     <!-- Unauffälliger Update-Button direkt am Seitenende -->
@@ -14380,7 +14459,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         </label>
         <label class="appShareChoice">
           <input type="radio" name="appShareMode" value="data">
-          <span><strong>App + Einstellungen senden</strong><small>Deine Einstellungen werden im Link mitgegeben und beim Öffnen übernommen.</small></span>
+          <span><strong>App + aktuelle Einstellungen senden</strong><small>Nur der aktuelle Aufgabenbereich (z. B. Plus) mit seinen Einstellungen, Ziel-Anzahl und App-Farbe. Fehler und Fortschritt bleiben unberührt.</small></span>
         </label>
         <a class="appShareOpenLink" id="openSharedSettingsInApp" hidden>In installierter APK übernehmen</a>
         <div class="appUpdateDialogActions">
@@ -14393,10 +14472,8 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       (function () {
         const baseUrl = "https://parip69.github.io/RechenGuruLGI_AndroidAPK/";
         const allowed = (key) => /^mathModeSettings:[A-Za-z0-9:_-]{1,80}$/.test(key) ||
-          ["mathActiveGrade", "mathLang", "mathLastMode", "mathThemeIndex",
-           "mathCelebrateMode", "mathConfettiEnabled", "mathOnesOnly",
-           "mathFlashMode", "mathFlashShowSec", "mathFlashPeekSec",
-           "mathTimeLimitSec"].includes(key);
+          ["mathActiveGrade", "mathLastMode", "mathThemeIndex", "mathThemeSchema",
+           "mathTargetCorrect"].includes(key);
         const updateWidget = document.getElementById("appUpdateWidget");
         const dialog = document.getElementById("appShareDialog");
         const appLink = document.getElementById("openSharedSettingsInApp");
@@ -14418,11 +14495,17 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           appLink.hidden = false;
         }
         function settingsLink() {
+          const storage = (key) => appStorage.getItem(key);
+          const mode = storage("mathLastMode");
+          const grade = storage("mathActiveGrade") || "0";
+          try { if (mode && typeof saveModeSettings === "function") saveModeSettings(mode, grade); } catch (_) {}
           const settings = {};
-          appStorage.ownKeys().filter(allowed).forEach((key) => {
-            const value = appStorage.getItem(key);
-            if (value !== null && value.length <= 12000) settings[key] = value;
-          });
+          const put = (key) => {
+            const value = storage(key);
+            if (value !== null && value !== undefined && String(value).length <= 12000) settings[key] = String(value);
+          };
+          ["mathLastMode", "mathActiveGrade", "mathThemeIndex", "mathThemeSchema", "mathTargetCorrect"].forEach(put);
+          if (mode && typeof modeSettingsKey === "function") put(modeSettingsKey(mode, grade));
           const bytes = new TextEncoder().encode(JSON.stringify({kind: "RechenGuru-settings", schema: 1, settings}));
           let binary = "";
           bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
