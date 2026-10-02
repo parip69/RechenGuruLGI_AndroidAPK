@@ -1,6 +1,6 @@
-<!-- Mathe Guru Web - Version 86 -->
+<!-- Mathe Guru Web - Version 84 -->
 <!doctype html>
-<html lang="de" data-app-version="86">
+<html lang="de" data-app-version="84">
   <head>
     <meta charset="UTF-8" />
     <title>Mathe Guru Web</title>
@@ -13,17 +13,17 @@
       /* Geteilte Rechen-Einstellungen nur erkennen; Übernahme erfolgt später nach ausdrücklicher Bestätigung. */
       (function () {
         const match = location.hash.match(/^#settings=([A-Za-z0-9_-]+)$/);
-        if (!match || match[1].length > 60000) return;
+        if (!match || match[1].length > 24000) return;
         try {
           const binary = atob(match[1].replace(/-/g, "+").replace(/_/g, "/"));
           const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
           const payload = JSON.parse(new TextDecoder().decode(bytes));
           const allowed = (key) =>
             /^mathModeSettings:[A-Za-z0-9:_-]{1,80}$/.test(key) ||
-            ["mathActiveGrade", "mathLastMode", "mathTargetCorrect"].includes(key);
+            ["mathActiveGrade", "mathLastMode"].includes(key);
           if (payload.kind !== "RechenGuru-settings" || payload.schema !== 1 ||
               !payload.settings || typeof payload.settings !== "object" ||
-              Object.keys(payload.settings).length > 200 ||
+              Object.keys(payload.settings).length > 3 ||
               Object.entries(payload.settings).some(([key, value]) =>
                 !allowed(key) || typeof value !== "string" || value.length > 12000)) return;
 
@@ -3490,7 +3490,7 @@
     </div>
 
     <script>
-      const APP_VERSION = 85;
+      const APP_VERSION = 84;
       const APP_STORAGE_PREFIX = "RechenGuruLGI_";
       const APP_NAME_FALLBACK = "Mathe Guru Web";
       const PORTABLE_HTML_MARKER_PREFIX = "__portableBootstrapApplied_";
@@ -3542,42 +3542,31 @@
             throw new Error("Ungültige Rechenart oder Klassen-/Bereichszuordnung.");
           }
 
+          const modeKey = grade === "0"
+            ? `mathModeSettings:${mode}`
+            : `mathModeSettings:grade${grade}:${mode}`;
           const keys = Object.keys(settings);
-          const modeKeys = keys.filter((key) => /^mathModeSettings:[A-Za-z0-9:_-]{1,80}$/.test(key));
-          if (!keys.includes("mathLastMode") || !keys.includes("mathActiveGrade") || !modeKeys.length ||
-              keys.some((key) => !(/^mathModeSettings:[A-Za-z0-9:_-]{1,80}$/.test(key) ||
-                key === "mathLastMode" || key === "mathActiveGrade" || key === "mathTargetCorrect"))) {
-            throw new Error("Der Link enthält nicht erlaubte oder unvollständige Rechen-Einstellungen.");
+          const expectedKeys = new Set(["mathLastMode", "mathActiveGrade", modeKey]);
+          if (keys.length !== expectedKeys.size || keys.some((key) => !expectedKeys.has(key))) {
+            throw new Error("Der Link enthält nicht erlaubte oder zusätzliche Einstellungen.");
           }
-          if (modeKeys.some((key) => typeof settings[key] !== "string" || settings[key].length > 12000)) {
-            throw new Error("Mindestens ein Rechen-Einstellungsblock ist ungültig.");
-          }
-          if (settings.mathTargetCorrect !== undefined && !/^\d{1,5}$/.test(String(settings.mathTargetCorrect))) {
-            throw new Error("Das mitgesendete Aufgabenziel ist ungültig.");
+          if (typeof settings[modeKey] !== "string" || settings[modeKey].length > 12000) {
+            throw new Error("Die Rechen-Einstellungen sind ungültig.");
           }
 
           const accepted = window.confirm(
             "Geteilte Rechen-Einstellungen erkannt.\n\n" +
-            "Enthaltene Einstellungsblöcke: " + modeKeys.length + "\n" +
-            "Aktive Rechenart danach: " + mode + "\n" +
-            (grade === "0" ? "Aktiver Bereich: individuell" : "Aktive Klasse: " + grade) + "\n" +
-            (settings.mathTargetCorrect !== undefined ? "Aufgabenziel: " + settings.mathTargetCorrect + "\n" : "") + "\n" +
+            "Rechenart: " + mode + "\n" +
+            (grade === "0" ? "Bereich: individuell" : "Klasse: " + grade) + "\n\n" +
             "Wollen Sie diese Daten übernehmen?\n\n" +
-            "Es werden die Einstellungen aller mitgesendeten Rechenarten und das Aufgabenziel übernommen. " +
-            "Farben, Sprache, Fehler, Punkte, Fortschritt und sonstige App-Daten bleiben unverändert."
+            "Es werden nur diese Rechenart und ihre Einstellungen übernommen. " +
+            "Farben, Sprache, Fehler, Fortschritt und sonstige App-Daten bleiben unverändert."
           );
 
           if (accepted) {
-            /* Vorhandene Rechenarten-Einstellungen gezielt ersetzen, andere App-Daten niemals löschen. */
-            appStorage.ownKeys()
-              .filter((key) => /^mathModeSettings:[A-Za-z0-9:_-]{1,80}$/.test(key))
-              .forEach((key) => appStorage.removeItem(key));
-            modeKeys.forEach((key) => appStorage.setItem(key, settings[key]));
             appStorage.setItem("mathLastMode", mode);
             appStorage.setItem("mathActiveGrade", grade);
-            if (settings.mathTargetCorrect !== undefined) {
-              appStorage.setItem("mathTargetCorrect", String(settings.mathTargetCorrect));
-            }
+            appStorage.setItem(modeKey, settings[modeKey]);
             window.__sharedSettingsApplied = true;
           }
         } catch (error) {
@@ -13216,7 +13205,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v84";
+        const SW_VERSION = "rechenguru-lgi-v82";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -14057,7 +14046,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
     <script>
       /* Update-Prüfung v66 – sichtbarer Dialog, Fokus-/Tastatur-Sperre während der Prüfung. */
       (function () {
-        const WEB_FALLBACK_VERSION = 85;
+        const WEB_FALLBACK_VERSION = 84;
         const RELEASE_INDEX = "https://parip69.github.io/RechenGuruLGI_AndroidAPK/";
         window.__appUpdateDialogOpen = false;
 
@@ -14518,7 +14507,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         </label>
         <label class="appShareChoice">
           <input type="radio" name="appShareMode" value="data">
-          <span><strong>App + Rechen-Einstellungen senden</strong><small>Sendet die eigenen Einstellungen aller Rechenarten und Klassen-/Bereiche sowie das Aufgabenziel (z. B. 100 Aufgaben). Die aktuell ausgewählte Rechenart wird ebenfalls gemerkt. Farben, Sprache, Fehler, Punkte, Fortschritt und sonstige App-Daten werden nicht mitgesendet.</small></span>
+          <span><strong>App + aktuelle Einstellungen senden</strong><small>Nur der aktuell gewählte Aufgabenbereich (z. B. Mal) mit seinen eigenen Rechen-Einstellungen und der gewählten Klassen-/Bereichszuordnung. Farben, Sprache, Fehler, Fortschritt und sonstige App-Daten werden nicht mitgesendet.</small></span>
         </label>
         <a class="appShareOpenLink" id="openSharedSettingsInApp" hidden>In installierter APK übernehmen</a>
         <div class="appUpdateDialogActions">
@@ -14531,7 +14520,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       (function () {
         const baseUrl = "https://parip69.github.io/RechenGuruLGI_AndroidAPK/";
         const allowed = (key) => /^mathModeSettings:[A-Za-z0-9:_-]{1,80}$/.test(key) ||
-          ["mathActiveGrade", "mathLastMode", "mathTargetCorrect"].includes(key);
+          ["mathActiveGrade", "mathLastMode"].includes(key);
         const updateWidget = document.getElementById("appUpdateWidget");
         const dialog = document.getElementById("appShareDialog");
         const appLink = document.getElementById("openSharedSettingsInApp");
@@ -14556,40 +14545,19 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           const storage = (key) => appStorage.getItem(key);
           const mode = storage("mathLastMode");
           const grade = storage("mathActiveGrade") || "0";
-
-          /* Die gerade sichtbare Rechenart zuerst sichern, damit auch die letzte Änderung im Link steckt. */
-          try {
-            if (typeof saveModeSettings === "function") {
-              const currentMode = typeof displayedMode === "string" && displayedMode ? displayedMode : mode;
-              const currentGrade = displayedGrade != null ? String(displayedGrade) : grade;
-              if (currentMode) saveModeSettings(currentMode, currentGrade);
-            }
-          } catch (_) {}
-
+          try { if (mode && typeof saveModeSettings === "function") saveModeSettings(mode, grade); } catch (_) {}
           const settings = {};
           const put = (key) => {
             const value = storage(key);
             if (value !== null && value !== undefined && String(value).length <= 12000) settings[key] = String(value);
           };
-          ["mathLastMode", "mathActiveGrade", "mathTargetCorrect"].forEach(put);
-
-          /* Alle gespeicherten Rechenarten-Einstellungen einsammeln – inklusive Klassenvarianten. */
-          appStorage.ownKeys()
-            .filter((key) => /^mathModeSettings:[A-Za-z0-9:_-]{1,80}$/.test(key))
-            .sort()
-            .forEach(put);
-
-          const modeCount = Object.keys(settings).filter((key) => key.startsWith("mathModeSettings:")).length;
-          if (!modeCount) throw new Error("Es wurden noch keine Rechen-Einstellungen zum Teilen gefunden.");
-          if (settings.mathTargetCorrect !== undefined && !/^\d{1,5}$/.test(settings.mathTargetCorrect)) {
-            throw new Error("Das Aufgabenziel ist ungültig und kann nicht geteilt werden.");
-          }
-
+          ["mathLastMode", "mathActiveGrade"].forEach(put);
+          if (mode && typeof modeSettingsKey === "function") put(modeSettingsKey(mode, grade));
           const bytes = new TextEncoder().encode(JSON.stringify({kind: "RechenGuru-settings", schema: 1, sourceVersion: String(document.getElementById("appVersion")?.textContent || ""), settings}));
           let binary = "";
           bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
           const encoded = btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-          if (encoded.length > 60000) throw new Error("Die Rechen-Einstellungen sind für einen einzelnen Link zu groß.");
+          if (encoded.length > 24000) throw new Error("Die Einstellungen sind für einen Link zu groß.");
           return baseUrl + "#settings=" + encoded;
         }
         async function share(url) {
