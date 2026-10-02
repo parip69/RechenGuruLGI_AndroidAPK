@@ -2365,14 +2365,6 @@
       }
       .appUpdateBtn:hover { background: var(--surface60); opacity: 1; }
       .appUpdateBtn:disabled { opacity: .48; cursor: wait; }
-      .appUpdateBtn.update-available {
-        background: #2d936c;
-        border-color: #2d936c;
-        color: #fff;
-        opacity: 1;
-        animation: appUpdatePulse 1.6s ease-in-out infinite;
-      }
-      @keyframes appUpdatePulse { 50% { box-shadow: 0 0 0 5px rgba(45,147,108,.28); } }
       .appUpdateStatus { display: none !important; }
 
       .appShareBtn {
@@ -13224,7 +13216,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v87";
+        const SW_VERSION = "rechenguru-lgi-v85";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -14291,75 +14283,20 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           try { return appStorage.getItem(UPDATE_MODE_KEY) === "auto" ? "auto" : "ask"; } catch (_) { return "ask"; }
         }
 
-        // Wie im Barcode-Scanner: Es wird keine APK geladen, sondern die veröffentlichte
-        // Web-Version aktiviert (Service Worker aktualisieren, Cache leeren, neu laden).
         async function installRemote(remoteVersion) {
-          openUpdateDialog({
-            title: "Aktualisierung läuft",
-            text: `Version V${remoteVersion} wird geladen …`,
-            kind: "new",
-            busy: true,
-          });
-          const isLocalFile = location.protocol !== "https:" && location.protocol !== "http:";
-          try {
-            if ("serviceWorker" in navigator && !isLocalFile) {
-              const regs = await navigator.serviceWorker.getRegistrations();
-              await Promise.all(regs.map((reg) => reg.update().catch(() => {})));
-            }
-            if ("caches" in window) {
-              const keys = await caches.keys();
-              await Promise.all(keys.map((key) => caches.delete(key)));
-            }
-          } catch (_) {}
-
-          try {
-            const isAndroid = /Android/i.test(navigator.userAgent || "");
-            if (isAndroid) {
-              // Android: neue APK von GitHub Pages laden und zur Installation übergeben.
-              const apkUrl = new URL("MatheGuru-latest.apk", RELEASE_INDEX);
-              apkUrl.searchParams.set("v", String(remoteVersion));
-              if (isLocalFile && window.AndroidInterface && typeof window.AndroidInterface.openExternal === "function") {
-                window.AndroidInterface.openExternal(apkUrl.toString());
-              } else {
-                location.href = apkUrl.toString();
+          if (isAndroidApp()) {
+            const apkUrl = RELEASE_INDEX + "MatheGuru-v" + encodeURIComponent(remoteVersion) + ".apk";
+            try {
+              const native = typeof getAndroidBridge === "function" ? getAndroidBridge() : null;
+              if (native && typeof native.openExternal === "function" && native.openExternal(apkUrl)) {
+                closeUpdateDialog();
+                return;
               }
-              openUpdateDialog({
-                title: "APK wird geladen",
-                text: `Öffne nach dem Download die Datei MatheGuru V${remoteVersion} und tippe auf „Installieren“.`,
-                kind: "new",
-              });
-            } else if (isLocalFile) {
-              const u = new URL(RELEASE_INDEX);
-              u.searchParams.set("update", String(remoteVersion));
-              u.searchParams.set("t", String(Date.now()));
-              location.href = u.toString();
-            } else {
-              location.reload();
-            }
-          } catch (error) {
-            openUpdateDialog({
-              title: "Aktualisierung fehlgeschlagen",
-              text: error?.message || "Unbekannter Fehler",
-              kind: "error",
-            });
+            } catch (_) {}
+            location.href = apkUrl;
+            return;
           }
-        }
-
-        function markUpdateButton(remoteVersion) {
-          const btn = document.getElementById("appUpdateBtn");
-          if (!btn) return;
-          const available = Number.isFinite(remoteVersion);
-          btn.classList.toggle("update-available", available);
-          btn.dataset.label = available ? `Update → V${remoteVersion}` : "";
-          btn.textContent = btn.dataset.label || "Update";
-          btn.title = available ? `Neue Version V${remoteVersion} verfügbar` : "Update";
-        }
-
-        async function checkUpdateOnStart() {
-          try {
-            const remote = await fetchRemoteVersion();
-            markUpdateButton(remote > getInstalledVersion() ? remote : NaN);
-          } catch (_) {}
+          await forceWebUpdate(remoteVersion);
         }
 
         function openUpdateModeDialog() {
@@ -14414,7 +14351,6 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           try {
             const remoteVersion = await fetchRemoteVersion();
 
-            markUpdateButton(remoteVersion > installedVersion ? remoteVersion : NaN);
             if (remoteVersion > installedVersion) {
               if (auto || getUpdateMode() === "auto") {
                 await installRemote(remoteVersion);
@@ -14429,7 +14365,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
                   kind: "new",
                   installVersion: remoteVersion,
                 });
-                if (btn) btn.textContent = btn.dataset.label || "Update";
+                if (btn) btn.textContent = "Update";
                 return;
               }
 
@@ -14441,7 +14377,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
                 kind: "new",
                 installVersion: remoteVersion,
               });
-              if (btn) btn.textContent = btn.dataset.label || "Update";
+              if (btn) btn.textContent = "Update";
               return;
             }
 
@@ -14470,7 +14406,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           } finally {
             if (btn) {
               btn.disabled = false;
-              btn.textContent = btn.dataset.label || "Update";
+              btn.textContent = "Update";
             }
           }
         }
@@ -14483,7 +14419,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
           if (btn) {
             const installedVersion = getInstalledVersion();
-            btn.textContent = btn.dataset.label || "Update";
+            btn.textContent = "Update";
             ["pointerdown", "mousedown", "touchstart"].forEach((type) => {
               btn.addEventListener(type, (e) => e.stopPropagation(), { passive: true });
             });
@@ -14501,9 +14437,8 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
               if (longPressed) { longPressed = false; e.preventDefault(); return; }
               checkForUpdate(e);
             });
-            if (navigator.onLine !== false) {
-              if (getUpdateMode() === "auto") setTimeout(() => checkForUpdate(null, { auto: true }), 2500);
-              else setTimeout(checkUpdateOnStart, 1500);
+            if (getUpdateMode() === "auto" && navigator.onLine !== false) {
+              setTimeout(() => checkForUpdate(null, { auto: true }), 2500);
             }
           }
 
@@ -14554,7 +14489,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="87"
+      data-app-version="85"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -14566,7 +14501,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion">87</span>
+      <span id="appVersion">85</span>
     </footer>
 
     <!-- Unauffälliger Update-Button direkt am Seitenende -->
