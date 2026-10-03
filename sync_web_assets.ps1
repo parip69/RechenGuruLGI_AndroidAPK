@@ -204,16 +204,13 @@ function Set-IndexVersionMarkers {
         throw "In '$Path' fehlen erwartete Versionsmarker."
     }
 
+    # Einzige maßgebliche Versionsquelle: data-app-version am Footer.
+    # Die sichtbare Anzeige in <span id="appVersion"> wird zur Laufzeit
+    # ausschließlich durch syncAppVersionDisplay() aus data-app-version gesetzt
+    # und daher hier bewusst nicht mehr befüllt.
     $content = [regex]::Replace(
         $content,
         '(<footer\b[^>]*\bdata-app-version=")[^"]*(")',
-        ('${1}' + $ResolvedVersionName + '${2}'),
-        [System.Text.RegularExpressions.RegexOptions]::IgnoreCase
-    )
-
-    $content = [regex]::Replace(
-        $content,
-        '(<span\b[^>]*\bid="appVersion"[^>]*>)[^<]*(</span>)',
         ('${1}' + $ResolvedVersionName + '${2}'),
         [System.Text.RegularExpressions.RegexOptions]::IgnoreCase
     )

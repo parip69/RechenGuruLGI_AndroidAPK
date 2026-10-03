@@ -1,4 +1,4 @@
-<!-- Mathe Guru Web -->
+<!-- Mathe Guru Web - Version 86 -->
 <!doctype html>
 <html lang="de">
   <head>
@@ -3512,6 +3512,7 @@
     </div>
 
     <script>
+      const APP_VERSION = 85;
       const APP_STORAGE_PREFIX = "RechenGuruLGI_";
       const APP_NAME_FALLBACK = "Mathe Guru Web";
       const PORTABLE_HTML_MARKER_PREFIX = "__portableBootstrapApplied_";
@@ -4750,7 +4751,7 @@
           if (dataVersion) return dataVersion;
         }
 
-        return "1";
+        return String(APP_VERSION || "").trim() || "1";
       }
 
       function syncAppVersionDisplay() {
@@ -4778,7 +4779,9 @@
           sanitizeFilenamePart(getCurrentAppName()) ||
           sanitizeFilenamePart(APP_NAME_FALLBACK) ||
           "Mathe_Guru";
-        const safeVersion = sanitizeFilenamePart(getCurrentAppVersion()) || "1";
+        const safeVersion =
+          sanitizeFilenamePart(getCurrentAppVersion()) ||
+          String(APP_VERSION || "1");
         return `${safeAppName}_ver_${safeVersion}`;
       }
 
@@ -13301,7 +13304,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v101";
+        const SW_VERSION = "rechenguru-lgi-v100";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -14018,6 +14021,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
     <script>
       /* Update-Prüfung v66 – sichtbarer Dialog, Fokus-/Tastatur-Sperre während der Prüfung. */
       (function () {
+        const WEB_FALLBACK_VERSION = 85;
         const RELEASE_INDEX = "https://parip69.github.io/RechenGuruLGI_AndroidAPK/";
         window.__appUpdateDialogOpen = false;
 
@@ -14039,7 +14043,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
           const footer = document.getElementById("appFooter");
           const fromFooter = versionNumber(footer?.getAttribute("data-app-version"));
-          return Number.isFinite(fromFooter) ? fromFooter : 1;
+          return Number.isFinite(fromFooter) ? fromFooter : WEB_FALLBACK_VERSION;
         }
 
         function versionFromHtml(html) {
@@ -14541,7 +14545,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="101"
+      data-app-version="100"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -14553,7 +14557,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       "
     >
       Entwickelt von: Bachner Gerhard & Isabella - Ver.
-      <span id="appVersion"></span>
+      <span id="appVersion">100</span>
     </footer>
 
     <!-- Unauffälliger Update-Button direkt am Seitenende -->
