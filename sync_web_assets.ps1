@@ -225,6 +225,28 @@ function Set-IndexVersionMarkers {
     Write-Utf8NoBomIfChanged -Path $Path -Content $content
 }
 
+function Set-ShareLinkVersion {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path,
+        [Parameter(Mandatory = $true)]
+        [string]$ResolvedVersionName
+    )
+
+    $content = [System.IO.File]::ReadAllText($Path, [System.Text.Encoding]::UTF8)
+    $content = [regex]::Replace(
+        $content,
+        '(\?v=)[^&"]*(&amp;update-check=)[^&"]*',
+        ('${1}' + $ResolvedVersionName + '${2}' + $ResolvedVersionName)
+    )
+    $content = [regex]::Replace(
+        $content,
+        '(\?update-check=)\d+("\s*)',
+        ('${1}' + $ResolvedVersionName + '${2}')
+    )
+    Write-Utf8NoBomIfChanged -Path $Path -Content $content
+}
+
 function Set-ServiceWorkerVersion {
     param(
         [Parameter(Mandatory = $true)]
@@ -320,6 +342,7 @@ $resolvedVersionName = if ($PSBoundParameters.ContainsKey("VersionName") -and -n
 $webCacheVersion = "rechenguru-lgi-v$resolvedVersionName"
 
 Set-IndexVersionMarkers -Path $indexFile -ResolvedVersionName $resolvedVersionName -WebCacheVersion $webCacheVersion
+Set-ShareLinkVersion -Path $indexFile -ResolvedVersionName $resolvedVersionName
 Set-ServiceWorkerVersion -Path $swFile -WebCacheVersion $webCacheVersion
 Set-VersionManifest -Path $versionManifestFile -ResolvedVersionName $resolvedVersionName -WebCacheVersion $webCacheVersion
 Sync-DocsFromAssets `

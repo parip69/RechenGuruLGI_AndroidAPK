@@ -14,16 +14,16 @@
     <meta property="og:locale" content="de_DE" />
     <meta property="og:title" content="Mathe Kids – Rechnen üben, spielerisch lernen" />
     <meta property="og:description" content="Mathe Kids öffnen und die aktuelle Android-App herunterladen. Auf Wunsch lassen sich Rechen-Einstellungen mit dem Link teilen." />
-    <meta property="og:url" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?v=110" />
-    <meta property="og:image" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/icons/share-preview.png?v=110" />
-    <meta property="og:image:type" content="image/png" />
-    <meta property="og:image:width" content="1731" />
-    <meta property="og:image:height" content="909" />
+    <meta property="og:url" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?v=111&amp;update-check=111&amp;preview=whatsapp-v1" />
+    <meta property="og:image" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/icons/share-preview-whatsapp-v1.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="Mathe Kids – Rechnen üben, spielerisch lernen" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Mathe Kids – Rechnen üben, spielerisch lernen" />
     <meta name="twitter:description" content="Mathe Kids öffnen und die aktuelle Android-App herunterladen." />
-    <meta name="twitter:image" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/icons/share-preview.png?v=110" />
+    <meta name="twitter:image" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/icons/share-preview-whatsapp-v1.jpg" />
     <script>
       /* Geteilte Rechen-Einstellungen nur erkennen; Übernahme erfolgt später nach ausdrücklicher Bestätigung. */
       (function () {
@@ -13443,7 +13443,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v110";
+        const SW_VERSION = "rechenguru-lgi-v111";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -14363,6 +14363,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           const u = new URL(RELEASE_INDEX);
           u.searchParams.set("update", String(remoteVersion));
           u.searchParams.set("t", String(Date.now()));
+          u.hash = location.hash;
           location.replace(u.toString());
         }
 
@@ -14714,7 +14715,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       <button id="footerHelpBtn" type="button" onclick="openLegend()"><span id="footerHelpLabel">Hilfe</span> 📖</button>
       <span id="appShareWidget"></span>
     </div>
-    <footer id="appFooter" data-app-version="110" class="matheFooter">
+    <footer id="appFooter" data-app-version="111" class="matheFooter">
       <span><span id="footerDeveloperLabel">Entwickelt von:</span> <button id="developerInfoLink" type="button">Bachner Gerhard</button> &amp; Isabella · Ver.<span id="appVersion"></span></span>
       <div class="appUpdateWidget" id="appUpdateWidget">
         <button class="appUpdateBtn" id="appUpdateBtn" type="button" title="Kurz drücken: Update prüfen · Lang drücken: Update-Einstellungen" aria-label="Update prüfen. Lange drücken für Update-Einstellungen.">↻</button>
@@ -14768,7 +14769,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
           <a
             class="developer-project-card"
-            href="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?update-check=110"
+            href="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?update-check=111"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Mathe Kids öffnen"
@@ -14849,7 +14850,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       (function () {
         const baseUrl = "https://parip69.github.io/RechenGuruLGI_AndroidAPK/";
         const publishedVersion = document.getElementById("appFooter")?.getAttribute("data-app-version") || getCurrentAppVersion();
-        const shareUrl = baseUrl + "?v=" + encodeURIComponent(publishedVersion) + "&update-check=" + encodeURIComponent(publishedVersion);
+        const shareUrl = baseUrl + "?v=" + encodeURIComponent(publishedVersion) + "&update-check=" + encodeURIComponent(publishedVersion) + "&preview=whatsapp-v1";
         const updateWidget = document.getElementById("appShareWidget");
         const dialog = document.getElementById("appShareDialog");
         const appLink = document.getElementById("openSharedSettingsInApp");
@@ -15003,8 +15004,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           if (!Object.keys(settings).length) throw new Error("Für die Auswahl sind keine gespeicherten Daten vorhanden.");
 
           /* Neue Links verwenden immer schema 2 (selektive Rechenarten-Übernahme). */
-          const payload = { kind: "RechenGuru-settings", schema: 2, settings };
-          if (selectedModes.length) payload.selectedModes = selectedModes;
+          const payload = { kind: "RechenGuru-settings", schema: 2, settings, selectedModes };
           const bytes = new TextEncoder().encode(JSON.stringify(payload));
           let binary = "";
           bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
