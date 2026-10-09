@@ -14,16 +14,16 @@
     <meta property="og:locale" content="de_DE" />
     <meta property="og:title" content="Mathe Guru – Rechnen üben, spielerisch lernen" />
     <meta property="og:description" content="Mathe Guru öffnen und die aktuelle Android-App herunterladen. Auf Wunsch lassen sich Rechen-Einstellungen mit dem Link teilen." />
-    <meta property="og:url" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?v=103" />
-    <meta property="og:image" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/icons/share-preview.png?v=103" />
+    <meta property="og:url" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?v=104" />
+    <meta property="og:image" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/icons/share-preview.png?v=104" />
     <meta property="og:image:type" content="image/png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
+    <meta property="og:image:width" content="1731" />
+    <meta property="og:image:height" content="909" />
     <meta property="og:image:alt" content="Mathe Guru – Rechnen üben, spielerisch lernen" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Mathe Guru – Rechnen üben, spielerisch lernen" />
     <meta name="twitter:description" content="Mathe Guru öffnen und die aktuelle Android-App herunterladen." />
-    <meta name="twitter:image" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/icons/share-preview.png?v=103" />
+    <meta name="twitter:image" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/icons/share-preview.png?v=104" />
     <script>
       /* Geteilte Rechen-Einstellungen nur erkennen; Übernahme erfolgt später nach ausdrücklicher Bestätigung. */
       (function () {
@@ -13433,7 +13433,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v103";
+        const SW_VERSION = "rechenguru-lgi-v104";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -14375,8 +14375,8 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           try { return appStorage.getItem(UPDATE_MODE_KEY) === "auto" ? "auto" : "ask"; } catch (_) { return "ask"; }
         }
 
-        // Wie im Barcode-Scanner: Es wird keine APK geladen, sondern die veröffentlichte
-        // Web-Version aktiviert (Service Worker aktualisieren, Cache leeren, neu laden).
+        // In der installierten Android-App wird die neue APK im Browser heruntergeladen.
+        // PWA-Installationen aktualisieren weiterhin ihren Service Worker.
         async function installRemote(remoteVersion) {
           openUpdateDialog({
             title: "Aktualisierung läuft",
@@ -14385,6 +14385,25 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             busy: true,
           });
           const isLocalFile = location.protocol !== "https:" && location.protocol !== "http:";
+
+          if (isAndroidApp()) {
+            const apkUrl = RELEASE_INDEX + "MatheGuru-v" + encodeURIComponent(remoteVersion) + ".apk";
+            const native = typeof getAndroidBridge === "function" ? getAndroidBridge() : null;
+            if (native && typeof native.openExternal === "function" && native.openExternal(apkUrl)) {
+              openUpdateDialog({
+                title: "APK-Download geöffnet",
+                text: `Version V${remoteVersion} wird im Browser heruntergeladen. Öffne danach die heruntergeladene APK und bestätige die Installation auf deinem Gerät.`,
+                kind: "new",
+              });
+              return;
+            }
+            openUpdateDialog({
+              title: "APK-Download",
+              text: "Der Browser konnte nicht automatisch geöffnet werden. Lade die APK über die Mathe-Guru-Seite herunter.",
+              kind: "error",
+            });
+            return;
+          }
 
           async function applyServiceWorkerUpdate() {
             if (isLocalFile || !("serviceWorker" in navigator)) return false;
@@ -14443,7 +14462,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
               await Promise.all(regs.map((reg) => reg.unregister().catch(() => false)));
             }
             if (isLocalFile) {
-              // Installierte APK: veröffentlichte Version im selben Fenster laden.
+              // Offline-HTML ohne native Android-Brücke: die Web-Version öffnen.
               const u = new URL(RELEASE_INDEX);
               u.searchParams.set("update", String(remoteVersion));
               u.searchParams.set("t", String(Date.now()));
@@ -14595,6 +14614,16 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         }
 
         document.addEventListener("DOMContentLoaded", function () {
+          // Ältere APKs (z. B. V102) öffneten nach dem Update-Klick nur die Web-Seite.
+          // Der Parameter bleibt dabei erhalten; hier wird der APK-Download fortgesetzt.
+          const requestedVersion = versionNumber(new URLSearchParams(location.search).get("update"));
+          if (isAndroidApp() && Number.isFinite(requestedVersion) && requestedVersion > getInstalledVersion()) {
+            const cleanUrl = new URL(location.href);
+            cleanUrl.searchParams.delete("update");
+            cleanUrl.searchParams.delete("t");
+            history.replaceState(null, "", cleanUrl.toString());
+            setTimeout(() => installRemote(requestedVersion), 300);
+          }
           const btn = document.getElementById("appUpdateBtn");
           const okBtn = document.getElementById("appUpdateDialogOk");
           const installBtn = document.getElementById("appUpdateDialogInstall");
@@ -14673,7 +14702,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="103"
+      data-app-version="104"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -14716,7 +14745,8 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
     <script>
       (function () {
         const baseUrl = "https://parip69.github.io/RechenGuruLGI_AndroidAPK/";
-        const shareUrl = baseUrl + "?v=" + encodeURIComponent(getCurrentAppVersion());
+        const publishedVersion = document.getElementById("appFooter")?.getAttribute("data-app-version") || getCurrentAppVersion();
+        const shareUrl = baseUrl + "?v=" + encodeURIComponent(publishedVersion);
         const updateWidget = document.getElementById("appUpdateWidget");
         const dialog = document.getElementById("appShareDialog");
         const appLink = document.getElementById("openSharedSettingsInApp");
