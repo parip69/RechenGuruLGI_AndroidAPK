@@ -14,7 +14,7 @@
     <meta property="og:locale" content="de_DE" />
     <meta property="og:title" content="Mathe Kids – Rechnen üben, spielerisch lernen" />
     <meta property="og:description" content="Mathe Kids öffnen und die aktuelle Android-App herunterladen. Auf Wunsch lassen sich Rechen-Einstellungen mit dem Link teilen." />
-    <meta property="og:url" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?v=112&amp;update-check=112&amp;preview=whatsapp-v1" />
+    <meta property="og:url" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?v=113&amp;update-check=113&amp;preview=whatsapp-v1" />
     <meta property="og:image" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/icons/share-preview-whatsapp-v1.jpg" />
     <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1200" />
@@ -2524,19 +2524,19 @@
         cursor:pointer; touch-action:manipulation;
         transition:transform .15s ease,box-shadow .15s ease,filter .15s ease;
       }
-      .matheHelpShareRow .appShareBtn { width:40px; height:36px; }
-      .appDownloadBtn { width:46px; height:40px; justify-self:center; }
-      .appDownloadBtn svg { width:22px; height:22px; color:#627e8c; }
-      .matheHelpShareRow .appShareBtn svg { width:20px; height:20px; }
-      .matheHelpShareRow .appShareBtn::before, .appDownloadBtn::before, .matheFooter .appUpdateBtn::before { content:""; position:absolute; inset:-4px; }
+      .matheHelpShareRow .appShareBtn { width:28px; height:26px; border-radius:8px; }
+      .appDownloadBtn { width:30px; height:26px; border-radius:8px; justify-self:center; }
+      .appDownloadBtn svg { width:16px; height:16px; color:#627e8c; }
+      .matheHelpShareRow .appShareBtn svg { width:15px; height:15px; }
+      .matheHelpShareRow .appShareBtn::before, .appDownloadBtn::before, .matheFooter .appUpdateBtn::before { content:""; position:absolute; left:50%; top:50%; width:44px; height:44px; transform:translate(-50%,-50%); }
       .matheHelpShareRow .appShareBtn:hover, .appDownloadBtn:hover, .matheFooter .appUpdateBtn:hover { filter:brightness(1.04); box-shadow:0 2px 8px rgba(91,168,197,.25); }
       .matheHelpShareRow .appShareBtn:active, .appDownloadBtn:active, .matheFooter .appUpdateBtn:active { transform:scale(.95); }
       .matheHelpShareRow button:focus-visible, .matheFooter .appUpdateBtn:focus-visible { outline:2px solid var(--primary); outline-offset:4px; }
-      .matheFooter { width:min(900px,calc(100% - 24px)); margin-left:auto!important; margin-right:auto!important; display:flex; align-items:center; justify-content:space-between; gap:12px; margin:12px 0 24px; color:var(--textMuted); font-size:.8rem; }
+      .matheFooter { width:min(900px,calc(100% - 24px)); margin-left:auto!important; margin-right:auto!important; display:flex; align-items:center; justify-content:space-between; gap:6px; margin:10px 0 24px; color:var(--textMuted); font-size:clamp(9px,2.4vw,11px); white-space:nowrap; }
       #developerInfoLink { border:0; padding:0; background:transparent; color:inherit; text-decoration:underline; font:inherit; font-weight:700; cursor:pointer; }
       .matheFooter .appUpdateWidget { margin:0; flex-shrink:0; }
-      .matheFooter .appUpdateBtn { width:40px; height:36px; min-width:40px; min-height:36px; font-size:1.1rem; }
-      .matheFooter .appUpdateBtn.update-available { color:#185b48; border-color:#84b7a6; background:linear-gradient(155deg,#effbf6,#cbe9de); animation:none; }
+      .matheFooter .appUpdateBtn { width:28px; height:24px; min-width:28px; min-height:24px; border-radius:7px; font-size:.85rem; }
+      .matheFooter .appUpdateBtn.update-available { width:auto; min-width:28px; padding:0 6px; font-size:9px; font-weight:400; color:#fff; border-color:#477364; background:#375e51; box-shadow:none; animation:none; }
       .matheFooter .appUpdateBtn:disabled { opacity:.6; cursor:wait; }
       #appUpdateDialog { background:rgba(15,23,42,.32); -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px); }
       #appUpdateDialog .appUpdateDialogCard { width:min(360px,calc(100vw - 40px)); border:1px solid var(--dividerStrong); border-radius:18px; padding:20px 18px 18px; box-shadow:0 14px 36px rgba(0,0,0,.22); }
@@ -13471,7 +13471,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v112";
+        const SW_VERSION = "rechenguru-lgi-v113";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -14534,8 +14534,8 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           if (!btn) return;
           const available = Number.isFinite(remoteVersion);
           btn.classList.toggle("update-available", available);
-          btn.dataset.label = "↻";
-          btn.textContent = "↻";
+          btn.dataset.label = available ? `↻ V${remoteVersion}` : "↻";
+          btn.textContent = btn.dataset.label;
           btn.title = available ? `Neue Version V${remoteVersion} verfügbar · Lange drücken für Update-Einstellungen` : "Update prüfen · Lange drücken für Update-Einstellungen";
           btn.setAttribute("aria-label", btn.title);
         }
@@ -14785,7 +14785,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       <button class="appDownloadBtn" id="appDownloadBtn" type="button" title="Android-APK herunterladen" aria-label="Android-APK herunterladen" aria-haspopup="dialog" aria-controls="appUpdateDialog"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M10 3h8v13h5l-9 9-9-9h5z" /></svg></button>
       <span id="appShareWidget"></span>
     </div>
-    <footer id="appFooter" data-app-version="112" class="matheFooter">
+    <footer id="appFooter" data-app-version="113" class="matheFooter">
       <span><span id="footerDeveloperLabel">Entwickelt von:</span> <button id="developerInfoLink" type="button">Bachner Gerhard</button> &amp; Isabella · Ver.<span id="appVersion"></span></span>
       <div class="appUpdateWidget" id="appUpdateWidget">
         <button class="appUpdateBtn" id="appUpdateBtn" type="button" title="Kurz drücken: Update prüfen · Lang drücken: Update-Einstellungen" aria-label="Update prüfen. Lange drücken für Update-Einstellungen.">↻</button>
@@ -14839,7 +14839,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
           <a
             class="developer-project-card"
-            href="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?update-check=112"
+            href="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?update-check=113"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Mathe Kids öffnen"
