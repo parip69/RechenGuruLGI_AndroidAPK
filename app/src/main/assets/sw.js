@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rechenguru-lgi-v105';
+const CACHE_NAME = 'rechenguru-lgi-v106';
 const CACHE_PREFIX = 'rechenguru-lgi-v';
 const PRECACHE_URLS = [
   './',
@@ -129,6 +129,9 @@ self.addEventListener('fetch', event => {
 
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+
+  // APKs sind Downloads, keine App-Navigation. Niemals durch die HTML-Shell ersetzen.
+  if (/\.apk$/i.test(url.pathname)) return;
 
   // Versionspruefung: immer direkt vom Server, nie in den installierten Cache schreiben.
   if (url.searchParams.has('update-check') || url.searchParams.has('_install')) {
