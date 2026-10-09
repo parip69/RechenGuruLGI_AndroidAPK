@@ -14,8 +14,8 @@
     <meta property="og:locale" content="de_DE" />
     <meta property="og:title" content="Mathe Kids – Rechnen üben, spielerisch lernen" />
     <meta property="og:description" content="Mathe Kids öffnen und die aktuelle Android-App herunterladen. Auf Wunsch lassen sich Rechen-Einstellungen mit dem Link teilen." />
-    <meta property="og:url" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?v=108" />
-    <meta property="og:image" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/icons/share-preview.png?v=108" />
+    <meta property="og:url" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?v=109" />
+    <meta property="og:image" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/icons/share-preview.png?v=109" />
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1731" />
     <meta property="og:image:height" content="909" />
@@ -23,7 +23,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Mathe Kids – Rechnen üben, spielerisch lernen" />
     <meta name="twitter:description" content="Mathe Kids öffnen und die aktuelle Android-App herunterladen." />
-    <meta name="twitter:image" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/icons/share-preview.png?v=108" />
+    <meta name="twitter:image" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/icons/share-preview.png?v=109" />
     <script>
       /* Geteilte Rechen-Einstellungen nur erkennen; Übernahme erfolgt später nach ausdrücklicher Bestätigung. */
       (function () {
@@ -13443,7 +13443,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v108";
+        const SW_VERSION = "rechenguru-lgi-v109";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -14714,7 +14714,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       <button id="footerHelpBtn" type="button" onclick="openLegend()"><span id="footerHelpLabel">Hilfe</span> 📖</button>
       <span id="appShareWidget"></span>
     </div>
-    <footer id="appFooter" data-app-version="108" class="matheFooter">
+    <footer id="appFooter" data-app-version="109" class="matheFooter">
       <span><span id="footerDeveloperLabel">Entwickelt von:</span> <button id="developerInfoLink" type="button">Bachner Gerhard</button> &amp; Isabella · Ver.<span id="appVersion"></span></span>
       <div class="appUpdateWidget" id="appUpdateWidget">
         <button class="appUpdateBtn" id="appUpdateBtn" type="button" title="Kurz drücken: Update prüfen · Lang drücken: Update-Einstellungen" aria-label="Update prüfen. Lange drücken für Update-Einstellungen.">↻</button>
@@ -14768,13 +14768,13 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
           <a
             class="developer-project-card"
-            href="https://parip69.github.io/RechenGuruLGI_AndroidAPK/"
+            href="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?update-check=109"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Mathe Kids öffnen"
           >
             <img
-              src="icons/project-preview-3.webp"
+              src="icons/project-mathe-kids.png"
               alt="Vorschau Mathe Kids"
             />
             <span class="project-card-body">
@@ -14785,7 +14785,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
               </span>
             </span>
           </a>
-          <a class="developer-project-card" href="https://parip69.github.io/BarcodeAudi_AndroidAPK/" target="_blank" rel="noopener noreferrer"><span class="project-card-body"><span class="project-card-title">Audi Barcode Scanner</span><span class="project-card-text">Barcodes erstellen, verwalten und mit Einstellungen teilen.</span></span></a>
+          <a class="developer-project-card" href="https://parip69.github.io/BarcodeAudi_AndroidAPK/" target="_blank" rel="noopener noreferrer" aria-label="Audi Barcode Scanner öffnen"><img src="icons/project-audi-barcode.png" alt="Vorschau Audi Barcode Scanner"><span class="project-card-body"><span class="project-card-title">Audi Barcode Scanner</span><span class="project-card-text">Barcodes erstellen, verwalten und mit Einstellungen teilen.</span></span></a>
         </div>
 
         <p>Wer Interesse an einem Projekt oder an einem technischen Austausch hat, kann mich gerne anfragen.</p>
@@ -14849,7 +14849,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       (function () {
         const baseUrl = "https://parip69.github.io/RechenGuruLGI_AndroidAPK/";
         const publishedVersion = document.getElementById("appFooter")?.getAttribute("data-app-version") || getCurrentAppVersion();
-        const shareUrl = baseUrl + "?v=" + encodeURIComponent(publishedVersion);
+        const shareUrl = baseUrl + "?v=" + encodeURIComponent(publishedVersion) + "&update-check=" + encodeURIComponent(publishedVersion);
         const updateWidget = document.getElementById("appShareWidget");
         const dialog = document.getElementById("appShareDialog");
         const appLink = document.getElementById("openSharedSettingsInApp");
