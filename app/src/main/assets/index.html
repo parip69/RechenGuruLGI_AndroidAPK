@@ -9,6 +9,21 @@
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
     <meta name="theme-color" content="#D9DFE8" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Mathe Guru" />
+    <meta property="og:locale" content="de_DE" />
+    <meta property="og:title" content="Mathe Guru – Rechnen üben, spielerisch lernen" />
+    <meta property="og:description" content="Mathe Guru öffnen und die aktuelle Android-App herunterladen. Auf Wunsch lassen sich Rechen-Einstellungen mit dem Link teilen." />
+    <meta property="og:url" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?v=103" />
+    <meta property="og:image" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/icons/share-preview.png?v=103" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Mathe Guru – Rechnen üben, spielerisch lernen" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Mathe Guru – Rechnen üben, spielerisch lernen" />
+    <meta name="twitter:description" content="Mathe Guru öffnen und die aktuelle Android-App herunterladen." />
+    <meta name="twitter:image" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/icons/share-preview.png?v=103" />
     <script>
       /* Geteilte Rechen-Einstellungen nur erkennen; Übernahme erfolgt später nach ausdrücklicher Bestätigung. */
       (function () {
@@ -13418,7 +13433,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v102";
+        const SW_VERSION = "rechenguru-lgi-v103";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -14658,7 +14673,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <footer
       id="appFooter"
-      data-app-version="102"
+      data-app-version="103"
       style="
         text-align: center;
         font-size: 0.75rem;
@@ -14701,6 +14716,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
     <script>
       (function () {
         const baseUrl = "https://parip69.github.io/RechenGuruLGI_AndroidAPK/";
+        const shareUrl = baseUrl + "?v=" + encodeURIComponent(getCurrentAppVersion());
         const updateWidget = document.getElementById("appUpdateWidget");
         const dialog = document.getElementById("appShareDialog");
         const appLink = document.getElementById("openSharedSettingsInApp");
@@ -14861,7 +14877,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
           const encoded = btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
           if (encoded.length > 60000) throw new Error("Die Rechen-Einstellungen sind für einen einzelnen Link zu groß.");
-          return baseUrl + "#settings=" + encoded;
+          return shareUrl + "#settings=" + encoded;
         }
         async function share(url) {
           close();
@@ -14879,7 +14895,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           const withData = document.querySelector('input[name="appShareMode"]:checked')?.value === "data";
           const ids = [...groupBox.querySelectorAll("input[data-group]:checked")].map((i) => i.dataset.group);
           const modeIds = modeCheckboxes().filter((cb) => cb.checked).map((cb) => cb.dataset.mode);
-          try { share(withData ? settingsLink(ids, modeIds) : baseUrl); } catch (error) { alert(error.message); }
+          try { share(withData ? settingsLink(ids, modeIds) : shareUrl); } catch (error) { alert(error.message); }
         });
       })();
     </script>
