@@ -1,6 +1,6 @@
 | Schritt | Status |
 | --- | --- |
-| Version, Web-Assets und Vorschau synchronisieren | Erledigt: Version 111, offizielles Sync-Skript geprüft |
-| APK bauen und prüfen | Erledigt: Build, Signatur und enthaltene Assets geprüft |
-| APK und HTML archivieren und auf GitHub veröffentlichen | Erledigt: Version 111 auf main, Pages-Deployment erfolgreich |
-| Öffentliche Download- und Vorschau-Links prüfen | Erledigt: APK HTTP 200, Signatur und SHA-256 geprüft; JPEG HTTP 200, image/jpeg, 66014 Byte; OG-Metadaten im öffentlichen HTML geprüft |
+| Footer und dezente Download-/Update-Anzeige anpassen | Erledigt: Hilfe links, kleiner APK-Download mittig, Teilen rechts, Update darunter |
+| Mobile Anordnung, Download, Update und Teilen prüfen | Erledigt: 320/390/768 Pixel; Dialoge, Abbrechen, native Browser-Übergabe, Update-Einstellungen und Settings-Link geprüft. Browser-APK-Transfer im verwalteten Chromium abgebrochen (DownloadRestrictions=1); kein Gerätetest |
+| Version 112 synchronisieren, APK bauen und archivieren | Erledigt: offizielles Sync-Skript, Gradle-Build, Signatur und enthaltene Assets geprüft; gleicher Schlüssel wie Version 111 |
+| Auf GitHub veröffentlichen und öffentlichen Testlink prüfen | In Arbeit |

@@ -14,7 +14,7 @@
     <meta property="og:locale" content="de_DE" />
     <meta property="og:title" content="Mathe Kids – Rechnen üben, spielerisch lernen" />
     <meta property="og:description" content="Mathe Kids öffnen und die aktuelle Android-App herunterladen. Auf Wunsch lassen sich Rechen-Einstellungen mit dem Link teilen." />
-    <meta property="og:url" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?v=111&amp;update-check=111&amp;preview=whatsapp-v1" />
+    <meta property="og:url" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?v=112&amp;update-check=112&amp;preview=whatsapp-v1" />
     <meta property="og:image" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/icons/share-preview-whatsapp-v1.jpg" />
     <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1200" />
@@ -2512,14 +2512,42 @@
       @media print { .appUpdateWidget, .appUpdateDialog { display: none !important; } }
 
 
-      .matheHelpShareRow { width:min(900px,calc(100% - 24px)); box-sizing:border-box; margin-left:auto!important; margin-right:auto!important; display:flex; align-items:center; justify-content:space-between; gap:12px; margin:24px 0 0; padding:16px; border:1px solid var(--dividerStrong); border-radius:20px; background:var(--surface78); }
+      .matheHelpShareRow { width:min(900px,calc(100% - 24px)); box-sizing:border-box; margin-left:auto!important; margin-right:auto!important; display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; gap:10px; margin:24px 0 0; padding:12px 14px; border:1px solid var(--dividerStrong); border-radius:18px; background:var(--surface78); }
       #footerHelpBtn { border:0; background:transparent; color:var(--textMuted); font:inherit; cursor:pointer; min-height:44px; }
-      .matheHelpShareRow .appShareBtn { width:44px; height:44px; border-radius:14px; opacity:1; color:var(--text); background:var(--surface60); }
-      .matheHelpShareRow .appShareBtn svg { width:24px; height:24px; }
-      .matheFooter { width:min(900px,calc(100% - 24px)); margin-left:auto!important; margin-right:auto!important; display:flex; align-items:center; justify-content:space-between; gap:12px; margin:16px 0 24px; color:var(--textMuted); font-size:.85rem; }
+      #footerHelpBtn { justify-self:start; padding:0; font-size:.88rem; white-space:nowrap; }
+      #appShareWidget { justify-self:end; display:flex; align-items:center; }
+      .matheHelpShareRow .appShareBtn, .appDownloadBtn, .matheFooter .appUpdateBtn {
+        position:relative; display:inline-grid; place-items:center; padding:0; margin:0;
+        border:1px solid #91b8c8; border-radius:11px; opacity:1;
+        color:#245e73; background:linear-gradient(155deg,#f0faff,#c8e8f5);
+        box-shadow:0 1px 5px rgba(91,168,197,.18),inset 0 1px 0 rgba(255,255,255,.7);
+        cursor:pointer; touch-action:manipulation;
+        transition:transform .15s ease,box-shadow .15s ease,filter .15s ease;
+      }
+      .matheHelpShareRow .appShareBtn { width:40px; height:36px; }
+      .appDownloadBtn { width:46px; height:40px; justify-self:center; }
+      .appDownloadBtn svg { width:22px; height:22px; color:#627e8c; }
+      .matheHelpShareRow .appShareBtn svg { width:20px; height:20px; }
+      .matheHelpShareRow .appShareBtn::before, .appDownloadBtn::before, .matheFooter .appUpdateBtn::before { content:""; position:absolute; inset:-4px; }
+      .matheHelpShareRow .appShareBtn:hover, .appDownloadBtn:hover, .matheFooter .appUpdateBtn:hover { filter:brightness(1.04); box-shadow:0 2px 8px rgba(91,168,197,.25); }
+      .matheHelpShareRow .appShareBtn:active, .appDownloadBtn:active, .matheFooter .appUpdateBtn:active { transform:scale(.95); }
+      .matheHelpShareRow button:focus-visible, .matheFooter .appUpdateBtn:focus-visible { outline:2px solid var(--primary); outline-offset:4px; }
+      .matheFooter { width:min(900px,calc(100% - 24px)); margin-left:auto!important; margin-right:auto!important; display:flex; align-items:center; justify-content:space-between; gap:12px; margin:12px 0 24px; color:var(--textMuted); font-size:.8rem; }
       #developerInfoLink { border:0; padding:0; background:transparent; color:inherit; text-decoration:underline; font:inherit; font-weight:700; cursor:pointer; }
       .matheFooter .appUpdateWidget { margin:0; flex-shrink:0; }
-      .matheFooter .appUpdateBtn { min-width:44px; min-height:44px; border-radius:14px; font-size:1.15rem; opacity:1; }
+      .matheFooter .appUpdateBtn { width:40px; height:36px; min-width:40px; min-height:36px; font-size:1.1rem; }
+      .matheFooter .appUpdateBtn.update-available { color:#185b48; border-color:#84b7a6; background:linear-gradient(155deg,#effbf6,#cbe9de); animation:none; }
+      .matheFooter .appUpdateBtn:disabled { opacity:.6; cursor:wait; }
+      #appUpdateDialog { background:rgba(15,23,42,.32); -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px); }
+      #appUpdateDialog .appUpdateDialogCard { width:min(360px,calc(100vw - 40px)); border:1px solid var(--dividerStrong); border-radius:18px; padding:20px 18px 18px; box-shadow:0 14px 36px rgba(0,0,0,.22); }
+      #appUpdateDialog .appUpdateDialogIcon { font-size:1.65rem; margin-bottom:12px; }
+      #appUpdateDialog .appUpdateDialogTitle { font-size:1.08rem; font-weight:700; margin-bottom:8px; }
+      #appUpdateDialog .appUpdateDialogText { font-size:.88rem; font-weight:400; color:var(--textMuted); line-height:1.55; }
+      #appUpdateDialog .appUpdateDialogActions { gap:8px; margin-top:18px; }
+      #appUpdateDialog .appUpdateDialogBtn { min-width:96px; min-height:40px; padding:8px 14px; border-radius:11px; font-size:.85rem; font-weight:600; box-shadow:none; background:linear-gradient(155deg,#f0faff,#c8e8f5); color:#245e73; border:1px solid #91b8c8; }
+      #appUpdateDialog .appUpdateDialogBtn.secondary { background:var(--surface45); color:var(--textMuted); border-color:var(--dividerStrong); }
+      #appUpdateDialog .appUpdateDialogBtn:focus-visible { outline:2px solid var(--primary); outline-offset:3px; }
+      @media (prefers-reduced-motion:reduce) { .appDownloadBtn, .matheHelpShareRow .appShareBtn, .matheFooter .appUpdateBtn { transition:none; } }
       .developerCard { max-height:85dvh; overflow-y:auto; width:min(560px,94vw); color:var(--text); }
       .developerHeading { display:flex; align-items:center; justify-content:space-between; gap:12px; }
       .developerHeading h2 { margin:0; }
@@ -13443,7 +13471,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v111";
+        const SW_VERSION = "rechenguru-lgi-v112";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -14241,7 +14269,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           if (el) el.classList.remove("show");
         }
 
-        function setDialogContent({ title, text, kind = "ok", busy = false, installVersion = null }) {
+        function setDialogContent({ title, text, kind = "ok", busy = false, installVersion = null, download = false }) {
           const dialog = document.getElementById("appUpdateDialog");
           const titleEl = document.getElementById("appUpdateDialogTitle");
           const textEl = document.getElementById("appUpdateDialogText");
@@ -14252,12 +14280,19 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
           titleEl.textContent = title || "Update-Prüfung";
           textEl.textContent = text || "";
-          iconEl.textContent = busy ? "⏳" : kind === "new" ? "⬆️" : kind === "error" ? "⚠️" : "✅";
+          iconEl.textContent = busy ? "⏳" : download ? "↓" : kind === "new" ? "⬆️" : kind === "error" ? "⚠️" : "✅";
           okBtn.disabled = !!busy;
           okBtn.style.display = busy ? "none" : "";
 
-          okBtn.textContent = Number.isFinite(installVersion) ? "Später" : "OK";
-          if (Number.isFinite(installVersion)) {
+          okBtn.textContent = download ? "Abbrechen" : Number.isFinite(installVersion) ? "Später" : "OK";
+          installBtn.textContent = download ? "Herunterladen" : "Jetzt installieren";
+          delete installBtn.dataset.action;
+          if (download) {
+            installBtn.style.display = "";
+            installBtn.disabled = false;
+            installBtn.dataset.action = "download";
+            delete installBtn.dataset.version;
+          } else if (Number.isFinite(installVersion)) {
             installBtn.style.display = "";
             installBtn.disabled = false;
             installBtn.dataset.version = String(installVersion);
@@ -14499,9 +14534,10 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           if (!btn) return;
           const available = Number.isFinite(remoteVersion);
           btn.classList.toggle("update-available", available);
-          btn.dataset.label = available ? `Update → V${remoteVersion}` : "";
-          btn.textContent = btn.dataset.label || "↻";
-          btn.title = available ? `Neue Version V${remoteVersion} verfügbar` : "Update";
+          btn.dataset.label = "↻";
+          btn.textContent = "↻";
+          btn.title = available ? `Neue Version V${remoteVersion} verfügbar · Lange drücken für Update-Einstellungen` : "Update prüfen · Lange drücken für Update-Einstellungen";
+          btn.setAttribute("aria-label", btn.title);
         }
 
         async function checkUpdateOnStart() {
@@ -14557,7 +14593,11 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             btn.textContent = "…";
           }
 
-          if (!auto) showUpdateStatus(`Installiert: V${installedVersion} · Suche neue Revision …`, "ok");
+          if (!auto) openUpdateDialog({
+            title: "Update prüfen",
+            text: `Installierte Version: V${installedVersion}\nDie aktuelle Version wird gesucht …`,
+            busy: true,
+          });
 
 
           try {
@@ -14596,7 +14636,11 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
             if (remoteVersion === installedVersion) {
               hideCompactStatus();
-              if (!auto) showUpdateToast(`Version ist gleich: Ver.${installedVersion}`);
+              if (!auto) openUpdateDialog({
+                title: "Alles aktuell",
+                text: `Mathe Kids V${installedVersion} ist bereits auf dem neuesten Stand.`,
+                kind: "ok",
+              });
             } else if (!auto) {
               const text = `Auf diesem Gerät: V${installedVersion}\nAuf dem Server: V${remoteVersion}\n\nDiese Installation ist neuer als die veröffentlichte Version.`;
               showUpdateStatus(text.replace(/\n/g, " · "), "ok");
@@ -14639,6 +14683,13 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           const okBtn = document.getElementById("appUpdateDialogOk");
           const installBtn = document.getElementById("appUpdateDialogInstall");
           const dialog = document.getElementById("appUpdateDialog");
+          document.getElementById("appDownloadBtn")?.addEventListener("click", () => {
+            openUpdateDialog({
+              title: "APK herunterladen",
+              text: "Die aktuelle Android-App herunterladen?\nDie Installation bestätigst du anschließend auf deinem Gerät.",
+              download: true,
+            });
+          });
 
           if (btn) {
             const installedVersion = getInstalledVersion();
@@ -14675,6 +14726,24 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           installBtn?.addEventListener("click", async (e) => {
             e.preventDefault();
             e.stopPropagation();
+            if (installBtn.dataset.action === "download") {
+              const apkUrl = RELEASE_INDEX + "MatheKids-latest.apk?update-check=apk&t=" + Date.now();
+              try {
+                const native = typeof getAndroidBridge === "function" ? getAndroidBridge() : null;
+                if (!(native && typeof native.openExternal === "function" && native.openExternal(apkUrl))) {
+                  const link = document.createElement("a");
+                  link.href = apkUrl;
+                  link.download = "MatheKids-latest.apk";
+                  document.body.appendChild(link);
+                  link.click();
+                  link.remove();
+                }
+                closeUpdateDialog();
+              } catch (error) {
+                openUpdateDialog({ title: "Download nicht möglich", text: error?.message || "Bitte versuche es erneut.", kind: "error" });
+              }
+              return;
+            }
             const remoteVersion = versionNumber(installBtn.dataset.version);
             if (!Number.isFinite(remoteVersion)) return;
             installBtn.disabled = true;
@@ -14713,9 +14782,10 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <div class="matheHelpShareRow">
       <button id="footerHelpBtn" type="button" onclick="openLegend()"><span id="footerHelpLabel">Hilfe</span> 📖</button>
+      <button class="appDownloadBtn" id="appDownloadBtn" type="button" title="Android-APK herunterladen" aria-label="Android-APK herunterladen" aria-haspopup="dialog" aria-controls="appUpdateDialog"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M10 3h8v13h5l-9 9-9-9h5z" /></svg></button>
       <span id="appShareWidget"></span>
     </div>
-    <footer id="appFooter" data-app-version="111" class="matheFooter">
+    <footer id="appFooter" data-app-version="112" class="matheFooter">
       <span><span id="footerDeveloperLabel">Entwickelt von:</span> <button id="developerInfoLink" type="button">Bachner Gerhard</button> &amp; Isabella · Ver.<span id="appVersion"></span></span>
       <div class="appUpdateWidget" id="appUpdateWidget">
         <button class="appUpdateBtn" id="appUpdateBtn" type="button" title="Kurz drücken: Update prüfen · Lang drücken: Update-Einstellungen" aria-label="Update prüfen. Lange drücken für Update-Einstellungen.">↻</button>
@@ -14769,7 +14839,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
           <a
             class="developer-project-card"
-            href="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?update-check=111"
+            href="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?update-check=112"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Mathe Kids öffnen"
