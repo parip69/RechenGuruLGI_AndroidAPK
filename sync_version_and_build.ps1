@@ -12,8 +12,8 @@ $syncWebAssetsScript = Join-Path $scriptRoot "sync_web_assets.ps1"
 $gradlewBat = Join-Path $scriptRoot "gradlew.bat"
 $privatDir = Join-Path $scriptRoot "Privat"
 $apkOutputDir = Join-Path $scriptRoot "app\build\outputs\apk"
-$apkBaseName = "MatheGuru"
-$htmlBaseName = "MatheGuru"
+$apkBaseName = "MatheKids"
+$htmlBaseName = "MatheKids"
 
 function Write-Utf8NoBom {
     param(
@@ -134,8 +134,12 @@ try {
 
     $apkArchivePath = Join-Path $privatDir $apkFile.Name
     Copy-Item -LiteralPath $apkFile.FullName -Destination $apkArchivePath -Force
-    Copy-Item -LiteralPath $apkFile.FullName -Destination (Join-Path $scriptRoot "docs\MatheGuru-latest.apk") -Force
+    Copy-Item -LiteralPath $apkFile.FullName -Destination (Join-Path $scriptRoot "docs\MatheKids-latest.apk") -Force
     Copy-Item -LiteralPath $apkFile.FullName -Destination (Join-Path $scriptRoot "docs\$($apkFile.Name)") -Force
+
+    # Download-Adressen bereits installierter Versionen weiter bedienen.
+    Copy-Item -LiteralPath $apkFile.FullName -Destination (Join-Path $scriptRoot "docs\MatheGuru-latest.apk") -Force
+    Copy-Item -LiteralPath $apkFile.FullName -Destination (Join-Path $scriptRoot "docs\MatheGuru-v$nextVersionName.apk") -Force
 
     Write-Host "Archivkopien erstellt:"
     Write-Host " - $htmlArchivePath"

@@ -257,7 +257,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun printWebView() {
         val printManager = getSystemService(PRINT_SERVICE) as? PrintManager ?: return
-        val jobName = "RechenGuru Arbeitsblatt"
+        val jobName = "Mathe Kids Arbeitsblatt"
         val printAdapter = binding.webView.createPrintDocumentAdapter(jobName)
         printManager.print(jobName, printAdapter, PrintAttributes.Builder()
             .setMediaSize(PrintAttributes.MediaSize.ISO_A4)

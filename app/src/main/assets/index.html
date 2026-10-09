@@ -1,29 +1,29 @@
-<!-- Mathe Guru Web -->
+<!-- Mathe Kids -->
 <!doctype html>
 <html lang="de">
   <head>
     <meta charset="UTF-8" />
-    <title>Mathe Guru Web</title>
+    <title>Mathe Kids</title>
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
     <meta name="theme-color" content="#D9DFE8" />
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Mathe Guru" />
+    <meta property="og:site_name" content="Mathe Kids" />
     <meta property="og:locale" content="de_DE" />
-    <meta property="og:title" content="Mathe Guru – Rechnen üben, spielerisch lernen" />
-    <meta property="og:description" content="Mathe Guru öffnen und die aktuelle Android-App herunterladen. Auf Wunsch lassen sich Rechen-Einstellungen mit dem Link teilen." />
-    <meta property="og:url" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?v=107" />
-    <meta property="og:image" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/icons/share-preview.png?v=107" />
+    <meta property="og:title" content="Mathe Kids – Rechnen üben, spielerisch lernen" />
+    <meta property="og:description" content="Mathe Kids öffnen und die aktuelle Android-App herunterladen. Auf Wunsch lassen sich Rechen-Einstellungen mit dem Link teilen." />
+    <meta property="og:url" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?v=108" />
+    <meta property="og:image" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/icons/share-preview.png?v=108" />
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1731" />
     <meta property="og:image:height" content="909" />
-    <meta property="og:image:alt" content="Mathe Guru – Rechnen üben, spielerisch lernen" />
+    <meta property="og:image:alt" content="Mathe Kids – Rechnen üben, spielerisch lernen" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Mathe Guru – Rechnen üben, spielerisch lernen" />
-    <meta name="twitter:description" content="Mathe Guru öffnen und die aktuelle Android-App herunterladen." />
-    <meta name="twitter:image" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/icons/share-preview.png?v=107" />
+    <meta name="twitter:title" content="Mathe Kids – Rechnen üben, spielerisch lernen" />
+    <meta name="twitter:description" content="Mathe Kids öffnen und die aktuelle Android-App herunterladen." />
+    <meta name="twitter:image" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/icons/share-preview.png?v=108" />
     <script>
       /* Geteilte Rechen-Einstellungen nur erkennen; Übernahme erfolgt später nach ausdrücklicher Bestätigung. */
       (function () {
@@ -94,11 +94,11 @@
 
     <meta
       name="description"
-      content="Mathe Guru Web - installierbare Offline-Mathe-App als PWA."
+      content="Mathe Kids - installierbare Offline-Mathe-App als PWA."
     />
     <link rel="manifest" href="manifest.webmanifest" />
-    <meta name="application-name" content="Mathe Guru Web" />
-    <meta name="apple-mobile-web-app-title" content="Mathe Guru Web" />
+    <meta name="application-name" content="Mathe Kids" />
+    <meta name="apple-mobile-web-app-title" content="Mathe Kids" />
     <link
       rel="icon"
       type="image/png"
@@ -2543,7 +2543,7 @@
       </div>
     </div>
     <div class="container">
-      <h1>Mathe LGI</h1>
+      <h1>Mathe Kids</h1>
 
       <button
         id="langToggle"
@@ -3595,7 +3595,7 @@
 
     <script>
       const APP_STORAGE_PREFIX = "RechenGuruLGI_";
-      const APP_NAME_FALLBACK = "Mathe Guru Web";
+      const APP_NAME_FALLBACK = "Mathe Kids";
       const PORTABLE_HTML_MARKER_PREFIX = "__portableBootstrapApplied_";
       const appStorage = {
         getItem(key) {
@@ -3834,8 +3834,7 @@
          ═══════════════════════════════════════════════════════ */
       const I18N_RO = {
         // ── Titel & Allgemein ──
-        "Mathe LGI": "Mate LGI",
-        "Mathe Guru Web": "Mate Guru Web",
+        "Mathe Kids": "Mathe Kids",
         "Sprache wechseln": "Schimbă limba",
         "Farbstil wechseln": "Schimbă stilul de culoare",
         "Aufgabenart auswählen": "Alege tipul exercițiului",
@@ -4434,9 +4433,9 @@
         document.documentElement.lang = currentLang === "de" ? "de" : "ro";
 
         // Titel
-        document.title = t("Mathe Guru Web");
+        document.title = t("Mathe Kids");
         const h1 = document.querySelector(".container > h1");
-        if (h1) h1.textContent = t("Mathe LGI");
+        if (h1) h1.textContent = t("Mathe Kids");
 
         // ── ViewSelect Optionen ──
         const vs = document.getElementById("viewSelect");
@@ -4919,7 +4918,7 @@
         const safeAppName =
           sanitizeFilenamePart(getCurrentAppName()) ||
           sanitizeFilenamePart(APP_NAME_FALLBACK) ||
-          "Mathe_Guru";
+          "Mathe_Kids";
         const safeVersion = sanitizeFilenamePart(getCurrentAppVersion()) || "1";
         return `${safeAppName}_ver_${safeVersion}`;
       }
@@ -5075,7 +5074,7 @@
 
       function downloadTextFileRobust(filename, textContent) {
         const safeFilename =
-          sanitizeFilenamePart(filename) || "Mathe_Guru_export.txt";
+          sanitizeFilenamePart(filename) || "Mathe_Kids_export.txt";
         const safeText =
           typeof textContent === "string"
             ? textContent
@@ -5139,7 +5138,7 @@
 
       async function shareTextFileRobust(filename, textContent) {
         const safeFilename =
-          sanitizeFilenamePart(filename) || "Mathe_Guru_export.txt";
+          sanitizeFilenamePart(filename) || "Mathe_Kids_export.txt";
         const safeText =
           typeof textContent === "string"
             ? textContent
@@ -5184,7 +5183,7 @@
 
       function downloadJsonFileRobust(filename, payload) {
         const safeFilename =
-          sanitizeFilenamePart(filename) || "Mathe_Guru_export.json";
+          sanitizeFilenamePart(filename) || "Mathe_Kids_export.json";
         const jsonText =
           typeof payload === "string"
             ? payload
@@ -5194,7 +5193,7 @@
 
       async function shareJsonFileRobust(filename, payload) {
         const safeFilename =
-          sanitizeFilenamePart(filename) || "Mathe_Guru_export.json";
+          sanitizeFilenamePart(filename) || "Mathe_Kids_export.json";
         const jsonText =
           typeof payload === "string"
             ? payload
@@ -13416,13 +13415,13 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           aria-hidden="true"
         />
         <div class="firstInstallChoiceTitle" id="firstInstallChoiceTitle">
-          Mathe Guru installieren
+          Mathe Kids installieren
         </div>
         <div class="firstInstallChoiceText" id="firstInstallChoiceText">
           Android-App: APK herunterladen und anschließend in den Chrome-Downloads öffnen. Android fragt vor der Installation nach deiner Bestätigung. Alternativ kannst du die Web-App zum Startbildschirm hinzufügen.
         </div>
         <div class="firstInstallChoiceActions">
-          <a class="firstInstallChoiceBtn" id="firstInstallApkLink" href="https://parip69.github.io/RechenGuruLGI_AndroidAPK/MatheGuru-latest.apk?update-check=apk" download="MatheGuru-latest.apk" style="display:flex;align-items:center;justify-content:center;text-align:center;text-decoration:none">Android-APK herunterladen</a>
+          <a class="firstInstallChoiceBtn" id="firstInstallApkLink" href="https://parip69.github.io/RechenGuruLGI_AndroidAPK/MatheKids-latest.apk?update-check=apk" download="MatheKids-latest.apk" style="display:flex;align-items:center;justify-content:center;text-align:center;text-decoration:none">Android-APK herunterladen</a>
           <button
             class="firstInstallChoiceBtn"
             id="firstInstallAppBtn"
@@ -13444,7 +13443,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v107";
+        const SW_VERSION = "rechenguru-lgi-v108";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -14398,7 +14397,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           const isLocalFile = location.protocol !== "https:" && location.protocol !== "http:";
 
           if (isAndroidApp()) {
-            const apkUrl = RELEASE_INDEX + "MatheGuru-v" + encodeURIComponent(remoteVersion) + ".apk?update-check=apk";
+            const apkUrl = RELEASE_INDEX + "MatheKids-v" + encodeURIComponent(remoteVersion) + ".apk?update-check=apk";
             const native = typeof getAndroidBridge === "function" ? getAndroidBridge() : null;
             if (native && typeof native.openExternal === "function" && native.openExternal(apkUrl)) {
               openUpdateDialog({
@@ -14410,7 +14409,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             }
             openUpdateDialog({
               title: "APK-Download",
-              text: "Der Browser konnte nicht automatisch geöffnet werden. Lade die APK über die Mathe-Guru-Seite herunter.",
+              text: "Der Browser konnte nicht automatisch geöffnet werden. Lade die APK über die Mathe-Kids-Seite herunter.",
               kind: "error",
             });
             return;
@@ -14715,7 +14714,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       <button id="footerHelpBtn" type="button" onclick="openLegend()"><span id="footerHelpLabel">Hilfe</span> 📖</button>
       <span id="appShareWidget"></span>
     </div>
-    <footer id="appFooter" data-app-version="107" class="matheFooter">
+    <footer id="appFooter" data-app-version="108" class="matheFooter">
       <span><span id="footerDeveloperLabel">Entwickelt von:</span> <button id="developerInfoLink" type="button">Bachner Gerhard</button> &amp; Isabella · Ver.<span id="appVersion"></span></span>
       <div class="appUpdateWidget" id="appUpdateWidget">
         <button class="appUpdateBtn" id="appUpdateBtn" type="button" title="Kurz drücken: Update prüfen · Lang drücken: Update-Einstellungen" aria-label="Update prüfen. Lange drücken für Update-Einstellungen.">↻</button>
@@ -14724,7 +14723,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
     <div class="appUpdateDialog" id="developerInfoOverlay" role="dialog" aria-modal="true" aria-labelledby="developerInfoTitle" aria-hidden="true">
       <div class="appUpdateDialogCard developerCard">
         <div class="developerHeading"><h2 id="developerInfoTitle">Bachner Gerhard</h2><button id="developerInfoCloseButton" type="button" aria-label="Projektübersicht schließen">×</button></div>
-        <p>Entwickler · Mathe Guru</p>
+        <p>Entwickler · Mathe Kids</p>
         <p>Hier findest du weitere Anwendungen und Steuerungsprojekte. Tippe auf eine Karte, um das Projekt zu öffnen.</p>
         <div class="developer-project-grid">
           <a
@@ -14772,14 +14771,14 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             href="https://parip69.github.io/RechenGuruLGI_AndroidAPK/"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Mathe Guru öffnen"
+            aria-label="Mathe Kids öffnen"
           >
             <img
               src="icons/project-preview-3.webp"
-              alt="Vorschau Mathe Guru"
+              alt="Vorschau Mathe Kids"
             />
             <span class="project-card-body">
-              <span class="project-card-title">Mathe Guru</span>
+              <span class="project-card-title">Mathe Kids</span>
               <span class="project-card-text">
                 Lernhilfe für Zuhause mit Übungen, Klassenstufen und
                 individuellen Einstellungen für Rechenarten.

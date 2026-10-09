@@ -1,8 +1,8 @@
 {
   "id": "/RechenGuruLGI_AndroidAPK/",
-  "name": "Mathe Guru Web",
-  "short_name": "Mathe Guru Web",
-  "description": "Mathe Guru Web - installierbare Offline-Mathe-App.",
+  "name": "Mathe Kids",
+  "short_name": "Mathe Kids",
+  "description": "Mathe Kids - installierbare Offline-Mathe-App.",
   "lang": "de",
   "start_url": "./index.html",
   "scope": "./",
