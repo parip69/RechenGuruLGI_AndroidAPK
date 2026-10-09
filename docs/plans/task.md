@@ -1,6 +1,6 @@
 | Schritt | Status |
 | --- | --- |
-| Footer und Symbole weiter verkleinern | Erledigt: Entwicklerzeile ohne Umbruch, kleiner weißer Update-Hinweis ohne Pulsieren; kleinere sichtbare Buttons mit 44-Pixel-Antippfläche |
-| Mobile Anordnung, Download, Update und Teilen prüfen | Erledigt: Layout bei 320/390/768 Pixeln; einzeilige Entwicklerzeile mit verfügbarem Update bei 320/360/390 Pixeln; Download-/Update-Dialoge und Settings-Link geprüft. APK-Transfer im verwalteten Chromium abgebrochen (DownloadRestrictions=1); kein Gerätetest |
-| Version 113 synchronisieren, APK bauen und archivieren | Erledigt: Build, Signatur, enthaltene Assets und docs geprüft; gleicher Schlüssel wie Version 112 |
-| Auf GitHub veröffentlichen und öffentlichen Testlink prüfen | Erledigt: Deploy/Web-Sync erfolgreich, Version 113 öffentlich; versionierte und latest APK HTTP 200 und SHA-256 identisch; Signatur gültig; öffentliches HTML identisch zur Quelle |
+| Entwicklerzeile lesbarer machen und Platz für Update reservieren | Erledigt: bis 12 Pixel, Isabella gleich groß und kräftiger; fester 52-Pixel-Bereich verhindert Verschiebungen |
+| Startprüfung und mobile Anordnung prüfen | Erledigt: neue Version beim Start im vorhandenen Button; stabile Zeile bei Versionswechseln bis 99999; Layout bei 320/390/768 Pixeln; Dialoge und Settings-Link geprüft. APK-Transfer im verwalteten Chromium abgebrochen (DownloadRestrictions=1); kein Gerätetest |
+| Version 114 synchronisieren, APK bauen und archivieren | Erledigt: Build, Signatur, enthaltene Assets und docs geprüft; gleicher Schlüssel wie Version 113 |
+| Auf GitHub veröffentlichen und öffentlichen Testlink prüfen | In Arbeit |
