@@ -28,3 +28,6 @@ try {
     Expect-Rejection 'tampered signed APK' { & $verify -Apk $temp -Baseline $baseline } 'signature verification failed'
 } finally { Remove-Item -LiteralPath $temp -Force }
 Write-Host 'PASS: valid release accepted; all five rejection checks passed.'
+# The final negative test intentionally leaves a failed native apksigner status.
+# Return success for the completed test script, including GitHub's pwsh wrapper.
+exit 0

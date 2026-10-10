@@ -2,431 +2,1033 @@
   {
     "file": "Privat/MatheGuru-v100.apk",
     "valid": true,
-    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a"
+    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 100,
+    "versionName": "100",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheGuru-v101.apk",
     "valid": true,
-    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a"
+    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 101,
+    "versionName": "101",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheGuru-v102.apk",
     "valid": true,
-    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a"
+    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 102,
+    "versionName": "102",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheGuru-v103.apk",
     "valid": true,
-    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac"
+    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 103,
+    "versionName": "103",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheGuru-v104.apk",
     "valid": true,
-    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac"
+    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 104,
+    "versionName": "104",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheGuru-v105.apk",
     "valid": true,
-    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac"
+    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 105,
+    "versionName": "105",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheGuru-v106.apk",
     "valid": true,
-    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac"
+    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 106,
+    "versionName": "106",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheGuru-v107.apk",
     "valid": true,
-    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac"
+    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 107,
+    "versionName": "107",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheGuru-v75.apk",
     "valid": true,
-    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a"
+    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 75,
+    "versionName": "75",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheGuru-v76.apk",
     "valid": true,
-    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a"
+    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 76,
+    "versionName": "76",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheGuru-v80.apk",
     "valid": true,
-    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a"
+    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 80,
+    "versionName": "80",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheGuru-v81.apk",
     "valid": true,
-    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a"
+    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 81,
+    "versionName": "81",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheGuru-v82.apk",
     "valid": true,
-    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a"
+    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 82,
+    "versionName": "82",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheGuru-v83.apk",
     "valid": true,
-    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a"
+    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 83,
+    "versionName": "83",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheGuru-v84.apk",
     "valid": true,
-    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a"
+    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 84,
+    "versionName": "84",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheGuru-v85.apk",
     "valid": true,
-    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a"
+    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 85,
+    "versionName": "85",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheGuru-v86.apk",
     "valid": true,
-    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a"
+    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 86,
+    "versionName": "86",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheGuru-v87.apk",
     "valid": true,
-    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a"
+    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 87,
+    "versionName": "87",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheGuru-v88.apk",
     "valid": true,
-    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a"
+    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 88,
+    "versionName": "88",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheGuru-v89.apk",
     "valid": true,
-    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a"
+    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 89,
+    "versionName": "89",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheGuru-v90.apk",
     "valid": true,
-    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a"
+    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 90,
+    "versionName": "90",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheGuru-v92.apk",
     "valid": true,
-    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a"
+    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 92,
+    "versionName": "92",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheGuru-v93.apk",
     "valid": true,
-    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a"
+    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 93,
+    "versionName": "93",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheGuru-v94.apk",
     "valid": true,
-    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a"
+    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 94,
+    "versionName": "94",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheGuru-v95.apk",
     "valid": true,
-    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a"
+    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 95,
+    "versionName": "95",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheGuru-v96.apk",
     "valid": true,
-    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a"
+    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 96,
+    "versionName": "96",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheGuru-v97.apk",
     "valid": true,
-    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a"
+    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 97,
+    "versionName": "97",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheGuru-v98.apk",
     "valid": true,
-    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a"
+    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 98,
+    "versionName": "98",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheGuru-v99.apk",
     "valid": true,
-    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a"
+    "certificateSHA256": "d1b38d090ab87832d330596b8efdfea874a3d6ef5c9e32c3554865c674af755a",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 99,
+    "versionName": "99",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheKids-v108.apk",
     "valid": true,
-    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac"
+    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 108,
+    "versionName": "108",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheKids-v109.apk",
     "valid": true,
-    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac"
+    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 109,
+    "versionName": "109",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheKids-v110.apk",
     "valid": true,
-    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac"
+    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 110,
+    "versionName": "110",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheKids-v111.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 111,
+    "versionName": "111",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheKids-v112.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 112,
+    "versionName": "112",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheKids-v113.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 113,
+    "versionName": "113",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheKids-v114.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 114,
+    "versionName": "114",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheKids-v200.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 200,
+    "versionName": "200",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheKids-v201.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 201,
+    "versionName": "201",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheKids-v202.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 202,
+    "versionName": "202",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheKids-v203.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 203,
+    "versionName": "203",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheKids-v204.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 204,
+    "versionName": "204",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheKids-v205.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 205,
+    "versionName": "205",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheKids-v206.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 206,
+    "versionName": "206",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheKids-v207.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 207,
+    "versionName": "207",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheKids-v208.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 208,
+    "versionName": "208",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "Privat/MatheKids-v209.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 209,
+    "versionName": "209",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheGuru-latest.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 210,
+    "versionName": "210",
+    "debuggable": false,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheGuru-v104.apk",
     "valid": true,
-    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac"
+    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 104,
+    "versionName": "104",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheGuru-v105.apk",
     "valid": true,
-    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac"
+    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 105,
+    "versionName": "105",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheGuru-v106.apk",
     "valid": true,
-    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac"
+    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 106,
+    "versionName": "106",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheGuru-v107.apk",
     "valid": true,
-    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac"
+    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 107,
+    "versionName": "107",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheGuru-v108.apk",
     "valid": true,
-    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac"
+    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 108,
+    "versionName": "108",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheGuru-v109.apk",
     "valid": true,
-    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac"
+    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 109,
+    "versionName": "109",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheGuru-v110.apk",
     "valid": true,
-    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac"
+    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 110,
+    "versionName": "110",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheGuru-v111.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 111,
+    "versionName": "111",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheGuru-v112.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 112,
+    "versionName": "112",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheGuru-v113.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 113,
+    "versionName": "113",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheGuru-v114.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 114,
+    "versionName": "114",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheGuru-v200.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 200,
+    "versionName": "200",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheGuru-v201.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 201,
+    "versionName": "201",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheGuru-v202.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 202,
+    "versionName": "202",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheGuru-v203.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 203,
+    "versionName": "203",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheGuru-v204.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 204,
+    "versionName": "204",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheGuru-v205.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 205,
+    "versionName": "205",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheGuru-v206.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 206,
+    "versionName": "206",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheGuru-v207.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 207,
+    "versionName": "207",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheGuru-v208.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 208,
+    "versionName": "208",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheGuru-v209.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 209,
+    "versionName": "209",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheKids-latest.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 210,
+    "versionName": "210",
+    "debuggable": false,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheKids-v108.apk",
     "valid": true,
-    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac"
+    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 108,
+    "versionName": "108",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheKids-v109.apk",
     "valid": true,
-    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac"
+    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 109,
+    "versionName": "109",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheKids-v110.apk",
     "valid": true,
-    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac"
+    "certificateSHA256": "e363a406040bc1997b98cac4203388ebaf162f688db934b94a11254bcfd9c6ac",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 110,
+    "versionName": "110",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheKids-v111.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 111,
+    "versionName": "111",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheKids-v112.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 112,
+    "versionName": "112",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheKids-v113.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 113,
+    "versionName": "113",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheKids-v114.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 114,
+    "versionName": "114",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheKids-v200.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 200,
+    "versionName": "200",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheKids-v201.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 201,
+    "versionName": "201",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheKids-v202.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 202,
+    "versionName": "202",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheKids-v203.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 203,
+    "versionName": "203",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheKids-v204.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 204,
+    "versionName": "204",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheKids-v205.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 205,
+    "versionName": "205",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheKids-v206.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 206,
+    "versionName": "206",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheKids-v207.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 207,
+    "versionName": "207",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheKids-v208.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 208,
+    "versionName": "208",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   },
   {
     "file": "docs/MatheKids-v209.apk",
     "valid": true,
-    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc"
+    "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "applicationId": "de.parip69.rechengurulgi",
+    "versionCode": 209,
+    "versionName": "209",
+    "debuggable": true,
+    "minSdk": 24,
+    "targetSdk": 35,
+    "nativeABIs": []
   }
 ]
