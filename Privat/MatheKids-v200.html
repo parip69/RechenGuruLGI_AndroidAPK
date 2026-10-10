@@ -2393,7 +2393,7 @@
           transform: rotate(360deg);
         }
       }
-    
+
       /* === Update-Prüfung v66: unauffällig am Seitenende, nicht schwebend === */
       .appUpdateWidget {
         position: static;
@@ -2563,7 +2563,8 @@
       .developer-project-card:focus-visible, #developerInfoLink:focus-visible { outline:3px solid var(--primary); outline-offset:3px; }
       @media print { .matheHelpShareRow, .matheFooter, #developerInfoOverlay { display:none!important; } }
     </style>
-  <link rel="stylesheet" href="realschule/style.css">
+  <style>.school-tabs{display:flex;gap:8px;margin:18px 0}.school-tabs button{flex:1;min-height:44px;white-space:normal;font-size:clamp(12px,3.4vw,16px);padding:10px 5px;border:1px solid #8398ab;border-radius:12px;background:transparent;color:inherit}.school-tabs button[aria-selected=true]{background:#d9f1ef;color:#123e45;font-weight:800}.school-tabs button:focus-visible,#realschulePanel :focus-visible{outline:3px solid #258aa7;outline-offset:3px}#grundschulePanel[hidden],#realschulePanel[hidden],#rsGroupLabel[hidden]{display:none!important}#realschulePanel{font-size:16px;line-height:1.5;min-width:0;text-align:left}#realschulePanel h2{font-size:1.35rem;margin-bottom:0}#realschulePanel .rs-subtitle{margin-top:4px;font-size:13px;opacity:.8}.rs-config{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}.rs-config label{display:flex;flex-direction:column;font-weight:600}.rs-config select{width:100%;min-width:0;min-height:44px;font-size:15px;color:inherit;background:transparent;border:1px solid #8398ab;border-radius:8px;padding:7px}.rs-config option{color:#152b3b;background:#fff}#realschulePanel button{min-height:44px;border:1px solid #8398ab;border-radius:10px;padding:9px 12px;font-size:15px;color:inherit;background:transparent;cursor:pointer}#realschulePanel button:disabled{opacity:.5;cursor:default}#rsStart,#rsCheck{background:#d9f1ef!important;color:#123e45!important;font-weight:700}.rs-check{display:flex;align-items:center;gap:10px;min-height:44px;margin:4px 0;cursor:pointer}.rs-check input{width:20px;height:20px;flex:none}.rs-check small{display:block;font-size:12px;opacity:.7}.rs-settings,.rs-progress,.rs-card{border:1px solid #8398ab;border-radius:16px;padding:16px;margin:16px 0;background:rgba(128,150,170,.08)}#realschulePanel summary{min-height:44px;cursor:pointer;font-weight:700}#rsTopics{border:0;padding:0;margin:8px 0}.rs-note{font-size:13px;opacity:.85;overflow-wrap:anywhere}.rs-note a{color:inherit;text-decoration:underline}.rs-prompt{font-size:clamp(18px,4.8vw,24px);font-weight:600;overflow-wrap:anywhere}.rs-equation{display:block;margin-top:14px;font-size:1.2em}.rs-fraction{display:inline-flex;vertical-align:middle;flex-direction:column;text-align:center;line-height:1.25;margin:0 4px}.rs-fraction>span:first-child{border-bottom:1.5px solid currentColor;padding:1px 5px}.rs-fraction>span:last-child{padding:1px 5px}.rs-answer-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}#rsAnswer{flex:1 1 130px;min-width:0;width:100%;min-height:48px;border:1px solid #8398ab;border-radius:10px;background:transparent;color:inherit;padding:10px;font-size:20px;box-sizing:border-box;scroll-margin-bottom:150px}#rsFeedback{min-height:24px;overflow-wrap:anywhere}.rs-actions{display:flex;flex-wrap:wrap;gap:8px}.rs-history{padding-left:24px;overflow-wrap:anywhere}.rs-empty{padding:18px 0}.rs-progress ul,.rs-card ul{padding-left:20px;overflow-wrap:anywhere}@media(max-width:360px){.rs-config{grid-template-columns:1fr}.rs-card,.rs-settings,.rs-progress{padding:12px}.rs-actions button{flex:1 1 120px}}
+</style>
   </head>
 
   <body>
@@ -15302,7 +15303,174 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         }, true);
       })();
     </script>
-    <script src="realschule/core.js"></script>
-    <script src="realschule/ui.js"></script>
+    <script>/* Realschule: pure, dependency-free generators and exact validators. */
+(function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.MatheRealschule=api;})(typeof window==='object'?window:globalThis,function(){
+'use strict';
+const gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b];}return a||1;};
+function Q(n,d=1){if(!Number.isSafeInteger(n)||!Number.isSafeInteger(d)||!d)throw Error('Zahl zu groß oder Division durch null.');const g=gcd(n,d),s=d<0?-1:1;return {n:n/g*s,d:Math.abs(d/g)};}
+const add=(a,b)=>Q(a.n*b.d+b.n*a.d,a.d*b.d),neg=a=>Q(-a.n,a.d),mul=(a,b)=>Q(a.n*b.n,a.d*b.d),div=(a,b)=>Q(a.n*b.d,a.d*b.n),eq=(a,b)=>a.n===b.n&&a.d===b.d;
+const zero=()=>Q(0),one=()=>Q(1),str=a=>a.d===1?String(a.n):`${a.n}/${a.d}`;
+function decimal(s){const parts=s.replace(',','.').split('.');return Q(Number(parts.join('')),10**(parts[1]?.length||0));}
+function trim(a){while(a.length>1&&!a[a.length-1].n)a.pop();return a;}
+function plus(a,b){return trim(Array.from({length:Math.max(a.length,b.length)},(_,i)=>add(a[i]||zero(),b[i]||zero())));}
+function times(a,b){const r=Array.from({length:a.length+b.length-1},zero);for(let i=0;i<a.length;i++)for(let j=0;j<b.length;j++)r[i+j]=add(r[i+j],mul(a[i],b[j]));trim(r);if(r.length>3)throw Error('Hier nur Terme bis x² eingeben.');return r;}
+// Recursive descent. No executable input; bounded tokens, nesting and exact fractions.
+function parse(input){
+ if(typeof input!=='string'||!input.trim())throw Error('Bitte eine Rechnung eingeben.');if(input.length>180)throw Error('Die Eingabe ist zu lang.');
+ const s=input.toLowerCase().replace(/\s/g,'').replace(/[·×]/g,'*').replace(/÷/g,'/').replace(/−/g,'-').replace(/²/g,'^2');
+ const tokens=s.match(/(?:\d+(?:[.,]\d+)?|x|[+\-*/^()])/g)||[];if(tokens.join('')!==s||tokens.length>100)throw Error('Erlaubt sind Zahlen, x, +, -, *, / und Klammern.');let i=0,depth=0;
+ function atom(){if(++depth>20)throw Error('Zu viele Klammern.');let a;if(tokens[i]==='('){i++;a=sum();if(tokens[i++]!==')')throw Error('Eine schließende Klammer fehlt.');}else if(tokens[i]==='x'){i++;a=[zero(),one()];}else if(/^\d/.test(tokens[i]||'')){a=[decimal(tokens[i++])];}else throw Error('Hier fehlt eine Zahl oder x.');depth--;if(tokens[i]==='^'){i++;const exponent=tokens[i++];if(!/^[012]$/.test(exponent||''))throw Error('Nur die Hochzahlen 0, 1 und 2 sind hier möglich.');let r=[one()];for(let j=0;j<Number(exponent);j++)r=times(r,a);a=r;}return a;}
+ function unary(){if(tokens[i]==='+'){i++;return unary();}if(tokens[i]==='-'){i++;return unary().map(neg);}return atom();}
+ function product(){let a=unary();while(i<tokens.length){const t=tokens[i],implicit=t==='x'||t==='('||/^\d/.test(t);if(t!=='*'&&t!=='/'&&!implicit)break;if(!implicit)i++;const b=unary();if(t==='/'){if(b.length!==1)throw Error('Division durch einen Term mit x ist hier nicht unterstützt.');a=a.map(v=>div(v,b[0]));}else a=times(a,b);}return trim(a);}
+ function sum(){let a=product();while(tokens[i]==='+'||tokens[i]==='-'){const t=tokens[i++],b=product();a=plus(a,t==='-'?b.map(neg):b);}return a;}
+ const a=sum();if(i!==tokens.length)throw Error('Die Rechnung ist unvollständig.');return a;
+}
+function constant(s){const p=parse(s);if(p.length!==1)throw Error('Die Antwort muss eine Zahl sein.');return p[0];}
+function equation(s){const parts=s.split('=');if(parts.length!==2)throw Error('Bitte eine Gleichung mit genau einem = eingeben.');const a=parse(parts[0]),b=parse(parts[1]),p=plus(a,b.map(neg));if(p.length!==2||!p[1].n)throw Error('Erwartet wird eine lineare Gleichung mit genau einer Lösung.');return {a,b,root:div(neg(p[0]),p[1]),signature:JSON.stringify([a,b]),final:(parts[0].trim().toLowerCase()==='x'&&b.length===1)||(parts[1].trim().toLowerCase()==='x'&&a.length===1)};}
+const frac=q=>q.d===1?str(q):`<span class="rs-fraction"><span>${q.n}</span><span>${q.d}</span></span>`;
+const random=(lo,hi,rng)=>lo+Math.floor(rng()*(hi-lo+1));
+const url=(g,w)=>`https://www.lehrplanplus.bayern.de/fachlehrplan/realschule/${g}/mathematik${g>6?'/'+(w==='I'?'wpfg1':'wpfg2-3'):''}`;
+const entry=(id,label,area)=>({id,label,area});
+// Only active, implemented exercises appear. Each row cites its official learning area.
+const catalog={
+ 5:{all:[entry('integers','Ganze Zahlen · Rechenregeln','M5 1/2'),entry('rectangle','Rechteck · Umfang und Fläche','M5 5'),entry('ratio','Größen · direkter Dreisatz','M5 4')]},
+ 6:{all:[entry('fractions','Brüche · Rechenweg','M6 1'),entry('decimals','Rationale Zahlen · Dezimalzahlen','M6 1'),entry('equations','Lineare Gleichungen · Rechenweg','M6 5'),entry('percent','Prozentwert','M6 6'),entry('triangle','Dreieck · Flächeninhalt','M6 3'),entry('cuboid','Quader · Volumen','M6 4')]},
+ 7:{all:[entry('powers','Potenzen · Rechenregeln','M7 1'),entry('equations','Gleichungen mit Klammern · Rechenweg','M7 I 6 / II–III 4'),entry('percent','Vermehrter und verminderter Grundwert','M7 I 7 / II–III 5'),entry('mean','Daten · arithmetisches Mittel','M7 I 8 / II–III 6')]},
+ 8:{all:[entry('equations','Gleichungen mit x auf beiden Seiten','M8 I 4 / II–III 3'),entry('linear','Lineare Funktionen · Funktionswert','M8 I 6 / II–III 5'),entry('frequency','Zufall · relative Häufigkeit','M8 I 7 / II–III 6'),entry('trapezoid','Trapez · Flächeninhalt','M8 1')]},
+ 9:{all:[entry('roots','Quadratwurzeln','M9 1'),entry('pythagoras','Satz des Pythagoras','M9 3'),entry('circle','Kreis · Flächeninhalt','M9 4'),entry('probability','Zufall · Gegenereignis','M9 I 8 / II–III 7')],I:[entry('quadratic','Quadratische Funktion · Scheitelwert','M9 I 7')],'II/III':[entry('linear','Lineare Funktion · Funktionswert','M9 II–III 5')]},
+ 10:{all:[entry('trig','Trigonometrie · Kosinussatz','M10 1'),entry('growth','Exponentielles Wachstum','M10 I 4 / II–III 3'),entry('compound','Zufall · Pfadregel','M10 I 5 / II–III 5')],I:[entry('powerFunction','Potenzfunktion · Funktionswert','M10 I 3')],'II/III':[entry('quadratic','Quadratische Funktion · Scheitelwert','M10 II–III 4'),entry('cylinder','Zylinder · Volumen','M10 II–III 2')]}
+};
+function topics(grade,group='I'){const c=catalog[grade];return c?[...c.all,...(c[group]||[])].map(t=>({...t,grade:Number(grade),source:url(grade,group)})):[];}
+function generate(id,grade,difficulty='medium',rng=Math.random){
+ if(!Object.values(catalog).some(c=>Object.values(c).flat().some(t=>t.id===id)))throw Error('Unbekanntes Thema.');
+ const level=difficulty==='mixed'?random(1,3,rng):({easy:1,medium:2,hard:3}[difficulty]||2),ri=(a,b)=>random(a,b,rng),n=ri(2,level*5+4),m=ri(2,level*4+3),k=ri(1,8),g=Number(grade);
+ const base={id,grade:g,difficulty,level,type:'short',unit:'',tolerance:0,hints:[],steps:[]};
+ const task=(prompt,answer,extras={})=>({...base,prompt,answer:typeof answer==='number'?Q(answer):answer,...extras});
+ switch(id){
+ case 'integers':{const a=level>1?-n:n,b=level>1?-m:m;return task(`Berechne: ${a} + (${b}) · ${k}`,a+b*k,{hints:['Punktrechnung geht vor Strichrechnung.']});}
+ case 'rectangle':return task(`Ein Rechteck ist ${n} cm lang und ${m} cm breit. ${level===1?'Bestimme den Umfang.':'Bestimme die Fläche.'}`,level===1?2*(n+m):n*m,{unit:level===1?'cm':'cm²',hints:[level===1?'Addiere alle vier Seiten.':'Multipliziere Länge und Breite.']});
+ case 'ratio':return task(`${k} Hefte kosten ${k*m} €. Wie viel kosten ${n} Hefte?`,n*m,{unit:'€',hints:['Berechne zuerst den Preis für ein Heft.']});
+ case 'fractions':{const a=Q(level===3?-n:n,n+1),b=Q((n+1)*k,n+2),result=mul(a,b);return task(`Berechne mit einem Zwischenschritt und kürze vollständig: ${frac(a)} · ${frac(b)}`,result,{type:'fractionSteps',original:`${str(a)}*${str(b)}`,steps:[`${a.n*b.n}/${a.d*b.d}`,str(result)],hints:['Du darfst vor dem Multiplizieren kürzen.','Multipliziere die Zähler und die Nenner. Danach vollständig kürzen.']});}
+ case 'decimals':return task(`Berechne: ${(n/10).toFixed(1).replace('.',',')} ${level===3?'−':'+'} ${(m/10).toFixed(1).replace('.',',')}`,Q(n+(level===3?-m:m),10),{hints:['Achte auf gleiche Stellenwerte.']});
+ case 'equations':{const x=Q(level===3?-k:k),a=n,b=m,c=g>=8?ri(1,n-1):0;let original,intermediate,final=`x = ${str(x)}`;
+ if(g>=8){original=`${a}x + ${b} = ${c}x + ${str(add(mul(Q(a-c),x),Q(b)))}`;intermediate=`${a-c}x + ${b} = ${str(add(mul(Q(a-c),x),Q(b)))}`;}
+ else if(g>=7||level===3){original=`${a}(x + ${b}) = ${str(mul(Q(a),add(x,Q(b))))}`;intermediate=`x + ${b} = ${str(add(x,Q(b)))}`;}
+ else{original=`${a}x + ${b} = ${str(add(mul(Q(a),x),Q(b)))}`;intermediate=`${a}x = ${str(mul(Q(a),x))}`;}
+ original=original.replace(/\+ -/g,"− ");intermediate=intermediate.replace(/\+ -/g,"− ");
+ return task(`Löse mit mindestens einem Umformungsschritt: <span class="rs-equation">${original}</span>`,x,{type:'equationSteps',original,steps:[intermediate,final],hints:['Wende auf beiden Seiten dieselbe Rechenoperation an.','Fasse die x-Terme zusammen und entferne die Zahl neben dem x-Term.']});}
+ case 'percent':{const amount=20*n,pct=5*m;if(g>=7){const decrease=level===3;return task(`Ein Preis von ${amount} € wird um ${pct} % ${decrease?'gesenkt':'erhöht'}. Wie hoch ist der neue Preis?`,Q(amount*(100+(decrease?-pct:pct)),100),{unit:'€',hints:['Berechne erst die Preisänderung und addiere oder subtrahiere sie.']});}return task(`Wie viel sind ${pct} % von ${amount} €?`,Q(amount*pct,100),{unit:'€',hints:['Prozentwert = Grundwert · Prozentsatz / 100.']});}
+ case 'triangle':return task(`Ein Dreieck hat Grundseite ${n} cm und zugehörige Höhe ${m} cm. Bestimme die Fläche.`,Q(n*m,2),{unit:'cm²',hints:['Fläche = Grundseite · zugehörige Höhe / 2.']});
+ case 'cuboid':return task(`Ein Quader hat Kanten ${n} cm, ${m} cm und ${k} cm. Bestimme sein Volumen.`,n*m*k,{unit:'cm³',hints:['Volumen = Länge · Breite · Höhe.']});
+ case 'powers':return task(`Berechne mithilfe der Potenzregel: 2<sup>${k}</sup> · 2<sup>${level}</sup>`,2**(k+level),{hints:['Bei gleicher Basis werden beim Multiplizieren die Exponenten addiert.']});
+ case 'mean':{const values=[n,m,k,level*2];return task(`Bestimme das arithmetische Mittel von ${values.join('; ')}.`,Q(values.reduce((a,b)=>a+b,0),4),{hints:['Addiere die Werte und teile durch die Anzahl der Werte.']});}
+ case 'linear':return task(`f(x) = ${level===3?-m:m}x + ${k}. Berechne f(${level===3?-n:n}).`,(level===3?-m:m)*(level===3?-n:n)+k,{hints:['Setze den angegebenen x-Wert in die Funktion ein.']});
+ case 'trapezoid':return task(`Ein Trapez hat parallele Seiten ${n} cm und ${m} cm sowie Höhe ${k} cm. Bestimme die Fläche.`,Q((n+m)*k,2),{unit:'cm²',hints:['Fläche = (a + c) · h / 2.']});
+ case 'frequency':return task(`Bei ${n+m} Würfen wurde ${n}-mal eine Sechs beobachtet. Bestimme die relative Häufigkeit als Bruch.`,Q(n,n+m),{hints:['Relative Häufigkeit = beobachtete Treffer / Anzahl der Versuche.']});
+ case 'probability':{const red=n,blue=m;return task(`In einer Urne sind ${red} rote und ${blue} blaue Kugeln. Eine Kugel wird gezogen. Bestimme P(${g>=9?'nicht rot':'rot'}) als Bruch.`,Q(g>=9?blue:red,red+blue),{hints:['Wahrscheinlichkeit = günstige Ergebnisse / alle Ergebnisse.']});}
+ case 'roots':return task(`Berechne √${n*n} ${level>1?`+ √${m*m}`:''}.`,n+(level>1?m:0),{hints:['Die Quadratwurzel ist die nichtnegative Zahl, deren Quadrat unter der Wurzel steht.']});
+ case 'pythagoras':return task(`Ein rechtwinkliges Dreieck hat Katheten ${3*k} cm und ${4*k} cm. Bestimme die Hypotenuse.`,5*k,{unit:'cm',hints:['c² = a² + b². Ziehe danach die Quadratwurzel.']});
+ case 'circle':return task(`Ein Kreis hat Radius ${k} cm. Bestimme die Fläche mit π = 3,14.`,Q(314*k*k,100),{unit:'cm²',hints:['Fläche = π · r².']});
+ case 'quadratic':return task(`f(x) = ${level===3?-m:m}(x − ${n})² + ${k}. Bestimme den y-Wert des Scheitelpunkts.`,k,{hints:['In der Scheitelpunktsform f(x) = a(x − h)² + s liegt der Scheitel bei (h | s).']});
+ case 'trig':{const angle=[30,45,60][level-1],length=Number(Math.sqrt(n*n+m*m-2*n*m*Math.cos(angle*Math.PI/180)).toFixed(2));return task(`Zwei Dreiecksseiten sind ${n} cm und ${m} cm lang; der eingeschlossene Winkel ist ${angle}°. Berechne die dritte Seite mit dem Kosinussatz. Runde auf zwei Nachkommastellen.`,decimal(length.toFixed(2)),{unit:'cm',tolerance:0.005000001,hints:['c² = a² + b² − 2ab · cos(γ).']});}
+ case 'growth':return task(`Ein Bestand von ${100*n} wächst jährlich um ${5*level} %. Wie groß ist er nach ${level+1} Jahren? Runde auf zwei Nachkommastellen.`,decimal((100*n*(1+5*level/100)**(level+1)).toFixed(2)),{tolerance:0.005000001,hints:['Bestand = Anfangswert · (1 + p/100)^Jahre.']});
+ case 'compound':return task(`Eine Urne enthält ${n} rote und ${m} blaue Kugeln. Du ziehst zweimal mit Zurücklegen. Bestimme P(zweimal rot) als Bruch.`,Q(n*n,(n+m)**2),{hints:['Mit Zurücklegen bleiben die Wahrscheinlichkeiten gleich. Multipliziere die beiden Pfadwahrscheinlichkeiten.']});
+ case 'powerFunction':return task(`f(x) = ${m}x<sup>${level+1}</sup>. Berechne f(${level===3?-k:k}).`,m*(level===3?-k:k)**(level+1),{hints:['Berechne zuerst die Potenz und multipliziere danach.']});
+ case 'cylinder':return task(`Ein Zylinder hat Radius ${k} cm und Höhe ${n} cm. Berechne sein Volumen mit π = 3,14.`,Q(314*k*k*n,100),{unit:'cm³',hints:['Volumen = π · r² · h.']});
+ default:throw Error('Dieser Generator ist noch nicht verfügbar.');
+ }
+}
+function validate(task,input,history=[]){try{
+ const text=String(input||'').trim();if(!text)throw Error('Bitte eine Antwort oder einen Schritt eingeben.');
+ if(task.type==='equationSteps'){
+ const e=equation(text);if(!eq(e.root,task.answer))return {status:'wrong',message:'Diese Gleichung hat nicht dieselbe Lösung. Prüfe Vorzeichen und beide Seiten.'};
+ const originals=[equation(task.original),...history.map(equation)];if(!(e.final&&history.length)&&originals.some(o=>o.signature===e.signature||JSON.stringify([o.b,o.a])===e.signature))return {status:'invalid',message:'Diese Gleichung steht bereits da. Gib einen neuen Umformungsschritt ein.'};
+ if(e.final&&!history.length)return {status:'incomplete',message:'Das Ergebnis stimmt. Zeige zuerst mindestens eine Umformung.'};
+ return {status:e.final?'correct':'step',message:e.final?'Richtig gelöst!':'Diese Umformung ist richtig.'};
+ }
+ if(task.type==='fractionSteps'){
+ const q=constant(text);if(!eq(q,task.answer))return {status:'wrong',message:'Der Wert stimmt noch nicht. Prüfe Zähler, Nenner und Vorzeichen.'};
+ const compact=text.replace(/\s/g,'').replace(/[·×]/g,'*');if(compact===task.original||history.some(h=>h.replace(/\s/g,'')===compact))return {status:'invalid',message:'Zeige einen neuen Rechenschritt.'};
+ const match=compact.match(/^(-?\d+)(?:\/(-?\d+))?$/),reduced=match&&Number(match[2]||1)>0&&gcd(Number(match[1]),Number(match[2]||1))===1;
+ if(reduced&&!history.length)return {status:'incomplete',message:'Der Wert stimmt. Zeige zuerst einen Zwischenschritt (Produkt oder Kürzen).'};
+ return {status:reduced?'correct':'step',message:reduced?'Richtig und vollständig gekürzt!':'Der Wert stimmt. Schreibe als vollständig gekürzten Bruch.'};
+ }
+ let numeric=text;const unit=task.unit.replace(/²/g,'2').replace(/³/g,'3');const suffix=text.match(/\s*(cm(?:[²³23])?|€)\s*$/i);if(suffix){if(!task.unit||suffix[1].replace(/²/g,'2').replace(/³/g,'3').toLowerCase()!==unit.toLowerCase())throw Error('Die Einheit passt nicht zur Aufgabe.');numeric=text.slice(0,suffix.index);}
+ const q=constant(numeric),difference=Math.abs(q.n/q.d-task.answer.n/task.answer.d);return eq(q,task.answer)||(task.tolerance>0&&difference<=task.tolerance)?{status:'correct',message:'Richtig!'}:{status:'wrong',message:'Noch nicht richtig. Prüfe die Rechnung und gegebenenfalls die Rundung.'};
+ }catch(e){return {status:'invalid',message:e.message};}}
+return {Q,add,mul,div,eq,str,parse,constant,equation,frac,catalog,topics,generate,validate};
+});
+</script>
+    <script>(function(){
+'use strict';
+const M=window.MatheRealschule,KEY='MatheKids_Realschule_v1',TAB='MatheKids_SchoolSection_v1',root=document.getElementById('realschulePanel');
+if(!M||!root)return;
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const defaults=()=>({settings:{grade:6,group:'I',difficulty:'medium',limit:10,basics:false,all:true,selected:[]},choices:{},progress:{},errors:[],session:null});
+let data=defaults(),task=null,storageWarning=false,gsRemaining=null,gsNextPending=false;
+try{const saved=JSON.parse(localStorage.getItem(KEY)||'null');if(saved&&saved.settings&&saved.progress&&saved.choices&&Array.isArray(saved.errors))data={...data,...saved};}catch(e){}
+const s=data.settings;if(![5,6,7,8,9,10].includes(Number(s.grade)))s.grade=6;if(!['I','II/III'].includes(s.group))s.group='I';if(!['easy','medium','hard','mixed'].includes(s.difficulty))s.difficulty='medium';if(![0,10,20,30].includes(Number(s.limit)))s.limit=10;if(!Array.isArray(s.selected))s.selected=[];
+function save(){try{localStorage.setItem(KEY,JSON.stringify(data));storageWarning=false;}catch(e){storageWarning=true;const note=root.querySelector('#rsStorage');if(note)note.textContent='Speichern ist gesperrt oder der Speicher ist voll. Diese Sitzung bleibt nur bis zum Schließen erhalten.';}}
+function list(){if(!s.basics)return M.topics(s.grade,s.group);return Array.from({length:s.grade-5},(_,i)=>M.topics(i+5,s.group)).flat().filter((t,i,a)=>a.findIndex(v=>v.id===t.id)===i);}
+function selected(){const available=list();return s.all?available:available.filter(t=>s.selected.includes(`${t.grade}:${t.id}`));}
+function seeded(seed){return()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};}
+function restoreTask(){const d=data.session?.current;if(!d)return;const valid=[...M.topics(d.grade,'I'),...M.topics(d.grade,'II/III')].find(t=>t.id===d.id);if(!valid||!Number.isInteger(d.seed)){data.session=null;return;}try{task=M.generate(d.id,d.grade,d.difficulty,seeded(d.seed));}catch(e){data.session=null;task=null;}}
+restoreTask();
+root.innerHTML=`<h2>Realschule Bayern</h2><p class="rs-subtitle">Klassen 5–10 · erste Übungsauswahl nach LehrplanPLUS</p>
+<details class="rs-settings" open><summary>Einstellungen</summary><div class="rs-config">
+<label>Klasse<select id="rsGrade">${[5,6,7,8,9,10].map(g=>`<option value="${g}">${g}</option>`).join('')}</select></label>
+<label id="rsGroupLabel">Wahlpflichtfächergruppe<select id="rsGroup"><option value="I">I · mathematisch-technisch</option><option value="II/III">II / III</option></select></label>
+<label>Schwierigkeit<select id="rsDifficulty"><option value="easy">Leicht</option><option value="medium">Mittel</option><option value="hard">Schwer</option><option value="mixed">Gemischt</option></select></label>
+<label>Aufgaben<select id="rsLimit"><option value="10">10</option><option value="20">20</option><option value="30">30</option><option value="0">Unbegrenzt</option></select></label></div>
+<label class="rs-check"><input type="checkbox" id="rsBasics"> Grundlagen früherer Realschulklassen wiederholen</label>
+<label class="rs-check"><input type="checkbox" id="rsAll"> Alle verfügbaren Themen</label><fieldset id="rsTopics"><legend>Themen</legend></fieldset>
+<p id="rsCoverage" class="rs-note"></p><p class="rs-note">Die Auswahl ist ein ausbaufähiger Einstieg, kein vollständiger Lehrplan. Schwierigkeit bleibt innerhalb der gewählten Klasse. Ändere Einstellungen für die nächste Übungsrunde.</p>
+<button type="button" id="rsStart">Neue Übungsrunde</button><p id="rsConfigMessage" role="status"></p></details>
+<div id="rsSession"></div><details class="rs-progress"><summary>Fortschritt und Wiederholung</summary><div id="rsProgress"></div><button type="button" id="rsReview">Fehlerthemen mit neuen Zahlen üben</button></details><p class="rs-note" id="rsStorage">Realschul-Daten werden getrennt auf diesem Gerät gespeichert.</p>`;
+const el=id=>root.querySelector('#'+id);
+function config(){el('rsGrade').value=s.grade;el('rsGroup').value=s.group;el('rsDifficulty').value=s.difficulty;el('rsLimit').value=s.limit;el('rsBasics').checked=s.basics;el('rsBasics').disabled=s.grade===5;if(s.grade===5)s.basics=false;el('rsGroupLabel').hidden=s.grade<7;el('rsAll').checked=s.all;
+ el('rsTopics').innerHTML='<legend>Themen</legend>'+list().map(t=>`<label class="rs-check"><input type="checkbox" data-topic="${t.grade}:${t.id}" ${s.all||s.selected.includes(`${t.grade}:${t.id}`)?'checked':''} ${s.all?'disabled':''}><span>${esc(t.label)}${s.basics?` · Klasse ${t.grade}`:''}<small>${esc(t.area)}</small></span></label>`).join('');
+ el('rsCoverage').innerHTML=`${list().length} aktive Übungsthemen. <a href="${M.topics(s.grade,s.group)[0].source}" target="_blank" rel="noopener">Offizieller Lehrplan Klasse ${s.grade}${s.grade>6?' · Gruppe '+esc(s.group):''}</a>`;
+}
+function remember(){data.choices[`${s.grade}:${s.group}:${s.basics?'basics':'grade'}`]={all:s.all,selected:s.selected};save();}
+for(const id of ['rsGrade','rsGroup','rsBasics'])el(id).addEventListener('change',()=>{remember();s.grade=Number(el('rsGrade').value);s.group=el('rsGroup').value;s.basics=el('rsBasics').checked&&s.grade>5;const choice=data.choices[`${s.grade}:${s.group}:${s.basics?'basics':'grade'}`];s.all=choice?.all??true;s.selected=Array.isArray(choice?.selected)?choice.selected:[];config();save();});
+for(const [id,key] of [['rsDifficulty','difficulty'],['rsLimit','limit']])el(id).addEventListener('change',()=>{s[key]=key==='limit'?Number(el(id).value):el(id).value;save();});
+el('rsAll').addEventListener('change',()=>{s.all=el('rsAll').checked;if(!s.all&&!s.selected.length)s.selected=list().map(t=>`${t.grade}:${t.id}`);config();remember();});el('rsTopics').addEventListener('change',()=>{s.selected=Array.from(root.querySelectorAll('[data-topic]:checked')).map(e=>e.dataset.topic);remember();});
+function start(review=false){const chosen=selected();if(!chosen.length){el('rsConfigMessage').textContent='Wähle mindestens ein Thema.';return;}const queue=review?data.errors.filter(e=>chosen.some(t=>t.id===e.id&&t.grade===e.grade)):[];if(review&&!queue.length){el('rsConfigMessage').textContent='Für diese Auswahl gibt es keine Fehlerthemen.';return;}
+ if(data.session&&!data.session.finished&&!window.confirm('Die laufende Realschulrunde ersetzen? Der bisherige Themenfortschritt bleibt erhalten.'))return;
+ data.session={pool:chosen.map(t=>({id:t.id,grade:t.grade,label:t.label})),difficulty:s.difficulty,limit:review?queue.length:s.limit,queue,review,count:0,correct:0,attempts:0,wrong:0,assisted:0,skipped:0,byTopic:{},finished:false,current:null};el('rsConfigMessage').textContent='';nextTask();root.querySelector('.rs-settings').open=false;render();}
+function nextTask(){const session=data.session;if(session.limit&&session.count>=session.limit){session.finished=true;session.current=null;task=null;save();render();return;}const t=session.review?session.queue[session.count]:session.pool[session.count%session.pool.length],seed=new Uint32Array(1);
+ const previous=session.review?t:session.current;
+ let previousPrompt=null;
+ if(previous?.id===t.id&&previous.grade===t.grade&&Number.isInteger(previous.seed))previousPrompt=M.generate(t.id,t.grade,previous.difficulty||session.difficulty,seeded(previous.seed)).prompt;
+ let candidate;
+ for(let retry=0;retry<8;retry++){
+   if(window.crypto?.getRandomValues)crypto.getRandomValues(seed);else seed[0]=Math.random()*4294967295;
+   candidate=M.generate(t.id,t.grade,session.difficulty,seeded(seed[0]));
+   if(candidate.prompt!==previousPrompt)break;
+ }
+ session.current={id:t.id,grade:t.grade,label:t.label||M.topics(t.grade,s.group).find(v=>v.id===t.id)?.label||t.id,difficulty:session.difficulty,seed:seed[0],history:[],input:'',hints:0,assisted:false,done:false,hadError:false};task=candidate;save();}
+function progress(){el('rsReview').disabled=!data.errors.length;const rows=Object.values(data.progress);el('rsProgress').innerHTML=rows.length?`<p>${data.errors.length} Fehlerthemen vorgemerkt. Sie werden mit neuen Zahlen wiederholt.</p><ul>${rows.map(t=>`<li>${esc(t.label)} · Klasse ${t.grade}: ${t.correct} richtig, ${t.wrong} Fehler, ${t.attempts} Prüfversuche, ${t.assisted} mit Lösung, ${t.skipped} übersprungen</li>`).join('')}</ul>`:'<p>Dein Fortschritt erscheint nach der ersten Prüfung.</p>';}
+function record(status){const ss=data.session,c=ss.current,key=`${c.grade}:${c.id}`,initial={label:c.label,grade:c.grade,correct:0,wrong:0,attempts:0,assisted:0,skipped:0};data.progress[key]??={...initial};ss.byTopic[key]??={...initial};for(const row of [data.progress[key],ss.byTopic[key]]){row[status]++;}if(status==='wrong'){c.hadError=true;if(!data.errors.some(e=>e.id===c.id&&e.grade===c.grade))data.errors.push({id:c.id,grade:c.grade,seed:c.seed,difficulty:c.difficulty});}if(status==='correct'&&ss.review)data.errors=data.errors.filter(e=>e.id!==c.id||e.grade!==c.grade);}
+function finish(status){const ss=data.session,c=ss.current;if(c.done)return;c.done=true;ss.count++;ss[status]++;record(status);save();}
+function render(){const ss=data.session;progress();if(!ss){el('rsSession').innerHTML='<p class="rs-empty">Wähle Klasse und Themen. Starte dann deine Übungsrunde.</p>';return;}
+ if(ss.finished){el('rsSession').innerHTML=`<article class="rs-card"><h3>Runde abgeschlossen</h3><p>${ss.correct} von ${ss.count} Aufgaben selbst gelöst · ${ss.wrong} Fehlversuche · ${ss.assisted} mit Lösung · ${ss.skipped} übersprungen</p><ul>${Object.values(ss.byTopic).map(t=>`<li>${esc(t.label)}: ${t.correct} richtig, ${t.wrong} Fehler, ${t.attempts} Prüfversuche</li>`).join('')}</ul><button id="rsAgain" type="button">Noch eine Runde</button></article>`;el('rsAgain').onclick=()=>start();return;}
+ const c=ss.current;if(!c||!task)return;const multi=task.type!=='short';el('rsSession').innerHTML=`<article class="rs-card"><p class="rs-note">${ss.count+(c.done?0:1)}${ss.limit?' / '+ss.limit:''} · Klasse ${c.grade} · ${esc(c.label)}${ss.review?' · Fehlerwiederholung':''}</p><h3 class="rs-prompt">${task.prompt}</h3><ol class="rs-history">${c.history.map(h=>`<li>${esc(h)}</li>`).join('')}</ol>
+ <form id="rsAnswerForm"><label for="rsAnswer">${multi?'Nächster Rechenschritt':'Deine Antwort'}${task.unit?' (in '+task.unit+')':''}</label><div class="rs-answer-row"><input id="rsAnswer" type="text" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="180" value="${esc(c.input)}" ${c.done?'disabled':''}><button id="rsCheck" ${c.done?'disabled':''}>${multi?'Schritt prüfen':'Prüfen'}</button></div></form><p class="rs-note">${task.type==='equationSteps'?'Zum Beispiel 3x = 15. Nutze x, =, +, -, *, / und Klammern.':task.type==='fractionSteps'?'Brüche als 6/12 eingeben. Auch vorheriges Kürzen ist möglich.':'Dezimalkomma oder Brüche sind möglich. Die angezeigte Einheit musst du nicht eintippen.'}</p><p id="rsFeedback" role="status" aria-live="polite">${c.done?(c.assisted?'Lösung angezeigt. Gehe zur nächsten Aufgabe.':'Aufgabe abgeschlossen.'):''}</p><div class="rs-actions"><button id="rsHint" type="button" ${c.done?'disabled':''}>Hinweis</button><button id="rsSolution" type="button" ${c.done?'disabled':''}>Lösung anzeigen</button><button id="rsNext" type="button">${c.done?'Nächste Aufgabe':'Überspringen'}</button></div></article>`;
+ el('rsAnswer').addEventListener('input',()=>{c.input=el('rsAnswer').value;save();});
+ el('rsAnswerForm').onsubmit=e=>{e.preventDefault();if(c.done)return;const answer=el('rsAnswer').value,v=M.validate(task,answer,c.history);if(v.status==='invalid'||v.status==='incomplete'){el('rsFeedback').textContent=v.message;return;}ss.attempts++;record('attempts');if(v.status==='wrong'){ss.wrong++;record('wrong');save();progress();el('rsFeedback').textContent=v.message;return;}if(c.history.length>=50)c.history.shift();c.history.push(answer);c.input='';if(v.status==='correct')finish('correct');else save();render();el('rsFeedback').textContent=v.message;if(!c.done)el('rsAnswer').focus();};
+ el('rsHint').onclick=()=>{el('rsFeedback').textContent=task.hints[Math.min(c.hints++,task.hints.length-1)]||'Gehe Schritt für Schritt vor.';save();};
+ el('rsSolution').onclick=()=>{c.assisted=true;finish('assisted');render();el('rsFeedback').textContent=(task.steps.length?task.steps.join(' → '):M.str(task.answer)+(task.unit?' '+task.unit:''))+' · Als Aufgabe mit Lösung erfasst.';};
+ el('rsNext').onclick=()=>{if(!c.done)finish('skipped');nextTask();render();};
+}
+el('rsStart').onclick=()=>start();el('rsReview').onclick=()=>start(true);
+function switchSection(section){const rs=section==='realschule';window.__schoolSection=section;document.getElementById('grundschulePanel').hidden=rs;root.hidden=!rs;document.querySelectorAll('[data-school-tab]').forEach(b=>{b.setAttribute('aria-selected',String((b.dataset.schoolTab==='realschule')===rs));b.tabIndex=(b.dataset.schoolTab===section)?0:-1;});
+ if(rs){document.activeElement?.blur();if(typeof mgHideKeypad==='function')mgHideKeypad();if(window._roundTimerTimeout){gsRemaining=Math.max(0,(window._roundTimerDeadline||Date.now())-Date.now());clearRoundTimer();}}
+ else {if(gsNextPending){gsNextPending=false;initGame(false,false);}else if(gsRemaining!==null){const remaining=gsRemaining;gsRemaining=null;window._roundTimerDeadline=Date.now()+remaining;window._roundTimerTimeout=setTimeout(()=>{window._roundTimerTimeout=null;onRoundTimeout();},remaining);}}
+ try{localStorage.setItem(TAB,section);}catch(e){}save();}
+window.RealschuleUI={getState:()=>data,pauseGrundschuleTimer:ms=>{gsRemaining=ms;},pausePendingGrundschule:()=>{gsNextPending=true;},switchSection};
+const tabs=Array.from(document.querySelectorAll('[data-school-tab]'));tabs.forEach((b,i)=>{b.onclick=()=>switchSection(b.dataset.schoolTab);b.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();const target=tabs[1-i];switchSection(target.dataset.schoolTab);target.focus();}});});
+config();render();let section='grundschule';try{if(localStorage.getItem(TAB)==='realschule')section='realschule';}catch(e){}switchSection(section);
+})();
+</script>
   </body>
 </html>

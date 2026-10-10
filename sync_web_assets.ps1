@@ -325,6 +325,15 @@ function Sync-DocsFromAssets {
     Copy-FileIfChanged -SourcePath $SourceSwFile -DestinationPath (Join-Path $TargetDocsDir "sw.js")
     Copy-FileIfChanged -SourcePath $SourceVersionManifestFile -DestinationPath (Join-Path $TargetDocsDir "version.json")
 
+    $moduleSource = Join-Path $SourceAssetsDir "realschule"
+    if (Test-Path -LiteralPath $moduleSource) {
+        $moduleTarget = Join-Path $TargetDocsDir "realschule"
+        New-Item -ItemType Directory -Force -Path $moduleTarget | Out-Null
+        Get-ChildItem -LiteralPath $moduleSource -File | ForEach-Object {
+            Copy-FileIfChanged -SourcePath $_.FullName -DestinationPath (Join-Path $moduleTarget $_.Name)
+        }
+    }
+
     Get-ChildItem -LiteralPath $SourceIconsDir -File | ForEach-Object {
         Copy-FileIfChanged -SourcePath $_.FullName -DestinationPath (Join-Path $TargetDocsIconsDir $_.Name)
     }

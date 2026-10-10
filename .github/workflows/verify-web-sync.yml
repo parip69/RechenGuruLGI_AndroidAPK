@@ -5,6 +5,7 @@ on:
     paths:
       - "app/src/main/assets/**"
       - "docs/**"
+      - "tests/**"
       - "sync_web_assets.ps1"
       - "version.properties"
       - ".github/workflows/verify-web-sync.yml"
@@ -14,6 +15,7 @@ on:
     paths:
       - "app/src/main/assets/**"
       - "docs/**"
+      - "tests/**"
       - "sync_web_assets.ps1"
       - "version.properties"
       - ".github/workflows/verify-web-sync.yml"
@@ -24,6 +26,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+
+      - name: Validate Realschule generators and input
+        run: node --test tests/realschule.test.cjs
 
       - name: Sync docs from assets
         shell: pwsh
@@ -37,6 +42,8 @@ jobs:
             app/src/main/assets/sw.js \
             app/src/main/assets/version.json \
             app/src/main/assets/icons \
+            app/src/main/assets/realschule \
+            docs/realschule \
             docs/index.html \
             docs/manifest.webmanifest \
             docs/sw.js \

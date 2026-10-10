@@ -14,7 +14,7 @@
     <meta property="og:locale" content="de_DE" />
     <meta property="og:title" content="Mathe Kids – Rechnen üben, spielerisch lernen" />
     <meta property="og:description" content="Mathe Kids öffnen und die aktuelle Android-App herunterladen. Auf Wunsch lassen sich Rechen-Einstellungen mit dem Link teilen." />
-    <meta property="og:url" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?v=114&amp;update-check=114&amp;preview=whatsapp-v1" />
+    <meta property="og:url" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?v=200&amp;update-check=200&amp;preview=whatsapp-v1" />
     <meta property="og:image" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/icons/share-preview-whatsapp-v1.jpg" />
     <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1200" />
@@ -2563,6 +2563,7 @@
       .developer-project-card:focus-visible, #developerInfoLink:focus-visible { outline:3px solid var(--primary); outline-offset:3px; }
       @media print { .matheHelpShareRow, .matheFooter, #developerInfoOverlay { display:none!important; } }
     </style>
+  <link rel="stylesheet" href="realschule/style.css">
   </head>
 
   <body>
@@ -2603,6 +2604,11 @@
         </span>
       </button>
 
+      <nav class="school-tabs" role="tablist" aria-label="Schulbereich">
+        <button id="grundschuleTab" data-school-tab="grundschule" role="tab" aria-selected="true" aria-controls="grundschulePanel" type="button">Grundschule (1–4)</button>
+        <button id="realschuleTab" data-school-tab="realschule" role="tab" aria-selected="false" aria-controls="realschulePanel" tabindex="-1" type="button">Realschule (5–10)</button>
+      </nav>
+      <section id="grundschulePanel" role="tabpanel" aria-labelledby="grundschuleTab">
       <details class="settings" id="settingsDetails">
         <summary>
           <div class="viewSelectWrap">
@@ -3312,6 +3318,8 @@
           line-height: 1.35;
         "
       ></div>
+      </section>
+      <section id="realschulePanel" role="tabpanel" aria-labelledby="realschuleTab" hidden></section>
     </div>
 
     <!-- Motivations-Overlay -->
@@ -5035,6 +5043,36 @@
         return `${safeHtmlText}\n${bootstrapScript}`;
       }
 
+      async function bundleRealschuleAssets(htmlText) {
+        const bridge = getAndroidBridge();
+        const read = async (path) => {
+          if (bridge && typeof bridge.getBundledTextAsset === "function") {
+            const text = String(bridge.getBundledTextAsset(path) || "");
+            if (!text) throw new Error("Asset fehlt: " + path);
+            return text;
+          }
+          const response = await fetch(new URL(path, location.href));
+          if (!response.ok) throw new Error("Asset fehlt: " + path);
+          return response.text();
+        };
+        let result = htmlText;
+        for (const path of ["realschule/style.css", "realschule/core.js", "realschule/ui.js"]) {
+          const tag = path.endsWith(".css") ? '<link rel="stylesheet" href="'+path+'">' : '<script src="'+path+'"><\/script>';
+          if (!result.includes(tag)) continue;
+          const text = await read(path);
+          if (path.endsWith(".css")) result = result.replace('<link rel="stylesheet" href="'+path+'">', () => '<style>'+text+'</style>');
+          else result = result.replace('<script src="'+path+'"><\/script>', () => '<script>'+text.replace(/<\/script/gi, "<\\/script")+'<\/script>');
+        }
+        let state = null, section = "grundschule";
+        try { state = localStorage.getItem("MatheKids_Realschule_v1"); section = localStorage.getItem("MatheKids_SchoolSection_v1") || section; } catch(e) {}
+        if (state) {
+          const marker = "MatheKids_Realschule_export_" + Date.now();
+          const bootstrap = "<script>try{const marker="+JSON.stringify(marker)+";if(!localStorage.getItem(marker)){localStorage.setItem('MatheKids_Realschule_v1',"+JSON.stringify(state).replace(/</g,"\\u003c")+");localStorage.setItem('MatheKids_SchoolSection_v1',"+JSON.stringify(section)+");localStorage.setItem(marker,'1');}}catch(e){}<\/script>";
+          result = result.replace("</head>", () => bootstrap+"</head>");
+        }
+        return result;
+      }
+
       async function getBundledIndexHtmlText() {
         const androidBridge = getAndroidBridge();
         if (
@@ -5241,7 +5279,7 @@
 
         try {
           const htmlText = await getBundledIndexHtmlText();
-          const portableHtml = embedPortableAppStateIntoHtml(htmlText);
+          const portableHtml = embedPortableAppStateIntoHtml(await bundleRealschuleAssets(htmlText));
           const ok = downloadTextFileRobust(fileName, portableHtml);
           if (!ok) {
             throw new Error("download_failed");
@@ -5664,6 +5702,7 @@
       }
 
       function onRoundTimeout() {
+        if (window.__schoolSection === "realschule") return;
         if (window._roundTimedOut) return;
         if (roundIsSolved()) return;
         window._roundTimedOut = true;
@@ -5712,6 +5751,7 @@
 
         setTimeout(() => {
           window.__lastUserGestureTs = Date.now();
+          if (window.__schoolSection === "realschule") { window.RealschuleUI?.pausePendingGrundschule(); return; }
           initGame(false, true);
         }, 650);
       }
@@ -5726,6 +5766,8 @@
         const mode = document.getElementById("viewSelect")?.value;
         const delay = isFlashActiveForMode(mode) ? getFlashShowMs() : 0;
 
+        if (window.__schoolSection === "realschule") { window.RealschuleUI?.pauseGrundschuleTimer(Math.max(0, delay + ms)); return; }
+        window._roundTimerDeadline = Date.now() + Math.max(0, delay + ms);
         window._roundTimerTimeout = setTimeout(
           () => {
             window._roundTimerTimeout = null;
@@ -7814,6 +7856,7 @@
       }
 
       function mgSetActiveInput(inp) {
+        if (window.__schoolSection === "realschule") return;
         if (window.__appUpdateDialogOpen) return;
         if (!inp) return;
         mgActiveInput = inp;
@@ -8343,6 +8386,7 @@
       }
 
       function focusWithoutAutofill(el, opts = {}) {
+        if (window.__schoolSection === "realschule") return;
         if (window.__appUpdateDialogOpen) return;
         if (!el || el.disabled) return;
         const moveCaretToEnd = opts && opts.moveCaretToEnd !== false;
@@ -8473,6 +8517,7 @@
       }
 
       function focusFirstTaskInput(openKeyboard = false) {
+        if (window.__schoolSection === "realschule") return;
         if (window.__appUpdateDialogOpen) return;
         const settingsOpen = !!document.getElementById("settingsDetails")?.open;
         if (settingsOpen) return;
@@ -13394,6 +13439,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             window._autoNextTimeout = setTimeout(() => {
               window._autoNextTimeout = null;
               window.__lastUserGestureTs = Date.now();
+              if (window.__schoolSection === "realschule") { window.RealschuleUI?.pausePendingGrundschule(); return; }
               initGame(false, true);
             }, autoDelay);
           }
@@ -13473,7 +13519,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v114";
+        const SW_VERSION = "rechenguru-lgi-v200";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -14788,7 +14834,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       <button class="appDownloadBtn" id="appDownloadBtn" type="button" title="Android-APK herunterladen" aria-label="Android-APK herunterladen" aria-haspopup="dialog" aria-controls="appUpdateDialog"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M10 3h8v13h5l-9 9-9-9h5z" /></svg></button>
       <span id="appShareWidget"></span>
     </div>
-    <footer id="appFooter" data-app-version="114" class="matheFooter">
+    <footer id="appFooter" data-app-version="200" class="matheFooter">
       <span class="footerCredits"><span id="footerDeveloperLabel">Entwickelt von:</span> <button id="developerInfoLink" type="button">Bachner Gerhard</button> <span class="footerIsabella">&amp; Isabella</span> · Ver.<span id="appVersion"></span></span>
       <div class="appUpdateWidget" id="appUpdateWidget">
         <button class="appUpdateBtn" id="appUpdateBtn" type="button" title="Kurz drücken: Update prüfen · Lang drücken: Update-Einstellungen" aria-label="Update prüfen. Lange drücken für Update-Einstellungen.">↻</button>
@@ -14861,7 +14907,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
           <a
             class="developer-project-card"
-            href="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?update-check=114"
+            href="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?update-check=200"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Mathe Kids öffnen"
@@ -15256,5 +15302,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         }, true);
       })();
     </script>
+    <script src="realschule/core.js"></script>
+    <script src="realschule/ui.js"></script>
   </body>
 </html>
