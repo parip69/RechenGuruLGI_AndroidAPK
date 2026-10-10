@@ -119,13 +119,20 @@ const random=(lo,hi,rng)=>lo+Math.floor(rng()*(hi-lo+1));
 const url=(g,w)=>`https://www.lehrplanplus.bayern.de/fachlehrplan/realschule/${g}/mathematik${g>6?'/'+(w==='I'?'wpfg1':'wpfg2-3'):''}`;
 const entry=(id,label,area)=>({id,label,area});
 // Only active, implemented exercises appear. Each row cites its official learning area.
+// Local SVG: fixed coordinate system, no external resources or executable input.
+function lineGraph(slope,intercept){
+ const px=x=>150+x*20,py=y=>150-y*20;let grid='';
+ for(let i=-6;i<=6;i++){grid+=`<path d="M${px(i)} 30V270 M30 ${py(i)}H270" stroke="#b8c7d5" stroke-width="0.6"/>`;if(i)grid+=`<text x="${px(i)}" y="165" text-anchor="middle">${i}</text><text x="137" y="${py(i)+4}" text-anchor="end">${i}</text>`;}
+ const points=[];for(let x=-6;x<=6;x+=0.05){const y=slope.n/slope.d*x+intercept;if(y>=-6&&y<=6)points.push(`${px(x).toFixed(2)},${py(y).toFixed(2)}`);}
+ return `<svg class="rs-graph" viewBox="0 0 300 300" role="img" aria-label="Gerade in einem Koordinatensystem von minus sechs bis sechs. Ein Kästchen entspricht einer Einheit." style="display:block;width:100%;max-width:340px;margin:12px auto;background:#f7fbff;color:#152b3b;border-radius:12px;font:11px sans-serif"><title>Gerade im Koordinatensystem</title>${grid}<path d="M30 150H275 M150 275V25" stroke="#152b3b" stroke-width="1.8"/><text x="282" y="146">x</text><text x="157" y="22">y</text><polyline points="${points.join(' ')}" fill="none" stroke="#176ab0" stroke-width="3"/></svg>`;
+}
 const catalog={
  5:{all:[entry('integers','Ganze Zahlen · Rechenregeln','M5 1/2'),entry('rectangle','Rechteck · Umfang und Fläche','M5 5'),entry('ratio','Größen · direkter Dreisatz','M5 4')]},
  6:{all:[entry('fractions','Brüche · Multiplikation mit Rechenweg','M6 1'),entry('fractionAdd','Brüche · Addition mit Rechenweg','M6 1'),entry('fractionSubtract','Brüche · Subtraktion mit Rechenweg','M6 1'),entry('fractionDivide','Brüche · Division mit Rechenweg','M6 1'),entry('mixedFractions','Gemischte Zahlen · Rechenweg','M6 1'),entry('fractionChain','Brüche · Klammern und Rechenketten','M6 1'),entry('decimals','Rationale Zahlen · Dezimalzahlen','M6 1'),entry('equations','Lineare Gleichungen · Rechenweg','M6 5'),entry('percent','Prozentwert','M6 6'),entry('triangle','Dreieck · Flächeninhalt','M6 3'),entry('cuboid','Quader · Volumen','M6 4')]},
  7:{all:[entry('powers','Potenzen · Rechenregeln','M7 1'),entry('termValue','Klammerterme · Werte berechnen','M7 I 6 / II–III 4'),entry('equations','Gleichungen mit Klammern · Rechenweg','M7 I 6 / II–III 4'),entry('percent','Vermehrter und verminderter Grundwert','M7 I 7 / II–III 5'),entry('mean','Daten · arithmetisches Mittel','M7 I 8 / II–III 6')]},
- 8:{all:[entry('equations','Gleichungen mit x auf beiden Seiten','M8 I 4 / II–III 3'),entry('linear','Lineare Funktionen · Funktionswert','M8 I 6 / II–III 5'),entry('frequency','Zufall · relative Häufigkeit','M8 I 7 / II–III 6'),entry('trapezoid','Trapez · Flächeninhalt','M8 1')]},
- 9:{all:[entry('roots','Quadratwurzeln','M9 1'),entry('pythagoras','Satz des Pythagoras','M9 3'),entry('circle','Kreis · Flächeninhalt','M9 4'),entry('probability','Zufall · Gegenereignis','M9 I 8 / II–III 7'),entry('systems','Lineare Gleichungssysteme · Rechenweg','M9 I 6 / II–III 6')],I:[entry('quadratic','Quadratische Funktion · Scheitelwert','M9 I 7')],'II/III':[entry('linear','Lineare Funktion · Funktionswert','M9 II–III 5')]},
- 10:{all:[entry('trig','Trigonometrie · Kosinussatz','M10 1'),entry('growth','Exponentielles Wachstum','M10 I 4 / II–III 3'),entry('compound','Zufall · Pfadregel','M10 I 5 / II–III 5')],I:[entry('powerFunction','Potenzfunktion · Funktionswert','M10 I 3')],'II/III':[entry('quadratic','Quadratische Funktion · Scheitelwert','M10 II–III 4'),entry('cylinder','Zylinder · Volumen','M10 II–III 2')]}
+ 8:{all:[entry('equations','Gleichungen mit x auf beiden Seiten','M8 I 4 / II–III 3'),entry('linear','Lineare Funktionen · Funktionswert','M8 I 6 / II–III 5'),entry('linearGraph','Geraden · Graphen ablesen','M8 I 6 / II–III 5'),entry('linearZero','Lineare Funktionen · Nullstellen','M8 I 6 / II–III 5'),entry('frequency','Zufall · relative Häufigkeit','M8 I 7 / II–III 6'),entry('trapezoid','Trapez · Flächeninhalt','M8 1')]},
+ 9:{all:[entry('roots','Quadratwurzeln','M9 1'),entry('pythagoras','Satz des Pythagoras','M9 3'),entry('circle','Kreis · Flächeninhalt','M9 4'),entry('probability','Zufall · Gegenereignis','M9 I 8 / II–III 7'),entry('systems','Lineare Gleichungssysteme · Rechenweg','M9 I 6 / II–III 6')],I:[entry('quadratic','Quadratische Funktion · Scheitelwert','M9 I 7'),entry('quadraticZero','Quadratische Funktionen · Nullstellen','M9 I 7')],'II/III':[entry('linear','Lineare Funktion · Funktionswert','M9 II–III 5')]},
+ 10:{all:[entry('trig','Trigonometrie · Kosinussatz','M10 1'),entry('growth','Exponentielles Wachstum','M10 I 4 / II–III 3'),entry('compound','Zufall · Pfadregel','M10 I 5 / II–III 5')],I:[entry('powerFunction','Potenzfunktion · Funktionswert','M10 I 3')],'II/III':[entry('quadratic','Quadratische Funktion · Scheitelwert','M10 II–III 4'),entry('quadraticZero','Quadratische Funktionen · Nullstellen','M10 II–III 4'),entry('cylinder','Zylinder · Volumen','M10 II–III 2')]}
 };
 function topics(grade,group='I'){const c=catalog[grade];return c?[...c.all,...(c[group]||[])].map(t=>({...t,grade:Number(grade),source:url(grade,group)})):[];}
 function generate(id,grade,difficulty='medium',rng=Math.random){
@@ -181,6 +188,21 @@ function generate(id,grade,difficulty='medium',rng=Math.random){
  case 'cuboid':return task(`Ein Quader hat Kanten ${n} cm, ${m} cm und ${k} cm. Bestimme sein Volumen.`,n*m*k,{unit:'cm³',hints:['Volumen = Länge · Breite · Höhe.']});
  case 'powers':return task(`Berechne mithilfe der Potenzregel: 2<sup>${k}</sup> · 2<sup>${level}</sup>`,2**(k+level),{hints:['Bei gleicher Basis werden beim Multiplizieren die Exponenten addiert.']});
  case 'mean':{const values=[n,m,k,level*2];return task(`Bestimme das arithmetische Mittel von ${values.join('; ')}.`,Q(values.reduce((a,b)=>a+b,0),4),{hints:['Addiere die Werte und teile durch die Anzahl der Werte.']});}
+ case 'linearGraph':{
+   const slope=Q((ri(0,1)?1:-1)*ri(1,3),level===3?2:1),intercept=ri(-3,3),x=ri(-1,1),reading=level===1?'intercept':level===2?'value':'slope';
+   const answer=reading==='intercept'?Q(intercept):reading==='value'?add(mul(slope,Q(x)),Q(intercept)):slope;
+   const question=reading==='intercept'?'Lies den y-Achsenabschnitt ab.':reading==='value'?`Lies den Funktionswert f(${x}) ab.`:'Bestimme die Steigung der Geraden. Gib bei Bedarf einen Bruch ein.';
+   return task(question+lineGraph(slope,intercept),answer,{graph:{slope,intercept,x,reading},hints:[reading==='slope'?'Steigung = Änderung in y / Änderung in x. Wähle zwei Gitterpunkte auf der Geraden.':reading==='intercept'?'Wo schneidet die Gerade die y-Achse?':`Gehe auf der x-Achse zu ${x} und lies an der Geraden den y-Wert ab.`]});
+ }
+ case 'linearZero':{
+   const slope=level===3?-m:m,root=Q(level===1?n:ri(-9,9),level===3?2:1),intercept=neg(mul(Q(slope),root));
+   return task(`f(x) = ${slope}x ${intercept.n<0?'−':'+'} ${str(Q(Math.abs(intercept.n),intercept.d))}. Bestimme die Nullstelle (nur den x-Wert).`,root,{coefficients:[intercept,Q(slope)],hints:['An einer Nullstelle ist f(x) = 0.','Bringe den konstanten Term auf die andere Seite und teile durch die Steigung.']});
+ }
+ case 'quadraticZero':{
+   const left=ri(-6,1),right=left+ri(1,7),a=level===3?-ri(1,3):1,b=-a*(left+right),c=a*left*right;
+   const expression=level===1?`(x − (${left}))(x − (${right}))`:`${a}x² ${b<0?'−':'+'} ${Math.abs(b)}x ${c<0?'−':'+'} ${Math.abs(c)}`;
+   return task(`f(x) = ${expression}. Die Funktion hat zwei verschiedene Nullstellen. Bestimme die größere Nullstelle (nur den x-Wert).`,right,{coefficients:[Q(c),Q(b),Q(a)],roots:[Q(left),Q(right)],hints:['Setze f(x) = 0. Suche zwei Lösungen und wähle den größeren x-Wert.',level===1?'Ein Produkt ist null, wenn mindestens ein Faktor null ist.':'Teile durch den Koeffizienten von x². Nutze anschließend Faktorisieren oder die Lösungsformel.']});
+ }
  case 'linear':return task(`f(x) = ${level===3?-m:m}x + ${k}. Berechne f(${level===3?-n:n}).`,(level===3?-m:m)*(level===3?-n:n)+k,{hints:['Setze den angegebenen x-Wert in die Funktion ein.']});
  case 'trapezoid':return task(`Ein Trapez hat parallele Seiten ${n} cm und ${m} cm sowie Höhe ${k} cm. Bestimme die Fläche.`,Q((n+m)*k,2),{unit:'cm²',hints:['Fläche = (a + c) · h / 2.']});
  case 'frequency':return task(`Bei ${n+m} Würfen wurde ${n}-mal eine Sechs beobachtet. Bestimme die relative Häufigkeit als Bruch.`,Q(n,n+m),{hints:['Relative Häufigkeit = beobachtete Treffer / Anzahl der Versuche.']});
