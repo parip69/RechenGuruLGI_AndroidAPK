@@ -31,7 +31,7 @@ val syncLauncherForegroundFromAssets = tasks.register<Copy>("syncLauncherForegro
 val syncWebAssetsForDocs = tasks.register<Exec>("syncWebAssetsForDocs") {
     workingDir = rootProject.projectDir
     commandLine(
-        "powershell",
+        if (System.getProperty("os.name").startsWith("Windows")) "powershell" else "pwsh",
         "-NoProfile",
         "-ExecutionPolicy",
         "Bypass",
@@ -45,6 +45,20 @@ val syncWebAssetsForDocs = tasks.register<Exec>("syncWebAssetsForDocs") {
 android {
     namespace = "de.parip69.rechengurulgi"
     compileSdk = 35
+    buildToolsVersion = "35.0.0"
+
+    signingConfigs {
+        create("existingRelease") {
+            val path = System.getenv("ANDROID_KEYSTORE_PATH")
+            if (!path.isNullOrBlank()) storeFile = file(path)
+            storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
+            keyAlias = System.getenv("ANDROID_KEY_ALIAS")
+            keyPassword = System.getenv("ANDROID_KEY_PASSWORD")
+            enableV1Signing = true
+            enableV2Signing = true
+            enableV3Signing = true
+        }
+    }
 
     defaultConfig {
         applicationId = "de.parip69.rechengurulgi"
@@ -58,6 +72,8 @@ android {
 
     buildTypes {
         release {
+            signingConfig = signingConfigs.getByName("existingRelease")
+            isDebuggable = false
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -83,6 +99,21 @@ android {
         }
     }
 }
+
+val validateReleaseSigning = tasks.register("validateReleaseSigning") {
+    doLast {
+        listOf("ANDROID_KEYSTORE_PATH", "ANDROID_KEYSTORE_PASSWORD", "ANDROID_KEY_ALIAS", "ANDROID_KEY_PASSWORD").forEach {
+            check(!System.getenv(it).isNullOrBlank()) { "Missing secure signing environment variable: $it" }
+        }
+        val keyFile = file(System.getenv("ANDROID_KEYSTORE_PATH"))
+        check(keyFile.isFile) { "External signing keystore is unavailable" }
+        check(!keyFile.canonicalFile.toPath().startsWith(rootProject.projectDir.canonicalFile.toPath())) {
+            "The signing keystore must be outside the repository"
+        }
+        check(JavaVersion.current() == JavaVersion.VERSION_17) { "Release builds require Java 17" }
+    }
+}
+tasks.matching { it.name == "preReleaseBuild" }.configureEach { dependsOn(validateReleaseSigning) }
 
 tasks.named("preBuild") {
     dependsOn(syncLauncherForegroundFromAssets)

@@ -9,3 +9,15 @@ local.properties
 /.idea/
 /.vscode/
 /.agent/
+/.release-build/
+*.keystore
+*.jks
+*.p12
+*.pfx
+*.pem
+*.key
+key.properties
+keystore.properties
+signing.properties
+.env
+.env.*

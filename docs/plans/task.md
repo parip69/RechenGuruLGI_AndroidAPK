@@ -1,13 +1,12 @@
 | Schritt | Status |
 | --- | --- |
-| Vorgabe dauerhaft festhalten | Erledigt: neue Aufgaben stets in Info, belegte Potentialangaben, Zeichnen/Auswahl vorher besprechen |
-| Info automatisch vollständig | Erledigt: alle Grundschul-Rechenarten und Realschul-Klassen/Gruppen aus den aktiven Katalogen |
-| Potential belegen | Erledigt: 12.916 unterschiedliche Prompts aus 43.500 Beispielen; Info „über 10.000“, dauerhafter Schwellentest |
-| Grundschul-Bedienung prüfen | Erledigt: konkrete Kachel-/Zahlen-anpassen-Alternative dokumentiert, vorhandene Auswahl und Standardwerte erhalten |
-| Prüfungen und APK 209 | Erledigt: 19 Mathematiktests plus Info/UI-Prüfungen; finaler Build, Signatur und Asset-Gleichheit |
-| Veröffentlichung und Download | Erledigt: 8a6013b auf main, alle drei Workflows erfolgreich; öffentliche Version 209, APK HTTP 200 und passender MIME-Typ, SHA-256 identisch, Signatur gültig; Info-Dateien und latest-APK identisch |
+| Audit öffentliches 209 | HTTP 200, vollständige Datei byteidentisch, Zertifikat und Paketname geprüft |
+| Historische Signaturen | 86 vorhandene APK-Dateien gültig, drei Zertifikatsgruppen; Details in apk-signature-audit.json |
+| Ursprünglicher aktueller Schlüssel | Externer PrivateKeyEntry gefunden, Zertifikat passt, Release-Signierung erfolgreich |
+| Gemeinsame Release-Struktur | Externe Umgebungsvariablen, Java 17 / Gradle 8.9 / AGP 8.7.3 / SDK 35, Windows-/Linux-Sync, getrennte Ausgaben |
+| Release 210 | Erfolgreich gebaut, kein Debuggable, gleiche Signatur und App-ID wie 209, höhere Version, v1/v2/v3 geprüft |
+| Schutzprüfungen | Gültige APK akzeptiert, fünf problematische APK-Fälle abgewiesen; Mathematik-Regression erfolgreich |
+| Dokumentation | ANDROID_BUILD_SIGNING.md, sichere manuelle Schlüsselbereitstellung und Backup noch erforderlich |
+| Veröffentlichung | Kompatibilität technisch belegt; Veröffentlichung und öffentlicher Download werden abschließend geprüft |
 
-70 Aufgabenfamilien bleiben erhalten; keine neuen Generatoren in dieser Version. Anschließend Bedienbarkeits-Testphase empfohlen, kein echter Android-Gerätetest in der Cloud.
-
-APK: https://parip69.github.io/RechenGuruLGI_AndroidAPK/MatheKids-v209.apk?v=209
-SHA-256: `03714020038b60de58a7faba14559c9cf1601cb17596ce169d0288dee9af136d`
+Keine Aufgaben-/UI-/Speicherlogik geändert. Keine echte Android-Installation, Windows-Ausführung oder Play-Protect-Prüfung. Keine Signaturänderung und kein neuer Schlüssel. Bestehende versionierte APKs bleiben erhalten.
