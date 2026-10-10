@@ -10,6 +10,9 @@ on:
       - "sync_web_assets.ps1"
       - "version.properties"
       - ".github/workflows/deploy-pages.yml"
+      - ".github/workflows/verify-apk.yml"
+      - "scripts/**"
+      - "tests/android-release-checks.ps1"
   workflow_dispatch:
 
 permissions:
@@ -22,7 +25,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  verify-release:
+    uses: ./.github/workflows/verify-apk.yml
+    permissions:
+      contents: read
+
   deploy:
+    needs: verify-release
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

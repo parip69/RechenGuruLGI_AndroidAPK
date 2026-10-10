@@ -97,7 +97,7 @@ Gleichbleibende Signierung und gültige Release-Struktur garantieren nicht, dass
 
 Bei Schlüsselverlust zuerst sichere Backups und die bisherigen Build-Umgebungen untersuchen. Ein APK-Zertifikat enthält keinen rekonstruierbaren privaten Schlüssel. Ohne den passenden privaten Schlüssel keine kompatible APK freigeben und keinen stillen Schlüsselwechsel durchführen. Falls private Schlüssel jemals veröffentlicht wurden, Fund ausdrücklich melden; kompromittierte Schlüssel erfordern einen geplanten Migrations-/Sicherheitsentscheid. Die Git-Historie nicht eigenmächtig umschreiben und nicht durch einen neuen Schlüssel lokale Daten gefährden.
 
-Die GitHub-Aktion `Verify APK Compatibility` prüft die veröffentlichte APK, Versionsarchive und Aliase mit öffentlichen Werkzeugen und führt die Schutztests erneut aus. Sie benötigt keine Signierungs-Secrets. Sie prüft Uploads; sie ersetzt keine Freigabe oder konfigurierte Branch-/Deployment-Schutzregel.
+Die GitHub-Aktion `Verify APK Compatibility` prüft die veröffentlichte APK, Versionsarchive und Aliase mit öffentlichen Werkzeugen und führt die Schutztests erneut aus. Sie benötigt keine Signierungs-Secrets. Der eigene `Deploy GitHub Pages`-Workflow wartet auf diese Prüfung, bevor er Dateien hochlädt und ausliefert. In GitHub Settings → Pages muss dafür die Quelle **GitHub Actions** ausgewählt sein; eine separat aktivierte automatische Branch-Auslieferung wäre nicht durch diesen Workflow geschützt. Die Repository-Einstellung wurde hier nicht per gesperrter API geändert. Zusätzliche Branch-/Environment-Schutzregeln bleiben eine separate Administrator-Einstellung.
 
 ## Durchgeführte technische Prüfungen für Version 210
 
