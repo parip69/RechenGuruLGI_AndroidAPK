@@ -11,3 +11,10 @@ Der Nutzer hat folgenden Ablauf für jede Änderung ausdrücklich autorisiert:
 - Bestehende Dateien und Nutzeränderungen schützen; kein Force-Push. Keine Signierschlüssel oder Zugangsdaten veröffentlichen.
 
 Cloud-Builds verwenden JDK 17, Android SDK 35 und den Gradle-Wrapper. Die vorbereitete Umgebung speichert Werkzeuge unter `/workspace/.cloud-tools`. Build-Ausgaben mit `/workspace/.cloud-tools/build-dir.init.gradle` außerhalb des Checkouts ablegen, da `app/build` bereits getrackte Ausgaben enthält. Die Windows-Sync-Tasks bei Linux-Builds ausschließen und die Web-Synchronisation vor dem Build separat durchführen.
+
+# Info und weiterer Ausbau
+
+- Jede neue oder geänderte Aufgabenfamilie muss in der anklickbaren, zum Schulbereich passenden App-Info berücksichtigt werden. Den Realschul-Themenkatalog aus den aktiven Generatoren erzeugen, damit die Info automatisch mitwächst.
+- Aussagen über viele Übungsmöglichkeiten mit unterschiedlichen erzeugten Aufgabenstellungen belegen. Übungsvarianten nicht als komplette Prüfungen oder vollständige Lehrplanabdeckung bezeichnen; keine unbelegte Prozentzahl nennen.
+- Standardwerte, lokale Speicherung und bewusstes Teilen erhalten. Änderungen an der Grundschul-Auswahl zunächst mit einem konkreten Vorschlag zur Bedienung besprechen. Erste und zweite Zahl müssen weiter getrennt einstellbar bleiben.
+- Freies Zeichnen/Konstruieren und dessen Platzbedarf vor einer Implementierung besprechen. Nach Version 209 zunächst eine Bedienbarkeits-Testphase anstreben; keine weiteren Generatoren allein zur Vergrößerung der Anzahl hinzufügen.

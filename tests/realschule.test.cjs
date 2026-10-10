@@ -79,3 +79,5 @@ test('all 70 families have task-specific numerical work, binomials and volume ch
  const t=M.generate('cuboid',6,'medium',rng(17)),numbers=t.prompt.match(/\d+/g).map(Number);assert.equal(t.steps[0],numbers.join('*'));assert.equal(t.answer.n,numbers.reduce((a,b)=>a*b,1));
  const b=M.generate('binomial',8,'easy',rng(22));assert.equal(M.validate(b,b.original).status,'incomplete');assert.equal(M.validate(b,'x^2').status,'wrong');assert.equal(M.validate(b,b.steps[0]).status,'correct');
 });
+
+test('info potential claim has at least 10000 distinct task prompts in a deterministic sample',()=>{const variants=new Set();for(let grade=5;grade<=10;grade++)for(const group of ['I','II/III'])for(const topic of M.topics(grade,group))for(const difficulty of ['easy','medium','hard'])for(let seed=1;seed<=100;seed++)variants.add(M.generate(topic.id,grade,difficulty,rng(seed*1234567)).prompt);assert(variants.size>10000);console.log('Distinct exercise prompts:',variants.size);});
