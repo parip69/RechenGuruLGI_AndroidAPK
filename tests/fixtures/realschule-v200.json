@@ -1,0 +1,6 @@
+{
+  "version": 200,
+  "seed": 1234567,
+  "prompt": "Berechne mit einem Zwischenschritt und kürze vollständig: <span class=\"rs-fraction\"><span>11</span><span>12</span></span> · <span class=\"rs-fraction\"><span>12</span><span>13</span></span>",
+  "firstStep": "132/156"
+}

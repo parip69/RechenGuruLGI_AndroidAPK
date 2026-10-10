@@ -2,7 +2,7 @@
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.MatheRealschule=api;})(typeof window==='object'?window:globalThis,function(){
 'use strict';
 const gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b];}return a||1;};
-function Q(n,d=1){if(!Number.isSafeInteger(n)||!Number.isSafeInteger(d)||!d)throw Error('Zahl zu groß oder Division durch null.');const g=gcd(n,d),s=d<0?-1:1;return {n:n/g*s,d:Math.abs(d/g)};}
+function Q(n,d=1){if(!Number.isSafeInteger(n)||!Number.isSafeInteger(d)||!d)throw Error('Zahl zu groß oder Division durch null.');const g=gcd(n,d),s=d<0?-1:1;return {n:n? n/g*s:0,d:Math.abs(d/g)};}
 const add=(a,b)=>Q(a.n*b.d+b.n*a.d,a.d*b.d),neg=a=>Q(-a.n,a.d),mul=(a,b)=>Q(a.n*b.n,a.d*b.d),div=(a,b)=>Q(a.n*b.d,a.d*b.n),eq=(a,b)=>a.n===b.n&&a.d===b.d;
 const zero=()=>Q(0),one=()=>Q(1),str=a=>a.d===1?String(a.n):`${a.n}/${a.d}`;
 function decimal(s){const parts=s.replace(',','.').split('.');return Q(Number(parts.join('')),10**(parts[1]?.length||0));}
@@ -12,13 +12,105 @@ function times(a,b){const r=Array.from({length:a.length+b.length-1},zero);for(le
 // Recursive descent. No executable input; bounded tokens, nesting and exact fractions.
 function parse(input){
  if(typeof input!=='string'||!input.trim())throw Error('Bitte eine Rechnung eingeben.');if(input.length>180)throw Error('Die Eingabe ist zu lang.');
- const s=input.toLowerCase().replace(/\s/g,'').replace(/[·×]/g,'*').replace(/÷/g,'/').replace(/−/g,'-').replace(/²/g,'^2');
+ const s=expandMixedNumbers(input).toLowerCase().replace(/\s/g,'').replace(/[·×]/g,'*').replace(/[÷:]/g,'/').replace(/−/g,'-').replace(/²/g,'^2');
  const tokens=s.match(/(?:\d+(?:[.,]\d+)?|x|[+\-*/^()])/g)||[];if(tokens.join('')!==s||tokens.length>100)throw Error('Erlaubt sind Zahlen, x, +, -, *, / und Klammern.');let i=0,depth=0;
  function atom(){if(++depth>20)throw Error('Zu viele Klammern.');let a;if(tokens[i]==='('){i++;a=sum();if(tokens[i++]!==')')throw Error('Eine schließende Klammer fehlt.');}else if(tokens[i]==='x'){i++;a=[zero(),one()];}else if(/^\d/.test(tokens[i]||'')){a=[decimal(tokens[i++])];}else throw Error('Hier fehlt eine Zahl oder x.');depth--;if(tokens[i]==='^'){i++;const exponent=tokens[i++];if(!/^[012]$/.test(exponent||''))throw Error('Nur die Hochzahlen 0, 1 und 2 sind hier möglich.');let r=[one()];for(let j=0;j<Number(exponent);j++)r=times(r,a);a=r;}return a;}
  function unary(){if(tokens[i]==='+'){i++;return unary();}if(tokens[i]==='-'){i++;return unary().map(neg);}return atom();}
  function product(){let a=unary();while(i<tokens.length){const t=tokens[i],implicit=t==='x'||t==='('||/^\d/.test(t);if(t!=='*'&&t!=='/'&&!implicit)break;if(!implicit)i++;const b=unary();if(t==='/'){if(b.length!==1)throw Error('Division durch einen Term mit x ist hier nicht unterstützt.');a=a.map(v=>div(v,b[0]));}else a=times(a,b);}return trim(a);}
  function sum(){let a=product();while(tokens[i]==='+'||tokens[i]==='-'){const t=tokens[i++],b=product();a=plus(a,t==='-'?b.map(neg):b);}return a;}
  const a=sum();if(i!==tokens.length)throw Error('Die Rechnung ist unvollständig.');return a;
+}
+// Mixed numbers keep their meaning before whitespace is removed: -2 1/3 = -(2+1/3).
+function expandMixedNumbers(input){
+ const expanded=input.replace(/(\d+)\s+(\d+)\s*\/\s*(\d+)/g,(_,whole,n,d)=>{
+   if(!Number.isSafeInteger(Number(whole))||!Number.isSafeInteger(Number(n))||!Number.isSafeInteger(Number(d))||Number(d)<=0||Number(n)>=Number(d))throw Error('Bei einer gemischten Zahl muss der Bruchanteil kleiner als 1 und der Nenner positiv sein.');
+   return `(${whole}+${n}/${d})`;
+ });
+ if(/\d\s+\d/.test(expanded))throw Error('Zwischen Zahlen fehlt ein Rechenzeichen. Gemischte Zahlen zum Beispiel als 2 1/3 eingeben.');
+ return expanded;
+}
+
+// Exact affine expressions [constant, x, y]. Products of variable terms are rejected.
+// This checks linear consequences reliably, without evaluating arbitrary user code.
+function parseLinear2(input){
+ if(typeof input!=='string'||!input.trim())throw Error('Bitte einen Term eingeben.');
+ if(input.length>180)throw Error('Die Eingabe ist zu lang.');
+ const clean=expandMixedNumbers(input).toLowerCase().replace(/\s/g,'').replace(/[·×]/g,'*').replace(/[÷:]/g,'/').replace(/−/g,'-').replace(/²/g,'^2');
+ const tokens=clean.match(/(?:\d+(?:[.,]\d+)?|[xy]|[+\-*/^()])/g)||[];
+ if(tokens.join('')!==clean||tokens.length>100)throw Error('Erlaubt sind Zahlen, x, y, Rechenzeichen und Klammern.');
+ let i=0,depth=0;
+ const scalar=q=>[q,zero(),zero()],variable=a=>a[1].n!==0||a[2].n!==0;
+ const sumRows=(a,b)=>a.map((v,j)=>add(v,b[j]));
+ function multiply(a,b){
+   if(variable(a)&&variable(b))throw Error('Hier sind nur lineare Terme erlaubt: kein x*y oder x².');
+   return variable(b)?b.map(v=>mul(v,a[0])):a.map(v=>mul(v,b[0]));
+ }
+ function atom(){
+   if(++depth>20)throw Error('Zu viele Klammern.');
+   let a;
+   if(tokens[i]==='('){i++;a=sum();if(tokens[i++]!==')')throw Error('Eine schließende Klammer fehlt.');}
+   else if(tokens[i]==='x'||tokens[i]==='y'){a=scalar(zero());a[tokens[i++]==='x'?1:2]=one();}
+   else if(/^\d/.test(tokens[i]||''))a=scalar(decimal(tokens[i++]));
+   else throw Error('Hier fehlt eine Zahl, x oder y.');
+   depth--;
+   if(tokens[i]==='^'){
+     i++;const exponent=tokens[i++];
+     if(!/^[012]$/.test(exponent||''))throw Error('Hier sind nur Hochzahlen 0, 1 und 2 möglich.');
+     if(exponent==='0')a=scalar(one());else if(exponent==='2')a=multiply(a,a);
+   }
+   return a;
+ }
+ function unary(){if(tokens[i]==='+'){i++;return unary();}if(tokens[i]==='-'){i++;return unary().map(neg);}return atom();}
+ function product(){
+   let a=unary();
+   while(i<tokens.length){
+     const t=tokens[i],implicit=t==='x'||t==='y'||t==='('||/^\d/.test(t);
+     if(t!=='*'&&t!=='/'&&!implicit)break;
+     if(!implicit)i++;const b=unary();
+     if(t==='/'){if(variable(b))throw Error('Variable Nenner sind bei diesen Gleichungssystemen nicht erlaubt.');a=a.map(v=>div(v,b[0]));}
+     else a=multiply(a,b);
+   }
+   return a;
+ }
+ function sum(){let a=product();while(tokens[i]==='+'||tokens[i]==='-'){const op=tokens[i++],b=product();a=sumRows(a,op==='-'?b.map(neg):b);}return a;}
+ const a=sum();if(i!==tokens.length)throw Error('Der Term ist unvollständig.');return a;
+}
+function linearEquation2(input){
+ const parts=input.split('=');if(parts.length!==2)throw Error('Bitte eine Gleichung mit genau einem = eingeben.');
+ const lhs=parseLinear2(parts[0]),rhs=parseLinear2(parts[1]);
+ const row=[add(lhs[1],neg(rhs[1])),add(lhs[2],neg(rhs[2])),add(rhs[0],neg(lhs[0]))];
+ if(!row[0].n&&!row[1].n)throw Error('Der Schritt muss mindestens eine Variable enthalten.');
+ let assignment=null;
+ for(const [side,other] of [[parts[0],rhs],[parts[1],lhs]]){
+   if(/^[xy]$/i.test(side.trim())&&!other[1].n&&!other[2].n)assignment={variable:side.trim().toLowerCase(),value:other[0]};
+ }
+ return {row,signature:JSON.stringify(row),assignment,eliminated:!assignment&&(!row[0].n||!row[1].n)};
+}
+function solveSystem(equations){
+ if(!Array.isArray(equations)||equations.length!==2)throw Error('Ein System benötigt zwei Gleichungen.');
+ const [a,b]=equations.map(e=>linearEquation2(e).row),det=add(mul(a[0],b[1]),neg(mul(a[1],b[0])));
+ if(!det.n)throw Error('Das System hat keine eindeutige Lösung.');
+ return {x:div(add(mul(a[2],b[1]),neg(mul(a[1],b[2]))),det),y:div(add(mul(a[0],b[2]),neg(mul(a[2],b[0]))),det)};
+}
+function systemInput(input){
+ const parts=input.split(';').map(p=>p.trim());
+ if(parts.length>2||parts.some(p=>!p))throw Error('Nutze eine Gleichung oder x = …; y = … .');
+ const parsed=parts.map(linearEquation2);
+ if(parts.length===2&&(!parsed.every(p=>p.assignment)||parsed[0].assignment.variable===parsed[1].assignment.variable))throw Error('Eine gemeinsame Endantwort muss x und y enthalten, getrennt durch ; .');
+ return parsed;
+}
+function validateSystem(task,text,history){
+ const current=systemInput(text),past=history.flatMap(systemInput),solution=task.solution;
+ for(const e of current){
+   if(!eq(add(mul(e.row[0],solution.x),mul(e.row[1],solution.y)),e.row[2]))return {status:'wrong',message:'Dieser Schritt passt nicht zum ursprünglichen System. Prüfe Vorzeichen und die Rechnung auf beiden Seiten.'};
+ }
+ const evidence=past.some(p=>p.eliminated);
+ if(current.some(p=>p.assignment)&&!evidence)return {status:'incomplete',message:'Die Werte stimmen. Zeige zuerst einen Eliminations- oder Einsetzungsschritt mit nur noch einer Variablen, zum Beispiel 2x = 10.'};
+ const originals=task.originals.map(linearEquation2);
+ if(current.every(c=>[...originals,...past].some(p=>p.signature===c.signature)))return {status:'invalid',message:'Diese Gleichung steht bereits da. Zeige einen neuen Rechenschritt.'};
+ const found={};for(const p of [...past,...current])if(p.assignment)found[p.assignment.variable]=p.assignment.value;
+ const complete=found.x&&found.y;
+ return {status:complete?'correct':'step',message:complete?'Beide Variablen richtig bestimmt!':current.some(p=>p.assignment)?'Dieser Wert stimmt. Bestimme jetzt auch die andere Variable.':current.some(p=>p.eliminated)?'Richtig: Eine Variable ist eliminiert. Bestimme nun x und y.':'Diese Umformung ist richtig. Eliminiere eine Variable oder setze einen Term ein.'};
 }
 function constant(s){const p=parse(s);if(p.length!==1)throw Error('Die Antwort muss eine Zahl sein.');return p[0];}
 function equation(s){const parts=s.split('=');if(parts.length!==2)throw Error('Bitte eine Gleichung mit genau einem = eingeben.');const a=parse(parts[0]),b=parse(parts[1]),p=plus(a,b.map(neg));if(p.length!==2||!p[1].n)throw Error('Erwartet wird eine lineare Gleichung mit genau einer Lösung.');return {a,b,root:div(neg(p[0]),p[1]),signature:JSON.stringify([a,b]),final:(parts[0].trim().toLowerCase()==='x'&&b.length===1)||(parts[1].trim().toLowerCase()==='x'&&a.length===1)};}
@@ -29,10 +121,10 @@ const entry=(id,label,area)=>({id,label,area});
 // Only active, implemented exercises appear. Each row cites its official learning area.
 const catalog={
  5:{all:[entry('integers','Ganze Zahlen · Rechenregeln','M5 1/2'),entry('rectangle','Rechteck · Umfang und Fläche','M5 5'),entry('ratio','Größen · direkter Dreisatz','M5 4')]},
- 6:{all:[entry('fractions','Brüche · Rechenweg','M6 1'),entry('decimals','Rationale Zahlen · Dezimalzahlen','M6 1'),entry('equations','Lineare Gleichungen · Rechenweg','M6 5'),entry('percent','Prozentwert','M6 6'),entry('triangle','Dreieck · Flächeninhalt','M6 3'),entry('cuboid','Quader · Volumen','M6 4')]},
+ 6:{all:[entry('fractions','Brüche · Multiplikation mit Rechenweg','M6 1'),entry('fractionAdd','Brüche · Addition mit Rechenweg','M6 1'),entry('fractionSubtract','Brüche · Subtraktion mit Rechenweg','M6 1'),entry('fractionDivide','Brüche · Division mit Rechenweg','M6 1'),entry('mixedFractions','Gemischte Zahlen · Rechenweg','M6 1'),entry('decimals','Rationale Zahlen · Dezimalzahlen','M6 1'),entry('equations','Lineare Gleichungen · Rechenweg','M6 5'),entry('percent','Prozentwert','M6 6'),entry('triangle','Dreieck · Flächeninhalt','M6 3'),entry('cuboid','Quader · Volumen','M6 4')]},
  7:{all:[entry('powers','Potenzen · Rechenregeln','M7 1'),entry('equations','Gleichungen mit Klammern · Rechenweg','M7 I 6 / II–III 4'),entry('percent','Vermehrter und verminderter Grundwert','M7 I 7 / II–III 5'),entry('mean','Daten · arithmetisches Mittel','M7 I 8 / II–III 6')]},
  8:{all:[entry('equations','Gleichungen mit x auf beiden Seiten','M8 I 4 / II–III 3'),entry('linear','Lineare Funktionen · Funktionswert','M8 I 6 / II–III 5'),entry('frequency','Zufall · relative Häufigkeit','M8 I 7 / II–III 6'),entry('trapezoid','Trapez · Flächeninhalt','M8 1')]},
- 9:{all:[entry('roots','Quadratwurzeln','M9 1'),entry('pythagoras','Satz des Pythagoras','M9 3'),entry('circle','Kreis · Flächeninhalt','M9 4'),entry('probability','Zufall · Gegenereignis','M9 I 8 / II–III 7')],I:[entry('quadratic','Quadratische Funktion · Scheitelwert','M9 I 7')],'II/III':[entry('linear','Lineare Funktion · Funktionswert','M9 II–III 5')]},
+ 9:{all:[entry('roots','Quadratwurzeln','M9 1'),entry('pythagoras','Satz des Pythagoras','M9 3'),entry('circle','Kreis · Flächeninhalt','M9 4'),entry('probability','Zufall · Gegenereignis','M9 I 8 / II–III 7'),entry('systems','Lineare Gleichungssysteme · Rechenweg','M9 I 6 / II–III 6')],I:[entry('quadratic','Quadratische Funktion · Scheitelwert','M9 I 7')],'II/III':[entry('linear','Lineare Funktion · Funktionswert','M9 II–III 5')]},
  10:{all:[entry('trig','Trigonometrie · Kosinussatz','M10 1'),entry('growth','Exponentielles Wachstum','M10 I 4 / II–III 3'),entry('compound','Zufall · Pfadregel','M10 I 5 / II–III 5')],I:[entry('powerFunction','Potenzfunktion · Funktionswert','M10 I 3')],'II/III':[entry('quadratic','Quadratische Funktion · Scheitelwert','M10 II–III 4'),entry('cylinder','Zylinder · Volumen','M10 II–III 2')]}
 };
 function topics(grade,group='I'){const c=catalog[grade];return c?[...c.all,...(c[group]||[])].map(t=>({...t,grade:Number(grade),source:url(grade,group)})):[];}
@@ -46,6 +138,27 @@ function generate(id,grade,difficulty='medium',rng=Math.random){
  case 'rectangle':return task(`Ein Rechteck ist ${n} cm lang und ${m} cm breit. ${level===1?'Bestimme den Umfang.':'Bestimme die Fläche.'}`,level===1?2*(n+m):n*m,{unit:level===1?'cm':'cm²',hints:[level===1?'Addiere alle vier Seiten.':'Multipliziere Länge und Breite.']});
  case 'ratio':return task(`${k} Hefte kosten ${k*m} €. Wie viel kosten ${n} Hefte?`,n*m,{unit:'€',hints:['Berechne zuerst den Preis für ein Heft.']});
  case 'fractions':{const a=Q(level===3?-n:n,n+1),b=Q((n+1)*k,n+2),result=mul(a,b);return task(`Berechne mit einem Zwischenschritt und kürze vollständig: ${frac(a)} · ${frac(b)}`,result,{type:'fractionSteps',original:`${str(a)}*${str(b)}`,steps:[`${a.n*b.n}/${a.d*b.d}`,str(result)],hints:['Du darfst vor dem Multiplizieren kürzen.','Multipliziere die Zähler und die Nenner. Danach vollständig kürzen.']});}
+ case 'fractionAdd':
+ case 'fractionSubtract':{
+   const a=Q(level===3?-n:n,m+2),b=Q(k,level===1?m+2:n+3),subtract=id==='fractionSubtract',sign=subtract?'−':'+',op=subtract?'-':'+',common=a.d*b.d;
+   const answer=add(a,subtract?neg(b):b),intermediate=`(${a.n*b.d} ${op} ${b.n*a.d})/${common}`;
+   return task(`Berechne mit einem Zwischenschritt und kürze vollständig: ${frac(a)} ${sign} ${frac(b)}`,answer,{type:'fractionSteps',original:`${str(a)}${op}${str(b)}`,steps:[intermediate,str(answer)],hints:['Bringe beide Brüche auf einen gemeinsamen Nenner.','Erweitere die Zähler passend. Addiere oder subtrahiere dann die Zähler; der Nenner bleibt gleich.']});
+ }
+ case 'fractionDivide':{
+   const a=Q(level===3?-n:n,m+2),b=Q(k,n+3),answer=div(a,b);
+   return task(`Dividiere mit einem Zwischenschritt und kürze vollständig: ${frac(a)} : ${frac(b)}`,answer,{type:'fractionSteps',original:`(${str(a)})/(${str(b)})`,steps:[`(${str(a)}) * (${b.d}/${b.n})`,str(answer)],hints:['Multipliziere mit dem Kehrwert des zweiten Bruchs.','Vertausche beim zweiten Bruch Zähler und Nenner. Kürze danach das Produkt.']});
+ }
+ case 'mixedFractions':{
+   const denominator=m+2,whole=level===3?-k:k,numerator=ri(1,denominator-1),a=Q((Math.abs(whole)*denominator+numerator)*(whole<0?-1:1),denominator),b=Q(1,n+3),subtract=level>1,op=subtract?'-':'+';
+   const mixed=`${whole} ${numerator}/${denominator}`,answer=add(a,subtract?neg(b):b);
+   return task(`Rechne mit Zwischenschritt. Schreibe das Ergebnis als vollständig gekürzten Bruch (bei ganzen Zahlen genügt die Zahl): <span class="rs-mixed">${whole} ${frac(Q(numerator,denominator))}</span> ${subtract?'−':'+'} ${frac(b)}`,answer,{type:'fractionSteps',original:`${mixed} ${op} ${str(b)}`,steps:[`(${str(a)}) ${op} (${str(b)})`,str(answer)],hints:['Wandle zuerst die gemischte Zahl in einen Bruch um: Ganze · Nenner + Zähler.','Bei einer negativen gemischten Zahl gehört das Minus zur gesamten Zahl. Nutze danach einen gemeinsamen Nenner.']});
+ }
+ case 'systems':{
+   const x=Q(level===3?-k:k,level===3?2:1),y=Q(level>1?-ri(1,8):ri(1,8),level===3?3:1),a=n,b=level===1?1:m,c=level===1?1:k+1,d=-ri(2,level*4+3);
+   const right1=add(mul(Q(a),x),mul(Q(b),y)),right2=add(mul(Q(c),x),mul(Q(d),y)),det=a*d-b*c;
+   const originals=[`${a}x + ${b}y = ${str(right1)}`,`${c}x − ${-d}y = ${str(right2)}`];
+   return task(`Löse das Gleichungssystem mit Eliminations- oder Einsetzungsschritt und bestimme beide Variablen:<span class="rs-system"><span>I: ${originals[0]}</span><span>II: ${originals[1]}</span></span>`,x,{type:'systemSteps',solution:{x,y},originals,steps:[`${det}x = ${str(mul(Q(det),x))}`,`x = ${str(x)}`,`y = ${str(y)}`],hints:['Eliminiere eine Variable durch Addieren/Subtrahieren der passend multiplizierten Gleichungen oder setze einen freigestellten Term ein.',`Zum Eliminieren von y kannst du ${d} · I − ${b} · II bilden.`,`Bestimme aus der Gleichung mit nur noch x den x-Wert. Setze ihn danach in eine ursprüngliche Gleichung ein, um y zu bestimmen.`]});
+ }
  case 'decimals':return task(`Berechne: ${(n/10).toFixed(1).replace('.',',')} ${level===3?'−':'+'} ${(m/10).toFixed(1).replace('.',',')}`,Q(n+(level===3?-m:m),10),{hints:['Achte auf gleiche Stellenwerte.']});
  case 'equations':{const x=Q(level===3?-k:k),a=n,b=m,c=g>=8?ri(1,n-1):0;let original,intermediate,final=`x = ${str(x)}`;
  if(g>=8){original=`${a}x + ${b} = ${c}x + ${str(add(mul(Q(a-c),x),Q(b)))}`;intermediate=`${a-c}x + ${b} = ${str(add(mul(Q(a-c),x),Q(b)))}`;}
@@ -75,7 +188,8 @@ function generate(id,grade,difficulty='medium',rng=Math.random){
  }
 }
 function validate(task,input,history=[]){try{
- const text=String(input||'').trim();if(!text)throw Error('Bitte eine Antwort oder einen Schritt eingeben.');
+ const text=String(input||'').trim();if(text.length>180)throw Error('Die Eingabe ist zu lang.');if(!text)throw Error('Bitte eine Antwort oder einen Schritt eingeben.');
+ if(task.type==='systemSteps')return validateSystem(task,text,history);
  if(task.type==='equationSteps'){
  const e=equation(text);if(!eq(e.root,task.answer))return {status:'wrong',message:'Diese Gleichung hat nicht dieselbe Lösung. Prüfe Vorzeichen und beide Seiten.'};
  const originals=[equation(task.original),...history.map(equation)];if(!(e.final&&history.length)&&originals.some(o=>o.signature===e.signature||JSON.stringify([o.b,o.a])===e.signature))return {status:'invalid',message:'Diese Gleichung steht bereits da. Gib einen neuen Umformungsschritt ein.'};
@@ -84,13 +198,13 @@ function validate(task,input,history=[]){try{
  }
  if(task.type==='fractionSteps'){
  const q=constant(text);if(!eq(q,task.answer))return {status:'wrong',message:'Der Wert stimmt noch nicht. Prüfe Zähler, Nenner und Vorzeichen.'};
- const compact=text.replace(/\s/g,'').replace(/[·×]/g,'*');if(compact===task.original||history.some(h=>h.replace(/\s/g,'')===compact))return {status:'invalid',message:'Zeige einen neuen Rechenschritt.'};
- const match=compact.match(/^(-?\d+)(?:\/(-?\d+))?$/),reduced=match&&Number(match[2]||1)>0&&gcd(Number(match[1]),Number(match[2]||1))===1;
- if(reduced&&!history.length)return {status:'incomplete',message:'Der Wert stimmt. Zeige zuerst einen Zwischenschritt (Produkt oder Kürzen).'};
+ const normalize=s=>s.replace(/(\d+)\s+(\d+)\s*\/\s*(\d+)/g,'$1~$2/$3').replace(/\s/g,'').replace(/[·×]/g,'*').replace(/[÷:]/g,'/').replace(/−/g,'-').replace(/[()]/g,'');const compact=normalize(text);if(compact===normalize(task.original)||history.some(h=>normalize(h)===compact))return {status:'invalid',message:'Zeige einen neuen Rechenschritt.'};
+ const match=text.replace(/−/g,'-').replace(/-\s+(?=\d)/g,'-').match(/^(-?\d+)\s*(?:\/\s*(-?\d+))?$/),reduced=match&&Number(match[2]||1)>0&&gcd(Number(match[1]),Number(match[2]||1))===1;
+ if(reduced&&!history.length)return {status:'incomplete',message:'Der Wert stimmt. Zeige zuerst einen Zwischenschritt (Umwandeln, Erweitern, Kehrwert oder Kürzen).'};
  return {status:reduced?'correct':'step',message:reduced?'Richtig und vollständig gekürzt!':'Der Wert stimmt. Schreibe als vollständig gekürzten Bruch.'};
  }
  let numeric=text;const unit=task.unit.replace(/²/g,'2').replace(/³/g,'3');const suffix=text.match(/\s*(cm(?:[²³23])?|€)\s*$/i);if(suffix){if(!task.unit||suffix[1].replace(/²/g,'2').replace(/³/g,'3').toLowerCase()!==unit.toLowerCase())throw Error('Die Einheit passt nicht zur Aufgabe.');numeric=text.slice(0,suffix.index);}
  const q=constant(numeric),difference=Math.abs(q.n/q.d-task.answer.n/task.answer.d);return eq(q,task.answer)||(task.tolerance>0&&difference<=task.tolerance)?{status:'correct',message:'Richtig!'}:{status:'wrong',message:'Noch nicht richtig. Prüfe die Rechnung und gegebenenfalls die Rundung.'};
  }catch(e){return {status:'invalid',message:e.message};}}
-return {Q,add,mul,div,eq,str,parse,constant,equation,frac,catalog,topics,generate,validate};
+return {Q,add,mul,div,eq,str,parse,constant,equation,parseLinear2,linearEquation2,solveSystem,frac,catalog,topics,generate,validate};
 });
