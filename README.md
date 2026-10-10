@@ -25,9 +25,13 @@ Dieses Projekt folgt einem festen Muster:
 - [Privat/Prompt_WebApp_PWA_Update_und_Cache.md](d:/@Visual%20Studio%20Code/RechenGuruLGI_AndroidAPK/Privat/Prompt_WebApp_PWA_Update_und_Cache.md)
 - [Privat/Vorlage_Android_HTML_APK_Referenz.md](d:/@Visual%20Studio%20Code/RechenGuruLGI_AndroidAPK/Privat/Vorlage_Android_HTML_APK_Referenz.md)
 
+## Einheitliche Release-Signierung
+
+Die verbindliche Anleitung für Windows und Codex Cloud steht in [ANDROID_BUILD_SIGNING.md](ANDROID_BUILD_SIGNING.md). Releases verwenden ausschließlich den extern bereitgestellten Originalschlüssel von Version 209 und werden vor Veröffentlichung geprüft.
+
 ## Schnellstart
 
-Debug-Build:
+Debug-Build nur zur Entwicklung, nicht zur Veröffentlichung:
 
 ```powershell
 .\gradlew.bat assembleDebug

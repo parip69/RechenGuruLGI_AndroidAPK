@@ -97,6 +97,8 @@ Gleichbleibende Signierung und gültige Release-Struktur garantieren nicht, dass
 
 Bei Schlüsselverlust zuerst sichere Backups und die bisherigen Build-Umgebungen untersuchen. Ein APK-Zertifikat enthält keinen rekonstruierbaren privaten Schlüssel. Ohne den passenden privaten Schlüssel keine kompatible APK freigeben und keinen stillen Schlüsselwechsel durchführen. Falls private Schlüssel jemals veröffentlicht wurden, Fund ausdrücklich melden; kompromittierte Schlüssel erfordern einen geplanten Migrations-/Sicherheitsentscheid. Die Git-Historie nicht eigenmächtig umschreiben und nicht durch einen neuen Schlüssel lokale Daten gefährden.
 
+Die GitHub-Aktion `Verify APK Compatibility` prüft die veröffentlichte APK, Versionsarchive und Aliase mit öffentlichen Werkzeugen und führt die Schutztests erneut aus. Sie benötigt keine Signierungs-Secrets. Sie prüft Uploads; sie ersetzt keine Freigabe oder konfigurierte Branch-/Deployment-Schutzregel.
+
 ## Durchgeführte technische Prüfungen für Version 210
 
 - Gemeinsames `scripts/build-release.ps1 -VersionCode 210 -PublishFiles` in der Cloud erfolgreich; `assembleRelease` und `lintVitalRelease` erfolgreich.

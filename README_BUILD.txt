@@ -1,26 +1,24 @@
-Mathe Guru Android-Projekt
+Mathe Kids – gemeinsamer Android-Build
 
-Das ist ein fertiges Android-Studio-Projekt für eine APK auf Basis deiner HTML-Datei.
+Verbindliche Anleitung: ANDROID_BUILD_SIGNING.md
 
-So baust du die APK:
-1. Android Studio installieren
-2. Diesen Ordner in Android Studio öffnen
-3. Warten bis Gradle synchronisiert ist
-4. Menü: Build > Build APK(s)
-5. Danach liegt die Debug-APK typischerweise unter:
-   app/build/outputs/apk/debug/MatheGuru-v<Version>.apk
+Release: Java 17, SDK 35, Build Tools 35.0.0, Gradle-Wrapper 8.9.
+Vorhandenen Keystore von Version 209 außerhalb des Repositories sicher bereitstellen.
+ANDROID_KEYSTORE_PATH, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS und ANDROID_KEY_PASSWORD sicher in der Sitzungsumgebung setzen.
+Keinen neuen Signaturschlüssel erzeugen und keine Schlüsseldateien hochladen.
 
-Hinweise:
-- Die HTML wird offline aus den Android-Assets geladen
-- JavaScript und DOM Storage sind aktiviert
-- Die App ist auf Hochformat gestellt
-- Version und APK-Dateiname werden aus version.properties gelesen
-- Vor jedem Build und nach jedem Versions-Build werden die Web-Assets aus app/src/main/assets nach docs synchronisiert
-- Dabei werden index.html, sw.js und die docs-Version auf die aktuelle VERSION_NAME abgestimmt
-- Fuer manuelle HTML-Aenderungen kannst du jederzeit .\sync_web_assets.bat ausfuehren
-- Nach einmaligem Ausfuehren von .\setup_git_hooks.bat pruefen Git-Hooks vor Commit und Push automatisch, dass docs/index.html wirklich die neueste Version aus app/src/main/assets enthaelt
-- Beim lokalen Commit wird zusaetzlich automatisch docs/redeploy-trigger.txt aktualisiert, damit GitHub Pages nach dem Push sicher einen frischen Redeploy anstoesst
-- Empfohlen fuer GitHub Pages: In GitHub unter Settings -> Pages die Quelle auf GitHub Actions stellen und den Workflow "Deploy GitHub Pages" verwenden
+Windows: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-release.ps1 -VersionCode <NEUE_VERSION> -PublishFiles
+Cloud: pwsh -NoProfile -File scripts/build-release.ps1 -VersionCode <NEUE_VERSION> -PublishFiles
 
-Wenn du eine signierte Release-APK willst:
-- Build > Generate Signed Bundle / APK
+Die neue Version muss höher sein als alle bereits veröffentlichten Versionen.
+Ausgabe: .release-build/app/outputs/apk/release/MatheKids-v<NEUE_VERSION>.apk
+Signatur, Paketname, Version und Release-Eigenschaft werden vor dem Kopieren geprüft.
+Versionierte Dateien werden nicht überschrieben; latest-Aliase bleiben bestehen.
+Die bisherige sync_version_and_build.bat verwendet jetzt denselben geprüften Release-Ablauf.
+
+Die HTML-App wird weiterhin offline aus Android-Assets geladen.
+Web-Quelle: app/src/main/assets; synchronisierte Pages-Dateien: docs.
+Für reine Web-Synchronisation weiterhin sync_web_assets.bat verwenden.
+Debug-Builds sind nur für Entwicklung und dürfen nicht als Release veröffentlicht werden.
+Eine lokale Entwicklungssignatur muss nicht zur installierten Cloud-App passen.
+Vor dem Veröffentlichen Dokumentation und Prüfer benutzen; Android-Gerätetest bleibt erforderlich.

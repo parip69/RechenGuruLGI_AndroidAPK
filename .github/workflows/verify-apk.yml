@@ -1,0 +1,45 @@
+name: Verify APK Compatibility
+
+on:
+  pull_request:
+    paths:
+      - "docs/*.apk"
+      - "Privat/*.apk"
+      - "version.properties"
+      - "scripts/**"
+      - "tests/android-release-checks.ps1"
+      - ".github/workflows/verify-apk.yml"
+  push:
+    branches: [main]
+    paths:
+      - "docs/*.apk"
+      - "Privat/*.apk"
+      - "version.properties"
+      - "scripts/**"
+      - "tests/android-release-checks.ps1"
+      - ".github/workflows/verify-apk.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  verify-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Ensure pinned public APK inspection tools
+        run: sdkmanager "build-tools;35.0.0"
+      - name: Validate actual APK and compatibility checks
+        shell: pwsh
+        run: |
+          $version = [int][regex]::Match((Get-Content version.properties -Raw), '(?m)^VERSION_CODE=(\d+)').Groups[1].Value
+          ./scripts/verify-apk.ps1 -Apk docs/MatheKids-latest.apk -Baseline docs/MatheKids-v209.apk -ExpectedVersion $version
+          ./tests/android-release-checks.ps1 -Apk docs/MatheKids-latest.apk
+          $expected = (Get-FileHash docs/MatheKids-latest.apk -Algorithm SHA256).Hash
+          foreach ($path in @("docs/MatheKids-v$version.apk", "docs/MatheGuru-v$version.apk", 'docs/MatheGuru-latest.apk', "Privat/MatheKids-v$version.apk")) {
+            if ((Get-FileHash $path -Algorithm SHA256).Hash -ne $expected) { throw "APK alias/archive differs: $path" }
+          }
