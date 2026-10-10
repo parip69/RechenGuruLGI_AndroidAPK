@@ -38,3 +38,7 @@
 #realschulePanel #rsGuide .rs-guide-actions button{width:100%;min-height:48px;box-sizing:border-box}
 #rsGuide .rs-guide-actions p{font-size:14px}
 #rsGuide .rs-guide-actions [hidden]{display:none!important}
+
+#realschulePanel .rs-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#realschulePanel .rs-actions button{width:100%;min-width:0;box-sizing:border-box;white-space:normal}
+#realschulePanel .rs-actions #rsNext{grid-column:1 / -1}
