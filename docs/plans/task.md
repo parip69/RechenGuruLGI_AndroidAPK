@@ -1,11 +1,10 @@
 | Schritt | Status |
 | --- | --- |
-| Eingabefelder und Button-Rückmeldung verbessern | Erledigt: helle Felder, sichtbare Druckzustände, dauerhafter grüner Ergebnisrahmen und manueller Weiter-Button |
-| Weitere Rechenaufgaben ergänzen | Erledigt: Bruch-Rechenketten in Klasse 6 und Klammerterme in Klasse 7; insgesamt 31 Generatoren |
-| Mathematik, Zustandserhalt und Darstellung prüfen | Erledigt: 13 Tests / 6.700 Aufgaben; bestehende UI-Prüfungen bestanden; Rückmeldung, kein automatischer Wechsel, Persistenz und alle Farbstile geprüft |
-| Version 202 bauen, signieren und archivieren | Erledigt: Build erfolgreich; VersionCode/Name 202; gültige Signatur mit bestehendem Schlüssel; Assets identisch zu Quelle/docs; APK und eigenständige HTML-Datei archiviert |
-| GitHub-Veröffentlichung und öffentlichen Download prüfen | Erledigt: be699de auf main; alle drei GitHub-Workflows erfolgreich; öffentliche Version 202; APK HTTP 200 mit korrektem MIME-Typ, identischem SHA-256 und gültiger Signatur; Webdateien und APK-Aliase identisch |
+| Rückfrage bei neuer Realschulrunde entfernen | Erledigt: direkter Start, auch bei Wiederholung; Themenfortschritt unverändert |
+| Lokale Speicherung und Offline-Verhalten prüfen | Erledigt: Browserprüfung mit lokal bereitgestellten Assets und gesperrtem Netzwerk; mehrere neue Runden ohne Dialog; Fortschritt, Einstellungen und laufende Aufgabe nach Reload erhalten |
+| Version 203 bauen und archivieren | Erledigt: Build erfolgreich, Assets identisch, gültige bestehende Signatur, APK und eigenständige HTML-Datei archiviert |
+| GitHub und öffentlichen Download prüfen | In Veröffentlichung |
 
-Öffentliche APK: https://parip69.github.io/RechenGuruLGI_AndroidAPK/MatheKids-v202.apk?v=202
+Die APK lädt weiterhin `file:///android_asset/index.html` und nutzt DOM-Storage. Realschulaufgaben werden lokal erzeugt; es gibt keine Online-Speicherung der Realschuldaten. Updateprüfungen und Downloads benötigen weiterhin Internet.
 
-SHA-256: `cca60b9840798728614197b28587cdc54c946cb82deabe9215c96530adf6fd7f`. Kein echter Android-Geräte- oder WhatsApp-Test durchgeführt.
+Kein echter Android-Gerätetest. Der zusätzliche direkte file://-Test im verwalteten Chromium wurde durch dessen Administratorrichtlinie blockiert; die Richtlinie blieb unverändert.
