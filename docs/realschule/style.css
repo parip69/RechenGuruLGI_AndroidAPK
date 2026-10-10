@@ -20,3 +20,10 @@
 .rs-history li{border:1px solid #62a580;border-radius:8px;padding:7px 10px;margin:7px 0;background:#edfff3;color:#17482f}
 .rs-history li::marker{color:#258454;font-weight:700}
 @media(prefers-reduced-motion:reduce){#realschulePanel button{transition:none}}
+
+/* Large local learning window; cumulative steps and stacked fractions. */
+#rsGuide{width:min(700px,calc(100vw - 24px));max-width:none;max-height:calc(100dvh - 32px);padding:0;border:2px solid #8ca9be;border-radius:18px;background:#f7fbff;color:#152b3b;box-sizing:border-box;overflow:hidden}
+#rsGuide::backdrop{background:rgba(5,15,30,.7)}
+.rs-guide-head,.rs-guide-actions{padding:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:#e4edf5}.rs-guide-head h2{flex:1;margin:0;font-size:22px}.rs-guide-head button{flex:none}
+.rs-guide-body{padding:18px;max-height:55dvh;overflow:auto;overscroll-behavior:contain}.rs-guide-task{font-size:20px;line-height:1.6;overflow-wrap:anywhere}.rs-guide-task .rs-graph{max-width:260px!important}
+.rs-guide-step{margin:18px 0;border-top:1px solid #a6bccc;padding-top:12px}.rs-guide-step h3{margin:0;font-size:18px}.rs-guide-step p{font-size:17px;line-height:1.5;margin:8px 0}.rs-paper{font-size:clamp(23px,6vw,30px);line-height:1.7;overflow-x:auto;padding:8px 0}.rs-paper>span{white-space:nowrap}.rs-paper .rs-fraction{line-height:1.4;margin:0 6px}.rs-guide-actions p{width:100%;font-size:15px;line-height:1.5;margin:0}#realschulePanel #rsGuide button{color:#152b3b;background:#fff;border:2px solid #7499b3}#realschulePanel #rsGuideNext{background:#d9f1ef;font-weight:700}

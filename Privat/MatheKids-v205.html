@@ -2393,7 +2393,7 @@
           transform: rotate(360deg);
         }
       }
-    
+
       /* === Update-Prüfung v66: unauffällig am Seitenende, nicht schwebend === */
       .appUpdateWidget {
         position: static;
@@ -2563,7 +2563,36 @@
       .developer-project-card:focus-visible, #developerInfoLink:focus-visible { outline:3px solid var(--primary); outline-offset:3px; }
       @media print { .matheHelpShareRow, .matheFooter, #developerInfoOverlay { display:none!important; } }
     </style>
-  <link rel="stylesheet" href="realschule/style.css">
+  <style>.school-tabs{display:flex;gap:8px;margin:18px 0}.school-tabs button{flex:1;min-height:44px;white-space:normal;font-size:clamp(12px,3.4vw,16px);padding:10px 5px;border:1px solid #8398ab;border-radius:12px;background:transparent;color:inherit}.school-tabs button[aria-selected=true]{background:#d9f1ef;color:#123e45;font-weight:800}.school-tabs button:focus-visible,#realschulePanel :focus-visible{outline:3px solid #258aa7;outline-offset:3px}#grundschulePanel[hidden],#realschulePanel[hidden],#rsGroupLabel[hidden]{display:none!important}#realschulePanel{font-size:16px;line-height:1.5;min-width:0;text-align:left}#realschulePanel h2{font-size:1.35rem;margin-bottom:0}#realschulePanel .rs-subtitle{margin-top:4px;font-size:13px;opacity:.8}.rs-config{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}.rs-config label{display:flex;flex-direction:column;font-weight:600}.rs-config select{width:100%;min-width:0;min-height:44px;font-size:15px;color:inherit;background:transparent;border:1px solid #8398ab;border-radius:8px;padding:7px}.rs-config option{color:#152b3b;background:#fff}#realschulePanel button{min-height:44px;border:1px solid #8398ab;border-radius:10px;padding:9px 12px;font-size:15px;color:inherit;background:transparent;cursor:pointer}#realschulePanel button:disabled{opacity:.5;cursor:default}#rsStart,#rsCheck{background:#d9f1ef!important;color:#123e45!important;font-weight:700}.rs-check{display:flex;align-items:center;gap:10px;min-height:44px;margin:4px 0;cursor:pointer}.rs-check input{width:20px;height:20px;flex:none}.rs-check small{display:block;font-size:12px;opacity:.7}.rs-settings,.rs-progress,.rs-card{border:1px solid #8398ab;border-radius:16px;padding:16px;margin:16px 0;background:rgba(128,150,170,.08)}#realschulePanel summary{min-height:44px;cursor:pointer;font-weight:700}#rsTopics{border:0;padding:0;margin:8px 0}.rs-note{font-size:13px;opacity:.85;overflow-wrap:anywhere}.rs-note a{color:inherit;text-decoration:underline}.rs-prompt{font-size:clamp(18px,4.8vw,24px);font-weight:600;overflow-wrap:anywhere}.rs-equation{display:block;margin-top:14px;font-size:1.2em}.rs-fraction{display:inline-flex;vertical-align:middle;flex-direction:column;text-align:center;line-height:1.25;margin:0 4px}.rs-fraction>span:first-child{border-bottom:1.5px solid currentColor;padding:1px 5px}.rs-fraction>span:last-child{padding:1px 5px}.rs-answer-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}#rsAnswer{flex:1 1 130px;min-width:0;width:100%;min-height:48px;border:1px solid #8398ab;border-radius:10px;background:transparent;color:inherit;padding:10px;font-size:20px;box-sizing:border-box;scroll-margin-bottom:150px}#rsFeedback{min-height:24px;overflow-wrap:anywhere}.rs-actions{display:flex;flex-wrap:wrap;gap:8px}.rs-history{padding-left:24px;overflow-wrap:anywhere}.rs-empty{padding:18px 0}.rs-progress ul,.rs-card ul{padding-left:20px;overflow-wrap:anywhere}@media(max-width:360px){.rs-config{grid-template-columns:1fr}.rs-card,.rs-settings,.rs-progress{padding:12px}.rs-actions button{flex:1 1 120px}}
+
+.rs-system{display:grid;gap:8px;margin:16px 0;font-size:1.15em}.rs-mixed{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
+
+.rs-config label{min-width:0;overflow-wrap:anywhere}
+
+/* Distinct fields, tactile buttons and durable answer states in every theme. */
+#realschulePanel .rs-config select,#realschulePanel #rsAnswer{background:#f7fbff;color:#152b3b;border:2px solid #8ca9be;box-shadow:inset 0 1px 2px rgba(15,35,55,.08)}
+#realschulePanel #rsAnswer:focus{background:#fff;border-color:#258aa7;box-shadow:0 0 0 3px rgba(37,138,167,.2)}
+#realschulePanel button{background:var(--surface78,#edf4f8);box-shadow:0 2px 0 rgba(15,35,55,.2);transition:transform .1s,box-shadow .1s,filter .1s}
+#realschulePanel button:not(:disabled):active,#realschulePanel button.rs-pressed{transform:translateY(2px);box-shadow:inset 0 2px 4px rgba(15,35,55,.25);filter:brightness(.88)}
+#realschulePanel .rs-card[data-result=correct]{border:3px solid #258454;box-shadow:0 0 0 3px rgba(37,132,84,.12)}
+#realschulePanel .rs-card[data-result=correct] #rsAnswer{border-color:#258454;background:#edfff3;color:#17482f;opacity:1;-webkit-text-fill-color:#17482f}
+#realschulePanel .rs-card[data-result=correct] #rsCheck{background:#d5f5df!important;color:#17482f!important;opacity:1}
+#realschulePanel .rs-card[data-result=correct] #rsNext{background:#d5f5df;color:#17482f;border:2px solid #258454;font-weight:700}
+#rsFeedback[data-kind=correct],#rsFeedback[data-kind=step]{border:2px solid #258454;border-radius:10px;padding:10px;background:#edfff3;color:#17482f;font-weight:700}
+#rsFeedback[data-kind=wrong]{border:2px solid #b64242;border-radius:10px;padding:10px;background:#fff0f0;color:#822c2c}
+#rsFeedback[data-kind=note]{border:1px solid #7499b3;border-radius:10px;padding:10px;background:#eef7ff;color:#24465e}
+#realschulePanel #rsAnswer[aria-invalid=true]{border-color:#b64242;background:#fff7f7}
+.rs-history li{border:1px solid #62a580;border-radius:8px;padding:7px 10px;margin:7px 0;background:#edfff3;color:#17482f}
+.rs-history li::marker{color:#258454;font-weight:700}
+@media(prefers-reduced-motion:reduce){#realschulePanel button{transition:none}}
+
+/* Large local learning window; cumulative steps and stacked fractions. */
+#rsGuide{width:min(700px,calc(100vw - 24px));max-width:none;max-height:calc(100dvh - 32px);padding:0;border:2px solid #8ca9be;border-radius:18px;background:#f7fbff;color:#152b3b;box-sizing:border-box;overflow:hidden}
+#rsGuide::backdrop{background:rgba(5,15,30,.7)}
+.rs-guide-head,.rs-guide-actions{padding:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:#e4edf5}.rs-guide-head h2{flex:1;margin:0;font-size:22px}.rs-guide-head button{flex:none}
+.rs-guide-body{padding:18px;max-height:55dvh;overflow:auto;overscroll-behavior:contain}.rs-guide-task{font-size:20px;line-height:1.6;overflow-wrap:anywhere}.rs-guide-task .rs-graph{max-width:260px!important}
+.rs-guide-step{margin:18px 0;border-top:1px solid #a6bccc;padding-top:12px}.rs-guide-step h3{margin:0;font-size:18px}.rs-guide-step p{font-size:17px;line-height:1.5;margin:8px 0}.rs-paper{font-size:clamp(23px,6vw,30px);line-height:1.7;overflow-x:auto;padding:8px 0}.rs-paper>span{white-space:nowrap}.rs-paper .rs-fraction{line-height:1.4;margin:0 6px}.rs-guide-actions p{width:100%;font-size:15px;line-height:1.5;margin:0}#realschulePanel #rsGuide button{color:#152b3b;background:#fff;border:2px solid #7499b3}#realschulePanel #rsGuideNext{background:#d9f1ef;font-weight:700}
+</style>
   </head>
 
   <body>
@@ -15302,7 +15331,355 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         }, true);
       })();
     </script>
-    <script src="realschule/core.js"></script>
-    <script src="realschule/ui.js"></script>
+    <script>/* Realschule: pure, dependency-free generators and exact validators. */
+(function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.MatheRealschule=api;})(typeof window==='object'?window:globalThis,function(){
+'use strict';
+const gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b];}return a||1;};
+function Q(n,d=1){if(!Number.isSafeInteger(n)||!Number.isSafeInteger(d)||!d)throw Error('Zahl zu groß oder Division durch null.');const g=gcd(n,d),s=d<0?-1:1;return {n:n? n/g*s:0,d:Math.abs(d/g)};}
+const add=(a,b)=>Q(a.n*b.d+b.n*a.d,a.d*b.d),neg=a=>Q(-a.n,a.d),mul=(a,b)=>Q(a.n*b.n,a.d*b.d),div=(a,b)=>Q(a.n*b.d,a.d*b.n),eq=(a,b)=>a.n===b.n&&a.d===b.d;
+const zero=()=>Q(0),one=()=>Q(1),str=a=>a.d===1?String(a.n):`${a.n}/${a.d}`;
+function decimal(s){const parts=s.replace(',','.').split('.');return Q(Number(parts.join('')),10**(parts[1]?.length||0));}
+function trim(a){while(a.length>1&&!a[a.length-1].n)a.pop();return a;}
+function plus(a,b){return trim(Array.from({length:Math.max(a.length,b.length)},(_,i)=>add(a[i]||zero(),b[i]||zero())));}
+function times(a,b){const r=Array.from({length:a.length+b.length-1},zero);for(let i=0;i<a.length;i++)for(let j=0;j<b.length;j++)r[i+j]=add(r[i+j],mul(a[i],b[j]));trim(r);if(r.length>3)throw Error('Hier nur Terme bis x² eingeben.');return r;}
+// Recursive descent. No executable input; bounded tokens, nesting and exact fractions.
+function parse(input){
+ if(typeof input!=='string'||!input.trim())throw Error('Bitte eine Rechnung eingeben.');if(input.length>180)throw Error('Die Eingabe ist zu lang.');
+ const s=expandMixedNumbers(input).toLowerCase().replace(/\s/g,'').replace(/[·×]/g,'*').replace(/[÷:]/g,'/').replace(/−/g,'-').replace(/²/g,'^2');
+ const tokens=s.match(/(?:\d+(?:[.,]\d+)?|x|[+\-*/^()])/g)||[];if(tokens.join('')!==s||tokens.length>100)throw Error('Erlaubt sind Zahlen, x, +, -, *, / und Klammern.');let i=0,depth=0;
+ function atom(){if(++depth>20)throw Error('Zu viele Klammern.');let a;if(tokens[i]==='('){i++;a=sum();if(tokens[i++]!==')')throw Error('Eine schließende Klammer fehlt.');}else if(tokens[i]==='x'){i++;a=[zero(),one()];}else if(/^\d/.test(tokens[i]||'')){a=[decimal(tokens[i++])];}else throw Error('Hier fehlt eine Zahl oder x.');depth--;if(tokens[i]==='^'){i++;const exponent=tokens[i++];if(!/^[012]$/.test(exponent||''))throw Error('Nur die Hochzahlen 0, 1 und 2 sind hier möglich.');let r=[one()];for(let j=0;j<Number(exponent);j++)r=times(r,a);a=r;}return a;}
+ function unary(){if(tokens[i]==='+'){i++;return unary();}if(tokens[i]==='-'){i++;return unary().map(neg);}return atom();}
+ function product(){let a=unary();while(i<tokens.length){const t=tokens[i],implicit=t==='x'||t==='('||/^\d/.test(t);if(t!=='*'&&t!=='/'&&!implicit)break;if(!implicit)i++;const b=unary();if(t==='/'){if(b.length!==1)throw Error('Division durch einen Term mit x ist hier nicht unterstützt.');a=a.map(v=>div(v,b[0]));}else a=times(a,b);}return trim(a);}
+ function sum(){let a=product();while(tokens[i]==='+'||tokens[i]==='-'){const t=tokens[i++],b=product();a=plus(a,t==='-'?b.map(neg):b);}return a;}
+ const a=sum();if(i!==tokens.length)throw Error('Die Rechnung ist unvollständig.');return a;
+}
+// Mixed numbers keep their meaning before whitespace is removed: -2 1/3 = -(2+1/3).
+function expandMixedNumbers(input){
+ const expanded=input.replace(/(\d+)\s+(\d+)\s*\/\s*(\d+)/g,(_,whole,n,d)=>{
+   if(!Number.isSafeInteger(Number(whole))||!Number.isSafeInteger(Number(n))||!Number.isSafeInteger(Number(d))||Number(d)<=0||Number(n)>=Number(d))throw Error('Bei einer gemischten Zahl muss der Bruchanteil kleiner als 1 und der Nenner positiv sein.');
+   return `(${whole}+${n}/${d})`;
+ });
+ if(/\d\s+\d/.test(expanded))throw Error('Zwischen Zahlen fehlt ein Rechenzeichen. Gemischte Zahlen zum Beispiel als 2 1/3 eingeben.');
+ return expanded;
+}
+
+// Exact affine expressions [constant, x, y]. Products of variable terms are rejected.
+// This checks linear consequences reliably, without evaluating arbitrary user code.
+function parseLinear2(input){
+ if(typeof input!=='string'||!input.trim())throw Error('Bitte einen Term eingeben.');
+ if(input.length>180)throw Error('Die Eingabe ist zu lang.');
+ const clean=expandMixedNumbers(input).toLowerCase().replace(/\s/g,'').replace(/[·×]/g,'*').replace(/[÷:]/g,'/').replace(/−/g,'-').replace(/²/g,'^2');
+ const tokens=clean.match(/(?:\d+(?:[.,]\d+)?|[xy]|[+\-*/^()])/g)||[];
+ if(tokens.join('')!==clean||tokens.length>100)throw Error('Erlaubt sind Zahlen, x, y, Rechenzeichen und Klammern.');
+ let i=0,depth=0;
+ const scalar=q=>[q,zero(),zero()],variable=a=>a[1].n!==0||a[2].n!==0;
+ const sumRows=(a,b)=>a.map((v,j)=>add(v,b[j]));
+ function multiply(a,b){
+   if(variable(a)&&variable(b))throw Error('Hier sind nur lineare Terme erlaubt: kein x*y oder x².');
+   return variable(b)?b.map(v=>mul(v,a[0])):a.map(v=>mul(v,b[0]));
+ }
+ function atom(){
+   if(++depth>20)throw Error('Zu viele Klammern.');
+   let a;
+   if(tokens[i]==='('){i++;a=sum();if(tokens[i++]!==')')throw Error('Eine schließende Klammer fehlt.');}
+   else if(tokens[i]==='x'||tokens[i]==='y'){a=scalar(zero());a[tokens[i++]==='x'?1:2]=one();}
+   else if(/^\d/.test(tokens[i]||''))a=scalar(decimal(tokens[i++]));
+   else throw Error('Hier fehlt eine Zahl, x oder y.');
+   depth--;
+   if(tokens[i]==='^'){
+     i++;const exponent=tokens[i++];
+     if(!/^[012]$/.test(exponent||''))throw Error('Hier sind nur Hochzahlen 0, 1 und 2 möglich.');
+     if(exponent==='0')a=scalar(one());else if(exponent==='2')a=multiply(a,a);
+   }
+   return a;
+ }
+ function unary(){if(tokens[i]==='+'){i++;return unary();}if(tokens[i]==='-'){i++;return unary().map(neg);}return atom();}
+ function product(){
+   let a=unary();
+   while(i<tokens.length){
+     const t=tokens[i],implicit=t==='x'||t==='y'||t==='('||/^\d/.test(t);
+     if(t!=='*'&&t!=='/'&&!implicit)break;
+     if(!implicit)i++;const b=unary();
+     if(t==='/'){if(variable(b))throw Error('Variable Nenner sind bei diesen Gleichungssystemen nicht erlaubt.');a=a.map(v=>div(v,b[0]));}
+     else a=multiply(a,b);
+   }
+   return a;
+ }
+ function sum(){let a=product();while(tokens[i]==='+'||tokens[i]==='-'){const op=tokens[i++],b=product();a=sumRows(a,op==='-'?b.map(neg):b);}return a;}
+ const a=sum();if(i!==tokens.length)throw Error('Der Term ist unvollständig.');return a;
+}
+function linearEquation2(input){
+ const parts=input.split('=');if(parts.length!==2)throw Error('Bitte eine Gleichung mit genau einem = eingeben.');
+ const lhs=parseLinear2(parts[0]),rhs=parseLinear2(parts[1]);
+ const row=[add(lhs[1],neg(rhs[1])),add(lhs[2],neg(rhs[2])),add(rhs[0],neg(lhs[0]))];
+ if(!row[0].n&&!row[1].n)throw Error('Der Schritt muss mindestens eine Variable enthalten.');
+ let assignment=null;
+ for(const [side,other] of [[parts[0],rhs],[parts[1],lhs]]){
+   if(/^[xy]$/i.test(side.trim())&&!other[1].n&&!other[2].n)assignment={variable:side.trim().toLowerCase(),value:other[0]};
+ }
+ return {row,signature:JSON.stringify(row),assignment,eliminated:!assignment&&(!row[0].n||!row[1].n)};
+}
+function solveSystem(equations){
+ if(!Array.isArray(equations)||equations.length!==2)throw Error('Ein System benötigt zwei Gleichungen.');
+ const [a,b]=equations.map(e=>linearEquation2(e).row),det=add(mul(a[0],b[1]),neg(mul(a[1],b[0])));
+ if(!det.n)throw Error('Das System hat keine eindeutige Lösung.');
+ return {x:div(add(mul(a[2],b[1]),neg(mul(a[1],b[2]))),det),y:div(add(mul(a[0],b[2]),neg(mul(a[2],b[0]))),det)};
+}
+function systemInput(input){
+ const parts=input.split(';').map(p=>p.trim());
+ if(parts.length>2||parts.some(p=>!p))throw Error('Nutze eine Gleichung oder x = …; y = … .');
+ const parsed=parts.map(linearEquation2);
+ if(parts.length===2&&(!parsed.every(p=>p.assignment)||parsed[0].assignment.variable===parsed[1].assignment.variable))throw Error('Eine gemeinsame Endantwort muss x und y enthalten, getrennt durch ; .');
+ return parsed;
+}
+function validateSystem(task,text,history){
+ const current=systemInput(text),past=history.flatMap(systemInput),solution=task.solution;
+ for(const e of current){
+   if(!eq(add(mul(e.row[0],solution.x),mul(e.row[1],solution.y)),e.row[2]))return {status:'wrong',message:'Dieser Schritt passt nicht zum ursprünglichen System. Prüfe Vorzeichen und die Rechnung auf beiden Seiten.'};
+ }
+ const evidence=past.some(p=>p.eliminated);
+ if(current.some(p=>p.assignment)&&!evidence)return {status:'incomplete',message:'Die Werte stimmen. Zeige zuerst einen Eliminations- oder Einsetzungsschritt mit nur noch einer Variablen, zum Beispiel 2x = 10.'};
+ const originals=task.originals.map(linearEquation2);
+ if(current.every(c=>[...originals,...past].some(p=>p.signature===c.signature)))return {status:'invalid',message:'Diese Gleichung steht bereits da. Zeige einen neuen Rechenschritt.'};
+ const found={};for(const p of [...past,...current])if(p.assignment)found[p.assignment.variable]=p.assignment.value;
+ const complete=found.x&&found.y;
+ return {status:complete?'correct':'step',message:complete?'Beide Variablen richtig bestimmt!':current.some(p=>p.assignment)?'Dieser Wert stimmt. Bestimme jetzt auch die andere Variable.':current.some(p=>p.eliminated)?'Richtig: Eine Variable ist eliminiert. Bestimme nun x und y.':'Diese Umformung ist richtig. Eliminiere eine Variable oder setze einen Term ein.'};
+}
+function constant(s){const p=parse(s);if(p.length!==1)throw Error('Die Antwort muss eine Zahl sein.');return p[0];}
+function equation(s){const parts=s.split('=');if(parts.length!==2)throw Error('Bitte eine Gleichung mit genau einem = eingeben.');const a=parse(parts[0]),b=parse(parts[1]),p=plus(a,b.map(neg));if(p.length!==2||!p[1].n)throw Error('Erwartet wird eine lineare Gleichung mit genau einer Lösung.');return {a,b,root:div(neg(p[0]),p[1]),signature:JSON.stringify([a,b]),final:(parts[0].trim().toLowerCase()==='x'&&b.length===1)||(parts[1].trim().toLowerCase()==='x'&&a.length===1)};}
+const frac=q=>q.d===1?str(q):`<span class="rs-fraction"><span>${q.n}</span><span>${q.d}</span></span>`;
+const random=(lo,hi,rng)=>lo+Math.floor(rng()*(hi-lo+1));
+const url=(g,w)=>`https://www.lehrplanplus.bayern.de/fachlehrplan/realschule/${g}/mathematik${g>6?'/'+(w==='I'?'wpfg1':'wpfg2-3'):''}`;
+const entry=(id,label,area)=>({id,label,area});
+// Only active, implemented exercises appear. Each row cites its official learning area.
+// Local SVG: fixed coordinate system, no external resources or executable input.
+function lineGraph(slope,intercept){
+ const px=x=>150+x*20,py=y=>150-y*20;let grid='';
+ for(let i=-6;i<=6;i++){grid+=`<path d="M${px(i)} 30V270 M30 ${py(i)}H270" stroke="#b8c7d5" stroke-width="0.6"/>`;if(i)grid+=`<text x="${px(i)}" y="165" text-anchor="middle">${i}</text><text x="137" y="${py(i)+4}" text-anchor="end">${i}</text>`;}
+ const points=[];for(let x=-6;x<=6;x+=0.05){const y=slope.n/slope.d*x+intercept;if(y>=-6&&y<=6)points.push(`${px(x).toFixed(2)},${py(y).toFixed(2)}`);}
+ return `<svg class="rs-graph" viewBox="0 0 300 300" role="img" aria-label="Gerade in einem Koordinatensystem von minus sechs bis sechs. Ein Kästchen entspricht einer Einheit." style="display:block;width:100%;max-width:340px;margin:12px auto;background:#f7fbff;color:#152b3b;border-radius:12px;font:11px sans-serif"><title>Gerade im Koordinatensystem</title>${grid}<path d="M30 150H275 M150 275V25" stroke="#152b3b" stroke-width="1.8"/><text x="282" y="146">x</text><text x="157" y="22">y</text><polyline points="${points.join(' ')}" fill="none" stroke="#176ab0" stroke-width="3"/></svg>`;
+}
+const catalog={
+ 5:{all:[entry('integers','Ganze Zahlen · Rechenregeln','M5 1/2'),entry('rectangle','Rechteck · Umfang und Fläche','M5 5'),entry('ratio','Größen · direkter Dreisatz','M5 4')]},
+ 6:{all:[entry('fractions','Brüche · Multiplikation mit Rechenweg','M6 1'),entry('fractionAdd','Brüche · Addition mit Rechenweg','M6 1'),entry('fractionSubtract','Brüche · Subtraktion mit Rechenweg','M6 1'),entry('fractionDivide','Brüche · Division mit Rechenweg','M6 1'),entry('mixedFractions','Gemischte Zahlen · Rechenweg','M6 1'),entry('fractionChain','Brüche · Klammern und Rechenketten','M6 1'),entry('decimals','Rationale Zahlen · Dezimalzahlen','M6 1'),entry('equations','Lineare Gleichungen · Rechenweg','M6 5'),entry('percent','Prozentwert','M6 6'),entry('triangle','Dreieck · Flächeninhalt','M6 3'),entry('cuboid','Quader · Volumen','M6 4')]},
+ 7:{all:[entry('powers','Potenzen · Rechenregeln','M7 1'),entry('termValue','Klammerterme · Werte berechnen','M7 I 6 / II–III 4'),entry('equations','Gleichungen mit Klammern · Rechenweg','M7 I 6 / II–III 4'),entry('percent','Vermehrter und verminderter Grundwert','M7 I 7 / II–III 5'),entry('mean','Daten · arithmetisches Mittel','M7 I 8 / II–III 6')]},
+ 8:{all:[entry('equations','Gleichungen mit x auf beiden Seiten','M8 I 4 / II–III 3'),entry('linear','Lineare Funktionen · Funktionswert','M8 I 6 / II–III 5'),entry('linearGraph','Geraden · Graphen ablesen','M8 I 6 / II–III 5'),entry('linearZero','Lineare Funktionen · Nullstellen','M8 I 6 / II–III 5'),entry('frequency','Zufall · relative Häufigkeit','M8 I 7 / II–III 6'),entry('trapezoid','Trapez · Flächeninhalt','M8 1')]},
+ 9:{all:[entry('roots','Quadratwurzeln','M9 1'),entry('pythagoras','Satz des Pythagoras','M9 3'),entry('circle','Kreis · Flächeninhalt','M9 4'),entry('probability','Zufall · Gegenereignis','M9 I 8 / II–III 7'),entry('systems','Lineare Gleichungssysteme · Rechenweg','M9 I 6 / II–III 6')],I:[entry('quadratic','Quadratische Funktion · Scheitelwert','M9 I 7'),entry('quadraticZero','Quadratische Funktionen · Nullstellen','M9 I 7')],'II/III':[entry('linear','Lineare Funktion · Funktionswert','M9 II–III 5')]},
+ 10:{all:[entry('trig','Trigonometrie · Kosinussatz','M10 1'),entry('growth','Exponentielles Wachstum','M10 I 4 / II–III 3'),entry('compound','Zufall · Pfadregel','M10 I 5 / II–III 5')],I:[entry('powerFunction','Potenzfunktion · Funktionswert','M10 I 3')],'II/III':[entry('quadratic','Quadratische Funktion · Scheitelwert','M10 II–III 4'),entry('quadraticZero','Quadratische Funktionen · Nullstellen','M10 II–III 4'),entry('cylinder','Zylinder · Volumen','M10 II–III 2')]}
+};
+function topics(grade,group='I'){const c=catalog[grade];return c?[...c.all,...(c[group]||[])].map(t=>({...t,grade:Number(grade),source:url(grade,group)})):[];}
+function generate(id,grade,difficulty='medium',rng=Math.random){
+ if(!Object.values(catalog).some(c=>Object.values(c).flat().some(t=>t.id===id)))throw Error('Unbekanntes Thema.');
+ const level=difficulty==='mixed'?random(1,3,rng):({easy:1,medium:2,hard:3}[difficulty]||2),ri=(a,b)=>random(a,b,rng),n=ri(2,level*5+4),m=ri(2,level*4+3),k=ri(1,8),g=Number(grade);
+ const base={id,grade:g,difficulty,level,type:'short',unit:'',tolerance:0,hints:[],steps:[]};
+ const task=(prompt,answer,extras={})=>({...base,prompt,answer:typeof answer==='number'?Q(answer):answer,...extras});
+ switch(id){
+ case 'integers':{const a=level>1?-n:n,b=level>1?-m:m;return task(`Berechne: ${a} + (${b}) · ${k}`,a+b*k,{hints:['Punktrechnung geht vor Strichrechnung.']});}
+ case 'rectangle':return task(`Ein Rechteck ist ${n} cm lang und ${m} cm breit. ${level===1?'Bestimme den Umfang.':'Bestimme die Fläche.'}`,level===1?2*(n+m):n*m,{unit:level===1?'cm':'cm²',hints:[level===1?'Addiere alle vier Seiten.':'Multipliziere Länge und Breite.']});
+ case 'ratio':return task(`${k} Hefte kosten ${k*m} €. Wie viel kosten ${n} Hefte?`,n*m,{unit:'€',hints:['Berechne zuerst den Preis für ein Heft.']});
+ case 'fractions':{const a=Q(level===3?-n:n,n+1),b=Q((n+1)*k,n+2),result=mul(a,b);return task(`Berechne mit einem Zwischenschritt und kürze vollständig: ${frac(a)} · ${frac(b)}`,result,{type:'fractionSteps',original:`${str(a)}*${str(b)}`,steps:[`${a.n*b.n}/${a.d*b.d}`,str(result)],hints:['Du darfst vor dem Multiplizieren kürzen.','Multipliziere die Zähler und die Nenner. Danach vollständig kürzen.']});}
+ case 'fractionAdd':
+ case 'fractionSubtract':{
+   const a=Q(level===3?-n:n,m+2),b=Q(k,level===1?m+2:n+3),subtract=id==='fractionSubtract',sign=subtract?'−':'+',op=subtract?'-':'+',common=a.d*b.d;
+   const answer=add(a,subtract?neg(b):b),intermediate=`(${a.n*b.d} ${op} ${b.n*a.d})/${common}`;
+   return task(`Berechne mit einem Zwischenschritt und kürze vollständig: ${frac(a)} ${sign} ${frac(b)}`,answer,{type:'fractionSteps',original:`${str(a)}${op}${str(b)}`,steps:[intermediate,str(answer)],hints:['Bringe beide Brüche auf einen gemeinsamen Nenner.','Erweitere die Zähler passend. Addiere oder subtrahiere dann die Zähler; der Nenner bleibt gleich.']});
+ }
+ case 'fractionDivide':{
+   const a=Q(level===3?-n:n,m+2),b=Q(k,n+3),answer=div(a,b);
+   return task(`Dividiere mit einem Zwischenschritt und kürze vollständig: ${frac(a)} : ${frac(b)}`,answer,{type:'fractionSteps',original:`(${str(a)})/(${str(b)})`,steps:[`(${str(a)}) * (${b.d}/${b.n})`,str(answer)],hints:['Multipliziere mit dem Kehrwert des zweiten Bruchs.','Vertausche beim zweiten Bruch Zähler und Nenner. Kürze danach das Produkt.']});
+ }
+ case 'mixedFractions':{
+   const denominator=m+2,whole=level===3?-k:k,numerator=ri(1,denominator-1),a=Q((Math.abs(whole)*denominator+numerator)*(whole<0?-1:1),denominator),b=Q(1,n+3),subtract=level>1,op=subtract?'-':'+';
+   const mixed=`${whole} ${numerator}/${denominator}`,answer=add(a,subtract?neg(b):b);
+   return task(`Rechne mit Zwischenschritt. Schreibe das Ergebnis als vollständig gekürzten Bruch (bei ganzen Zahlen genügt die Zahl): <span class="rs-mixed">${whole} ${frac(Q(numerator,denominator))}</span> ${subtract?'−':'+'} ${frac(b)}`,answer,{type:'fractionSteps',original:`${mixed} ${op} ${str(b)}`,steps:[`(${str(a)}) ${op} (${str(b)})`,str(answer)],hints:['Wandle zuerst die gemischte Zahl in einen Bruch um: Ganze · Nenner + Zähler.','Bei einer negativen gemischten Zahl gehört das Minus zur gesamten Zahl. Nutze danach einen gemeinsamen Nenner.']});
+ }
+ case 'fractionChain':{
+   const a=Q(n,m+2),b=Q(k,n+3),c=Q(level===3?-m:m,k+2),subtract=level>1,inner=add(a,subtract?neg(b):b),divide=level===2,extra=level===3?Q(k,5):Q(0);
+   const answer=add(divide?div(inner,c):mul(inner,c),extra),operation=divide?'/':'*',suffix=level===3?` + (${str(extra)})`:'';
+   return task(`Berechne mit Rechenweg und kürze vollständig: (${frac(a)} ${subtract?'−':'+'} ${frac(b)}) ${divide?':':'·'} (${frac(c)})${level===3?' + '+frac(extra):''}`,answer,{type:'fractionSteps',original:`(${str(a)} ${subtract?'-':'+'} ${str(b)}) ${operation} (${str(c)})${suffix}`,steps:[`(${str(inner)}) ${operation} (${str(c)})${suffix}`,str(answer)],hints:['Berechne zuerst die Klammer mit einem gemeinsamen Nenner.','Danach folgt Multiplikation oder Division. Bei Division verwende den Kehrwert.','Kürze das Ergebnis vollständig. Bei der schweren Aufgabe addiere zuletzt den übrigen Bruch.']});
+ }
+ case 'termValue':{
+   const x=level===3?-k:k,a=n,b=m,c=ri(2,8),d=ri(1,6),expression=level===1?`${a}(x + ${b})`:`${a}(x + ${b}) − ${c}(x − ${d})${level===3?` − ${n}x`:''}`;
+   const answer=a*(x+b)-(level>1?c*(x-d):0)-(level===3?n*x:0);
+   return task(`Berechne den Wert des Terms für x = ${x}: <span class="rs-equation">${expression}</span>`,answer,{hints:['Setze den angegebenen Wert überall für x ein.','Berechne zuerst die Klammern, dann die Produkte und zuletzt Plus und Minus.']});
+ }
+ case 'systems':{
+   const x=Q(level===3?-k:k,level===3?2:1),y=Q(level>1?-ri(1,8):ri(1,8),level===3?3:1),a=n,b=level===1?1:m,c=level===1?1:k+1,d=-ri(2,level*4+3);
+   const right1=add(mul(Q(a),x),mul(Q(b),y)),right2=add(mul(Q(c),x),mul(Q(d),y)),det=a*d-b*c;
+   const originals=[`${a}x + ${b}y = ${str(right1)}`,`${c}x − ${-d}y = ${str(right2)}`];
+   return task(`Löse das Gleichungssystem mit Eliminations- oder Einsetzungsschritt und bestimme beide Variablen:<span class="rs-system"><span>I: ${originals[0]}</span><span>II: ${originals[1]}</span></span>`,x,{type:'systemSteps',solution:{x,y},originals,steps:[`${det}x = ${str(mul(Q(det),x))}`,`x = ${str(x)}`,`y = ${str(y)}`],hints:['Eliminiere eine Variable durch Addieren/Subtrahieren der passend multiplizierten Gleichungen oder setze einen freigestellten Term ein.',`Zum Eliminieren von y kannst du ${d} · I − ${b} · II bilden.`,`Bestimme aus der Gleichung mit nur noch x den x-Wert. Setze ihn danach in eine ursprüngliche Gleichung ein, um y zu bestimmen.`]});
+ }
+ case 'decimals':return task(`Berechne: ${(n/10).toFixed(1).replace('.',',')} ${level===3?'−':'+'} ${(m/10).toFixed(1).replace('.',',')}`,Q(n+(level===3?-m:m),10),{hints:['Achte auf gleiche Stellenwerte.']});
+ case 'equations':{const x=Q(level===3?-k:k),a=n,b=m,c=g>=8?ri(1,n-1):0;let original,intermediate,final=`x = ${str(x)}`;
+ if(g>=8){original=`${a}x + ${b} = ${c}x + ${str(add(mul(Q(a-c),x),Q(b)))}`;intermediate=`${a-c}x + ${b} = ${str(add(mul(Q(a-c),x),Q(b)))}`;}
+ else if(g>=7||level===3){original=`${a}(x + ${b}) = ${str(mul(Q(a),add(x,Q(b))))}`;intermediate=`x + ${b} = ${str(add(x,Q(b)))}`;}
+ else{original=`${a}x + ${b} = ${str(add(mul(Q(a),x),Q(b)))}`;intermediate=`${a}x = ${str(mul(Q(a),x))}`;}
+ original=original.replace(/\+ -/g,"− ");intermediate=intermediate.replace(/\+ -/g,"− ");
+ return task(`Löse mit mindestens einem Umformungsschritt: <span class="rs-equation">${original}</span>`,x,{type:'equationSteps',original,steps:[intermediate,final],hints:['Wende auf beiden Seiten dieselbe Rechenoperation an.','Fasse die x-Terme zusammen und entferne die Zahl neben dem x-Term.']});}
+ case 'percent':{const amount=20*n,pct=5*m;if(g>=7){const decrease=level===3;return task(`Ein Preis von ${amount} € wird um ${pct} % ${decrease?'gesenkt':'erhöht'}. Wie hoch ist der neue Preis?`,Q(amount*(100+(decrease?-pct:pct)),100),{unit:'€',hints:['Berechne erst die Preisänderung und addiere oder subtrahiere sie.']});}return task(`Wie viel sind ${pct} % von ${amount} €?`,Q(amount*pct,100),{unit:'€',hints:['Prozentwert = Grundwert · Prozentsatz / 100.']});}
+ case 'triangle':return task(`Ein Dreieck hat Grundseite ${n} cm und zugehörige Höhe ${m} cm. Bestimme die Fläche.`,Q(n*m,2),{unit:'cm²',hints:['Fläche = Grundseite · zugehörige Höhe / 2.']});
+ case 'cuboid':return task(`Ein Quader hat Kanten ${n} cm, ${m} cm und ${k} cm. Bestimme sein Volumen.`,n*m*k,{unit:'cm³',hints:['Volumen = Länge · Breite · Höhe.']});
+ case 'powers':return task(`Berechne mithilfe der Potenzregel: 2<sup>${k}</sup> · 2<sup>${level}</sup>`,2**(k+level),{hints:['Bei gleicher Basis werden beim Multiplizieren die Exponenten addiert.']});
+ case 'mean':{const values=[n,m,k,level*2];return task(`Bestimme das arithmetische Mittel von ${values.join('; ')}.`,Q(values.reduce((a,b)=>a+b,0),4),{hints:['Addiere die Werte und teile durch die Anzahl der Werte.']});}
+ case 'linearGraph':{
+   const slope=Q((ri(0,1)?1:-1)*ri(1,3),level===3?2:1),intercept=ri(-3,3),x=ri(-1,1),reading=level===1?'intercept':level===2?'value':'slope';
+   const answer=reading==='intercept'?Q(intercept):reading==='value'?add(mul(slope,Q(x)),Q(intercept)):slope;
+   const question=reading==='intercept'?'Lies den y-Achsenabschnitt ab.':reading==='value'?`Lies den Funktionswert f(${x}) ab.`:'Bestimme die Steigung der Geraden. Gib bei Bedarf einen Bruch ein.';
+   return task(question+lineGraph(slope,intercept),answer,{graph:{slope,intercept,x,reading},hints:[reading==='slope'?'Steigung = Änderung in y / Änderung in x. Wähle zwei Gitterpunkte auf der Geraden.':reading==='intercept'?'Wo schneidet die Gerade die y-Achse?':`Gehe auf der x-Achse zu ${x} und lies an der Geraden den y-Wert ab.`]});
+ }
+ case 'linearZero':{
+   const slope=level===3?-m:m,root=Q(level===1?n:ri(-9,9),level===3?2:1),intercept=neg(mul(Q(slope),root));
+   return task(`f(x) = ${slope}x ${intercept.n<0?'−':'+'} ${str(Q(Math.abs(intercept.n),intercept.d))}. Bestimme die Nullstelle (nur den x-Wert).`,root,{coefficients:[intercept,Q(slope)],hints:['An einer Nullstelle ist f(x) = 0.','Bringe den konstanten Term auf die andere Seite und teile durch die Steigung.']});
+ }
+ case 'quadraticZero':{
+   const left=ri(-6,1),right=left+ri(1,7),a=level===3?-ri(1,3):1,b=-a*(left+right),c=a*left*right;
+   const expression=level===1?`(x − (${left}))(x − (${right}))`:`${a}x² ${b<0?'−':'+'} ${Math.abs(b)}x ${c<0?'−':'+'} ${Math.abs(c)}`;
+   return task(`f(x) = ${expression}. Die Funktion hat zwei verschiedene Nullstellen. Bestimme die größere Nullstelle (nur den x-Wert).`,right,{coefficients:[Q(c),Q(b),Q(a)],roots:[Q(left),Q(right)],hints:['Setze f(x) = 0. Suche zwei Lösungen und wähle den größeren x-Wert.',level===1?'Ein Produkt ist null, wenn mindestens ein Faktor null ist.':'Teile durch den Koeffizienten von x². Nutze anschließend Faktorisieren oder die Lösungsformel.']});
+ }
+ case 'linear':return task(`f(x) = ${level===3?-m:m}x + ${k}. Berechne f(${level===3?-n:n}).`,(level===3?-m:m)*(level===3?-n:n)+k,{hints:['Setze den angegebenen x-Wert in die Funktion ein.']});
+ case 'trapezoid':return task(`Ein Trapez hat parallele Seiten ${n} cm und ${m} cm sowie Höhe ${k} cm. Bestimme die Fläche.`,Q((n+m)*k,2),{unit:'cm²',hints:['Fläche = (a + c) · h / 2.']});
+ case 'frequency':return task(`Bei ${n+m} Würfen wurde ${n}-mal eine Sechs beobachtet. Bestimme die relative Häufigkeit als Bruch.`,Q(n,n+m),{hints:['Relative Häufigkeit = beobachtete Treffer / Anzahl der Versuche.']});
+ case 'probability':{const red=n,blue=m;return task(`In einer Urne sind ${red} rote und ${blue} blaue Kugeln. Eine Kugel wird gezogen. Bestimme P(${g>=9?'nicht rot':'rot'}) als Bruch.`,Q(g>=9?blue:red,red+blue),{hints:['Wahrscheinlichkeit = günstige Ergebnisse / alle Ergebnisse.']});}
+ case 'roots':return task(`Berechne √${n*n} ${level>1?`+ √${m*m}`:''}.`,n+(level>1?m:0),{hints:['Die Quadratwurzel ist die nichtnegative Zahl, deren Quadrat unter der Wurzel steht.']});
+ case 'pythagoras':return task(`Ein rechtwinkliges Dreieck hat Katheten ${3*k} cm und ${4*k} cm. Bestimme die Hypotenuse.`,5*k,{unit:'cm',hints:['c² = a² + b². Ziehe danach die Quadratwurzel.']});
+ case 'circle':return task(`Ein Kreis hat Radius ${k} cm. Bestimme die Fläche mit π = 3,14.`,Q(314*k*k,100),{unit:'cm²',hints:['Fläche = π · r².']});
+ case 'quadratic':return task(`f(x) = ${level===3?-m:m}(x − ${n})² + ${k}. Bestimme den y-Wert des Scheitelpunkts.`,k,{hints:['In der Scheitelpunktsform f(x) = a(x − h)² + s liegt der Scheitel bei (h | s).']});
+ case 'trig':{const angle=[30,45,60][level-1],length=Number(Math.sqrt(n*n+m*m-2*n*m*Math.cos(angle*Math.PI/180)).toFixed(2));return task(`Zwei Dreiecksseiten sind ${n} cm und ${m} cm lang; der eingeschlossene Winkel ist ${angle}°. Berechne die dritte Seite mit dem Kosinussatz. Runde auf zwei Nachkommastellen.`,decimal(length.toFixed(2)),{unit:'cm',tolerance:0.005000001,hints:['c² = a² + b² − 2ab · cos(γ).']});}
+ case 'growth':return task(`Ein Bestand von ${100*n} wächst jährlich um ${5*level} %. Wie groß ist er nach ${level+1} Jahren? Runde auf zwei Nachkommastellen.`,decimal((100*n*(1+5*level/100)**(level+1)).toFixed(2)),{tolerance:0.005000001,hints:['Bestand = Anfangswert · (1 + p/100)^Jahre.']});
+ case 'compound':return task(`Eine Urne enthält ${n} rote und ${m} blaue Kugeln. Du ziehst zweimal mit Zurücklegen. Bestimme P(zweimal rot) als Bruch.`,Q(n*n,(n+m)**2),{hints:['Mit Zurücklegen bleiben die Wahrscheinlichkeiten gleich. Multipliziere die beiden Pfadwahrscheinlichkeiten.']});
+ case 'powerFunction':return task(`f(x) = ${m}x<sup>${level+1}</sup>. Berechne f(${level===3?-k:k}).`,m*(level===3?-k:k)**(level+1),{hints:['Berechne zuerst die Potenz und multipliziere danach.']});
+ case 'cylinder':return task(`Ein Zylinder hat Radius ${k} cm und Höhe ${n} cm. Berechne sein Volumen mit π = 3,14.`,Q(314*k*k*n,100),{unit:'cm³',hints:['Volumen = π · r² · h.']});
+ default:throw Error('Dieser Generator ist noch nicht verfügbar.');
+ }
+}
+function validate(task,input,history=[]){try{
+ const text=String(input||'').trim();if(text.length>180)throw Error('Die Eingabe ist zu lang.');if(!text)throw Error('Bitte eine Antwort oder einen Schritt eingeben.');
+ if(task.type==='systemSteps')return validateSystem(task,text,history);
+ if(task.type==='equationSteps'){
+ const e=equation(text);if(!eq(e.root,task.answer))return {status:'wrong',message:'Diese Gleichung hat nicht dieselbe Lösung. Prüfe Vorzeichen und beide Seiten.'};
+ const originals=[equation(task.original),...history.map(equation)];if(!(e.final&&history.length)&&originals.some(o=>o.signature===e.signature||JSON.stringify([o.b,o.a])===e.signature))return {status:'invalid',message:'Diese Gleichung steht bereits da. Gib einen neuen Umformungsschritt ein.'};
+ if(e.final&&!history.length)return {status:'incomplete',message:'Das Ergebnis stimmt. Zeige zuerst mindestens eine Umformung.'};
+ return {status:e.final?'correct':'step',message:e.final?'Richtig gelöst!':'Diese Umformung ist richtig.'};
+ }
+ if(task.type==='fractionSteps'){
+ const q=constant(text);if(!eq(q,task.answer))return {status:'wrong',message:'Der Wert stimmt noch nicht. Prüfe Zähler, Nenner und Vorzeichen.'};
+ const normalize=s=>s.replace(/(\d+)\s+(\d+)\s*\/\s*(\d+)/g,'$1~$2/$3').replace(/\s/g,'').replace(/[·×]/g,'*').replace(/[÷:]/g,'/').replace(/−/g,'-').replace(/[()]/g,'');const compact=normalize(text);if(compact===normalize(task.original)||history.some(h=>normalize(h)===compact))return {status:'invalid',message:'Zeige einen neuen Rechenschritt.'};
+ const match=text.replace(/−/g,'-').replace(/-\s+(?=\d)/g,'-').match(/^(-?\d+)\s*(?:\/\s*(-?\d+))?$/),reduced=match&&Number(match[2]||1)>0&&gcd(Number(match[1]),Number(match[2]||1))===1;
+ if(reduced&&!history.length)return {status:'incomplete',message:'Der Wert stimmt. Zeige zuerst einen Zwischenschritt (Umwandeln, Erweitern, Kehrwert oder Kürzen).'};
+ return {status:reduced?'correct':'step',message:reduced?'Richtig und vollständig gekürzt!':'Der Wert stimmt. Schreibe als vollständig gekürzten Bruch.'};
+ }
+ let numeric=text;const unit=task.unit.replace(/²/g,'2').replace(/³/g,'3');const suffix=text.match(/\s*(cm(?:[²³23])?|€)\s*$/i);if(suffix){if(!task.unit||suffix[1].replace(/²/g,'2').replace(/³/g,'3').toLowerCase()!==unit.toLowerCase())throw Error('Die Einheit passt nicht zur Aufgabe.');numeric=text.slice(0,suffix.index);}
+ const q=constant(numeric),difference=Math.abs(q.n/q.d-task.answer.n/task.answer.d);return eq(q,task.answer)||(task.tolerance>0&&difference<=task.tolerance)?{status:'correct',message:'Richtig!'}:{status:'wrong',message:'Noch nicht richtig. Prüfe die Rechnung und gegebenenfalls die Rundung.'};
+ }catch(e){return {status:'invalid',message:e.message};}}
+return {Q,add,mul,div,eq,str,parse,constant,equation,parseLinear2,linearEquation2,solveSystem,frac,catalog,topics,generate,validate};
+});
+</script>
+    <script>(function(){
+'use strict';
+const M=window.MatheRealschule,KEY='MatheKids_Realschule_v1',TAB='MatheKids_SchoolSection_v1',root=document.getElementById('realschulePanel');
+if(!M||!root)return;
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const defaults=()=>({settings:{grade:6,group:'I',difficulty:'medium',limit:10,basics:false,all:true,selected:[]},choices:{},progress:{},errors:[],session:null});
+let data=defaults(),task=null,storageWarning=false,gsRemaining=null,gsNextPending=false;
+try{const saved=JSON.parse(localStorage.getItem(KEY)||'null');if(saved&&saved.settings&&saved.progress&&saved.choices&&Array.isArray(saved.errors))data={...data,...saved};}catch(e){}
+const s=data.settings;if(![5,6,7,8,9,10].includes(Number(s.grade)))s.grade=6;if(!['I','II/III'].includes(s.group))s.group='I';if(!['easy','medium','hard','mixed'].includes(s.difficulty))s.difficulty='medium';if(![0,10,20,30].includes(Number(s.limit)))s.limit=10;if(!Array.isArray(s.selected))s.selected=[];
+function save(){try{localStorage.setItem(KEY,JSON.stringify(data));storageWarning=false;}catch(e){storageWarning=true;const note=root.querySelector('#rsStorage');if(note)note.textContent='Speichern ist gesperrt oder der Speicher ist voll. Diese Sitzung bleibt nur bis zum Schließen erhalten.';}}
+function list(){if(!s.basics)return M.topics(s.grade,s.group);return Array.from({length:s.grade-5},(_,i)=>M.topics(i+5,s.group)).flat().filter((t,i,a)=>a.findIndex(v=>v.id===t.id)===i);}
+function selected(){const available=list();return s.all?available:available.filter(t=>s.selected.includes(`${t.grade}:${t.id}`));}
+function seeded(seed){return()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};}
+function restoreTask(){const d=data.session?.current;if(!d)return;const valid=[...M.topics(d.grade,'I'),...M.topics(d.grade,'II/III')].find(t=>t.id===d.id);if(!valid||!Number.isInteger(d.seed)){data.session=null;return;}try{task=M.generate(d.id,d.grade,d.difficulty,seeded(d.seed));}catch(e){data.session=null;task=null;}}
+restoreTask();
+root.innerHTML=`<h2>Realschule Bayern</h2><p class="rs-subtitle">Klassen 5–10 · erste Übungsauswahl nach LehrplanPLUS</p>
+<details class="rs-settings" open><summary>Einstellungen</summary><div class="rs-config">
+<label>Klasse<select id="rsGrade">${[5,6,7,8,9,10].map(g=>`<option value="${g}">${g}</option>`).join('')}</select></label>
+<label id="rsGroupLabel">Fächergruppe<select id="rsGroup"><option value="I">I · Mathe/Technik</option><option value="II/III">II / III</option></select></label>
+<label>Schwierigkeit<select id="rsDifficulty"><option value="easy">Leicht</option><option value="medium">Mittel</option><option value="hard">Schwer</option><option value="mixed">Gemischt</option></select></label>
+<label>Aufgaben<select id="rsLimit"><option value="10">10</option><option value="20">20</option><option value="30">30</option><option value="0">Unbegrenzt</option></select></label></div>
+<label class="rs-check"><input type="checkbox" id="rsBasics"> Grundlagen früherer Realschulklassen wiederholen</label>
+<label class="rs-check"><input type="checkbox" id="rsAll"> Alle verfügbaren Themen</label><fieldset id="rsTopics"><legend>Themen</legend></fieldset>
+<p id="rsCoverage" class="rs-note"></p><p class="rs-note">Die Auswahl ist ein ausbaufähiger Einstieg, kein vollständiger Lehrplan. Schwierigkeit bleibt innerhalb der gewählten Klasse. Ändere Einstellungen für die nächste Übungsrunde.</p>
+<button type="button" id="rsStart">Neue Übungsrunde</button><p id="rsConfigMessage" role="status"></p></details>
+<div id="rsSession"></div><details class="rs-progress"><summary>Fortschritt und Wiederholung</summary><div id="rsProgress"></div><button type="button" id="rsReview">Fehlerthemen mit neuen Zahlen üben</button></details><p class="rs-note" id="rsStorage">Realschul-Daten werden getrennt auf diesem Gerät gespeichert.</p>`;
+const el=id=>root.querySelector('#'+id);
+function pulse(id){const button=el(id);if(!button)return;button.classList.add('rs-pressed');setTimeout(()=>button.classList.remove('rs-pressed'),450);}
+root.addEventListener('pointerdown',e=>{const button=e.target.closest('button');if(button&&!button.disabled)pulse(button.id);});
+root.addEventListener('pointerup',e=>{const button=e.target.closest('button');if(button)setTimeout(()=>button.classList.remove('rs-pressed'),450);});
+root.addEventListener('pointercancel',e=>e.target.closest('button')?.classList.remove('rs-pressed'));
+root.addEventListener('click',e=>{const button=e.target.closest('button');if(button?.id)requestAnimationFrame(()=>pulse(button.id));});
+function feedback(kind,message){const c=data.session?.current;if(!c)return;c.feedbackKind=kind;c.feedback=message;save();const box=el('rsFeedback');if(box){box.textContent=message;box.dataset.kind=kind;}const card=root.querySelector('.rs-card');if(card)card.dataset.result=kind;el('rsAnswer')?.setAttribute('aria-invalid',String(kind==='wrong'));}
+
+// Render trusted generated or escaped pupil expressions as paper-style math.
+function paperMath(text){
+ const tokens=String(text).replace(/−/g,'-').replace(/[·×]/g,'*').replace(/²/g,'^2').match(/\d+(?:[.,]\d+)?|[xy]|[+\-*/^()=;]/g)||[];let i=0;
+ const clean=String(text).replace(/−/g,'-').replace(/[·×]/g,'*').replace(/²/g,'^2').replace(/\s/g,'');
+ if(tokens.join('')!==clean)return esc(text);
+ function atom(){const token=tokens[i++];if(token==='('){const value=sum();if(tokens[i++]!==')')throw Error();return '('+value+')';}if(!/^(?:\d+(?:[.,]\d+)?|x|y)$/.test(token||''))throw Error();let value=esc(token);if(tokens[i]==='^'){i++;value+='<sup>'+esc(tokens[i++])+'</sup>';}return value;}
+ function unary(){if(tokens[i]==='-'||tokens[i]==='+')return (tokens[i++]==='-'?'−':'+')+unary();return atom();}
+ function product(){const factors=[unary()];while(tokens[i]==='*'||tokens[i]==='/'||tokens[i]==='('||tokens[i]==='x'||tokens[i]==='y'){const op=tokens[i],implicit=!['*','/'].includes(op);if(!implicit)i++;const next=unary();if(op==='/')factors[factors.length-1]='<span class="rs-fraction"><span>'+factors[factors.length-1]+'</span><span>'+next+'</span></span>';else factors.push(next);}return factors.join(' · ');}
+ function sum(){let value=product();while(tokens[i]==='+'||tokens[i]==='-')value+=' '+(tokens[i++]==='-'?'−':'+')+' '+product();return value;}
+ try{let result=sum();while(tokens[i]==='='||tokens[i]===';')result+=' '+esc(tokens[i++])+' '+sum();if(i!==tokens.length)throw Error();return '<span aria-label="'+esc(text)+'">'+result+'</span>';}catch(e){return esc(text);}
+}
+function guideRows(){const labels={fractions:['Zähler miteinander und Nenner miteinander multiplizieren.','Den Bruch vollständig kürzen.'],fractionAdd:['Auf einen gemeinsamen Nenner bringen und die Zähler addieren.','Den Bruch zusammenfassen und vollständig kürzen.'],fractionSubtract:['Auf einen gemeinsamen Nenner bringen und die Zähler subtrahieren.','Den Bruch zusammenfassen und vollständig kürzen.'],fractionDivide:['Mit dem Kehrwert des zweiten Bruchs multiplizieren.','Zähler und Nenner multiplizieren und vollständig kürzen.'],mixedFractions:['Die gemischte Zahl in einen Bruch umwandeln.','Die Brüche verrechnen und vollständig kürzen.'],fractionChain:['Zuerst die Klammer berechnen.','Danach die übrigen Rechenoperationen ausführen und vollständig kürzen.'],equations:['Die Gleichung auf beiden Seiten umformen und zusammenfassen.','Die Variable alleine auf eine Seite bringen.'],systems:['Eine Variable durch passend multiplizierte Gleichungen eliminieren.','Die erste Variable bestimmen.','Den Wert einsetzen und die zweite Variable bestimmen.']};
+ const values=task.steps.length?task.steps:[M.str(task.answer)+(task.unit?' '+task.unit:'')];const rows=values.map((value,index)=>({value,label:labels[task.id]?.[index]||(index===values.length-1?'Ergebnis der Aufgabe.':'Nächster Rechenschritt.')}));
+ const product=task.id==='fractions'&&task.original.match(/^(-?\d+)(?:\/(\d+))?\*(-?\d+)(?:\/(\d+))?$/);if(product){rows.unshift({value:`(${product[1]}*${product[3]})/(${product[2]||1}*${product[4]||1})`,label:'Zähler miteinander und Nenner miteinander multiplizieren.'});rows[1].label='Die Produkte im Zähler und im Nenner ausrechnen.';}
+ const previous=rows.length>1&&rows[rows.length-2].value.match(/^(-?\d+)\/(\d+)$/);if(task.type==='fractionSteps'&&previous){let a=Math.abs(Number(previous[1])),b=Number(previous[2]);while(b)[a,b]=[b,a%b];rows[rows.length-1].label=a>1?`Zähler und Nenner durch ${a} teilen. So wird der Bruch vollständig gekürzt.`:'Der Bruch ist bereits vollständig gekürzt.';}return rows;}
+function openGuide(mode){
+ const c=data.session?.current;if(!c||!task)return;document.getElementById('rsGuide')?.remove();const opener=mode==='hint'?'rsHint':'rsSolution',dialog=document.createElement('dialog');dialog.id='rsGuide';dialog.className='rs-guide';dialog.setAttribute('aria-labelledby','rsGuideTitle');
+ dialog.innerHTML='<div class="rs-guide-head"><h2 id="rsGuideTitle">'+(mode==='hint'?'Hinweise zur Aufgabe':'Rechenweg Schritt für Schritt')+'</h2><button type="button" id="rsGuideClose" aria-label="Fenster schließen">Schließen</button></div><div class="rs-guide-body"><div class="rs-guide-task">'+task.prompt+'</div><div id="rsGuideRows" aria-live="polite"></div></div><div class="rs-guide-actions"><button type="button" id="rsGuideNext"></button><button type="button" id="rsGuideSolution">Rechenweg ansehen</button><p id="rsGuideNote"></p></div>';root.appendChild(dialog);
+ const close=()=>{dialog.close();dialog.remove();el(opener)?.focus();};dialog.querySelector('#rsGuideClose').onclick=close;dialog.addEventListener('cancel',e=>{e.preventDefault();close();});
+ let currentMode=mode;
+ function revealSolution(){if(!c.done){c.assisted=true;c.feedbackKind='note';c.feedback='Rechenweg angesehen · Als Aufgabe mit Lösung erfasst. Weiter erst, wenn du bereit bist.';finish('assisted');render();}c.guideShown=Math.min(guideRows().length,(c.guideShown||0)+1);save();}
+ function draw(){const rows=guideRows(),shown=currentMode==='hint'?Math.max(1,c.guideHints||1):Math.max(1,c.guideShown||1),values=currentMode==='hint'?task.hints.map(value=>({value})):rows;
+ dialog.querySelector('#rsGuideTitle').textContent=currentMode==='hint'?'Hinweise zur Aufgabe':'Rechenweg Schritt für Schritt';dialog.querySelector('#rsGuideRows').innerHTML=values.slice(0,shown).map((row,index)=>currentMode==='hint'?'<section class="rs-guide-step"><h3>Hinweis '+(index+1)+'</h3><p>'+esc(row.value)+'</p></section>':'<section class="rs-guide-step"><h3>'+(index===rows.length-1?'Ergebnis':'Schritt '+(index+1))+'</h3><p>'+esc(row.label)+'</p><div class="rs-paper">'+paperMath(row.value)+'</div></section>').join('');
+ const next=dialog.querySelector('#rsGuideNext');next.textContent=currentMode==='hint'?'Nächster Hinweis':'Nächster Schritt';next.disabled=shown>=values.length;dialog.querySelector('#rsGuideSolution').hidden=currentMode!=='hint';dialog.querySelector('#rsGuideNote').textContent=currentMode==='hint'?'Hinweise zählen nicht als angezeigte Lösung.':shown>=rows.length?'Der Rechenweg ist vollständig. Du kannst hier in Ruhe nachsehen.':'Alle bisherigen Schritte bleiben zum Nachlesen stehen.';
+ const body=dialog.querySelector('.rs-guide-body');body.scrollTop=body.scrollHeight;}
+ dialog.querySelector('#rsGuideNext').onclick=()=>{if(currentMode==='hint'){c.guideHints=Math.min(task.hints.length,(c.guideHints||1)+1);c.hints=c.guideHints;save();}else revealSolution();draw();};dialog.querySelector('#rsGuideSolution').onclick=()=>{currentMode='solution';revealSolution();draw();};
+ if(mode==='hint'){c.guideHints=Math.max(1,c.guideHints||0);c.hints=Math.max(c.hints,c.guideHints);save();}else if(!c.guideShown)revealSolution();draw();dialog.showModal();dialog.querySelector('#rsGuideNext').focus();
+}
+
+function config(){el('rsGrade').value=s.grade;el('rsGroup').value=s.group;el('rsDifficulty').value=s.difficulty;el('rsLimit').value=s.limit;el('rsBasics').checked=s.basics;el('rsBasics').disabled=s.grade===5;if(s.grade===5)s.basics=false;el('rsGroupLabel').hidden=s.grade<7;el('rsAll').checked=s.all;
+ el('rsTopics').innerHTML='<legend>Themen</legend>'+list().map(t=>`<label class="rs-check"><input type="checkbox" data-topic="${t.grade}:${t.id}" ${s.all||s.selected.includes(`${t.grade}:${t.id}`)?'checked':''} ${s.all?'disabled':''}><span>${esc(t.label)}${s.basics?` · Klasse ${t.grade}`:''}<small>${esc(t.area)}</small></span></label>`).join('');
+ el('rsCoverage').innerHTML=`${list().length} aktive Übungsthemen. <a href="${M.topics(s.grade,s.group)[0].source}" target="_blank" rel="noopener">Offizieller Lehrplan Klasse ${s.grade}${s.grade>6?' · Gruppe '+esc(s.group):''}</a>`;
+}
+function remember(){data.choices[`${s.grade}:${s.group}:${s.basics?'basics':'grade'}`]={all:s.all,selected:s.selected};save();}
+for(const id of ['rsGrade','rsGroup','rsBasics'])el(id).addEventListener('change',()=>{remember();s.grade=Number(el('rsGrade').value);s.group=el('rsGroup').value;s.basics=el('rsBasics').checked&&s.grade>5;const choice=data.choices[`${s.grade}:${s.group}:${s.basics?'basics':'grade'}`];s.all=choice?.all??true;s.selected=Array.isArray(choice?.selected)?choice.selected:[];config();save();});
+for(const [id,key] of [['rsDifficulty','difficulty'],['rsLimit','limit']])el(id).addEventListener('change',()=>{s[key]=key==='limit'?Number(el(id).value):el(id).value;save();});
+el('rsAll').addEventListener('change',()=>{s.all=el('rsAll').checked;if(!s.all&&!s.selected.length)s.selected=list().map(t=>`${t.grade}:${t.id}`);config();remember();});el('rsTopics').addEventListener('change',()=>{s.selected=Array.from(root.querySelectorAll('[data-topic]:checked')).map(e=>e.dataset.topic);remember();});
+function start(review=false){const chosen=selected();if(!chosen.length){el('rsConfigMessage').textContent='Wähle mindestens ein Thema.';return;}const queue=review?data.errors.filter(e=>chosen.some(t=>t.id===e.id&&t.grade===e.grade)):[];if(review&&!queue.length){el('rsConfigMessage').textContent='Für diese Auswahl gibt es keine Fehlerthemen.';return;}
+ data.session={pool:chosen.map(t=>({id:t.id,grade:t.grade,label:t.label})),difficulty:s.difficulty,limit:review?queue.length:s.limit,queue,review,count:0,correct:0,attempts:0,wrong:0,assisted:0,skipped:0,byTopic:{},finished:false,current:null};el('rsConfigMessage').textContent='';nextTask();root.querySelector('.rs-settings').open=false;render();}
+function nextTask(){const session=data.session;if(session.limit&&session.count>=session.limit){session.finished=true;session.current=null;task=null;save();render();return;}const t=session.review?session.queue[session.count]:session.pool[session.count%session.pool.length],seed=new Uint32Array(1);
+ const previous=session.review?t:session.current;
+ let previousPrompt=null;
+ if(previous?.id===t.id&&previous.grade===t.grade&&Number.isInteger(previous.seed))previousPrompt=M.generate(t.id,t.grade,previous.difficulty||session.difficulty,seeded(previous.seed)).prompt;
+ let candidate;
+ for(let retry=0;retry<8;retry++){
+   if(window.crypto?.getRandomValues)crypto.getRandomValues(seed);else seed[0]=Math.random()*4294967295;
+   candidate=M.generate(t.id,t.grade,session.difficulty,seeded(seed[0]));
+   if(candidate.prompt!==previousPrompt)break;
+ }
+ session.current={id:t.id,grade:t.grade,label:t.label||M.topics(t.grade,s.group).find(v=>v.id===t.id)?.label||t.id,difficulty:session.difficulty,seed:seed[0],history:[],input:'',hints:0,assisted:false,done:false,hadError:false};task=candidate;save();}
+function progress(){el('rsReview').disabled=!data.errors.length;const rows=Object.values(data.progress);el('rsProgress').innerHTML=rows.length?`<p>${data.errors.length} Fehlerthemen vorgemerkt. Sie werden mit neuen Zahlen wiederholt.</p><ul>${rows.map(t=>`<li>${esc(t.label)} · Klasse ${t.grade}: ${t.correct} richtig, ${t.wrong} Fehler, ${t.attempts} Prüfversuche, ${t.assisted} mit Lösung, ${t.skipped} übersprungen</li>`).join('')}</ul>`:'<p>Dein Fortschritt erscheint nach der ersten Prüfung.</p>';}
+function record(status){const ss=data.session,c=ss.current,key=`${c.grade}:${c.id}`,initial={label:c.label,grade:c.grade,correct:0,wrong:0,attempts:0,assisted:0,skipped:0};data.progress[key]??={...initial};ss.byTopic[key]??={...initial};for(const row of [data.progress[key],ss.byTopic[key]]){row[status]++;}if(status==='wrong'){c.hadError=true;if(!data.errors.some(e=>e.id===c.id&&e.grade===c.grade))data.errors.push({id:c.id,grade:c.grade,seed:c.seed,difficulty:c.difficulty});}if(status==='correct'&&ss.review)data.errors=data.errors.filter(e=>e.id!==c.id||e.grade!==c.grade);}
+function finish(status){const ss=data.session,c=ss.current;if(c.done)return;c.done=true;ss.count++;ss[status]++;record(status);save();}
+function render(){const ss=data.session;progress();if(!ss){el('rsSession').innerHTML='<p class="rs-empty">Wähle Klasse und Themen. Starte dann deine Übungsrunde.</p>';return;}
+ if(ss.finished){el('rsSession').innerHTML=`<article class="rs-card"><h3>Runde abgeschlossen</h3><p>${ss.correct} von ${ss.count} Aufgaben selbst gelöst · ${ss.wrong} Fehlversuche · ${ss.assisted} mit Lösung · ${ss.skipped} übersprungen</p><ul>${Object.values(ss.byTopic).map(t=>`<li>${esc(t.label)}: ${t.correct} richtig, ${t.wrong} Fehler, ${t.attempts} Prüfversuche</li>`).join('')}</ul><button id="rsAgain" type="button">Noch eine Runde</button></article>`;el('rsAgain').onclick=()=>start();return;}
+ const c=ss.current;if(!c||!task)return;const multi=task.type!=='short',kind=c.done?(c.assisted?'note':'correct'):(c.feedbackKind||''),message=c.feedback||(c.done?(c.assisted?'Lösung angezeigt. Gehe zur nächsten Aufgabe.':'✓ Richtig gelöst! Du kannst in Ruhe nachsehen und dann auf Weiter drücken.'):'');el('rsSession').innerHTML=`<article class="rs-card" data-result="${esc(kind)}"><p class="rs-note">${ss.count+(c.done?0:1)}${ss.limit?' / '+ss.limit:''} · Klasse ${c.grade} · ${esc(c.label)}${ss.review?' · Fehlerwiederholung':''}</p><h3 class="rs-prompt">${task.prompt}</h3><ol class="rs-history">${(multi?c.history:[]).map(h=>`<li>${esc(h)}</li>`).join('')}</ol>
+ <form id="rsAnswerForm"><label for="rsAnswer">${multi?'Nächster Rechenschritt':'Deine Antwort'}${task.unit?' (in '+task.unit+')':''}</label><div class="rs-answer-row"><input id="rsAnswer" type="text" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="180" value="${esc(c.done&&!c.assisted?(c.input||c.history[c.history.length-1]||''):c.input)}" aria-invalid="${kind==='wrong'}" ${c.done?'disabled':''}><button id="rsCheck" ${c.done?'disabled':''}>${c.done&&!c.assisted?'✓ Richtig':multi?'Schritt prüfen':'Prüfen'}</button></div></form><p class="rs-note">${task.type==='systemSteps'?'Nutze x, y und =. Prüfe einzelne Gleichungen nacheinander; beide Endwerte sind auch als x = 2; y = 3 möglich.':task.type==='equationSteps'?'Zum Beispiel 3x = 15. Nutze x, =, +, -, *, / und Klammern.':task.type==='fractionSteps'?'Brüche als 6/12 eingeben, gemischte Zahlen als 2 1/3. Nutze Klammern, zum Beispiel (2/3)/(4/5).':'Dezimalkomma oder Brüche sind möglich. Die angezeigte Einheit musst du nicht eintippen.'}</p><p id="rsFeedback" data-kind="${esc(kind)}" role="status" aria-live="polite">${esc(message)}</p><div class="rs-actions"><button id="rsHint" type="button" ${c.done?'disabled':''}>Hinweis</button><button id="rsSolution" type="button">Lösung anzeigen</button><button id="rsNext" type="button">${c.done?'Weiter →':'Überspringen'}</button></div></article>`;
+ el('rsAnswer').addEventListener('input',()=>{c.input=el('rsAnswer').value;if(c.feedbackKind==='wrong'||c.feedbackKind==='note'){c.feedbackKind='';c.feedback='';el('rsFeedback').textContent='';el('rsFeedback').dataset.kind='';root.querySelector('.rs-card').dataset.result='';el('rsAnswer').setAttribute('aria-invalid','false');}save();});
+ el('rsAnswerForm').onsubmit=e=>{e.preventDefault();pulse('rsCheck');if(c.done)return;const answer=el('rsAnswer').value,v=M.validate(task,answer,c.history);if(v.status==='invalid'||v.status==='incomplete'){feedback('note',v.message);return;}ss.attempts++;record('attempts');if(v.status==='wrong'){ss.wrong++;record('wrong');progress();feedback('wrong',v.message);return;}if(c.history.length>=50)c.history.shift();c.history.push(answer);c.input=v.status==='correct'?answer:'';c.feedbackKind=v.status;c.feedback=v.status==='correct'?'✓ '+v.message+' Du kannst in Ruhe nachsehen. Weiter geht es erst mit Weiter.':'✓ '+v.message;if(v.status==='correct')finish('correct');else save();render();pulse('rsCheck');if(!c.done)el('rsAnswer').focus();};
+ el('rsHint').onclick=()=>openGuide('hint');
+ el('rsSolution').onclick=()=>openGuide('solution');
+ el('rsNext').onclick=()=>{if(!c.done)finish('skipped');nextTask();render();};
+}
+el('rsStart').onclick=()=>start();el('rsReview').onclick=()=>start(true);
+function switchSection(section){const rs=section==='realschule';window.__schoolSection=section;document.getElementById('grundschulePanel').hidden=rs;root.hidden=!rs;document.querySelectorAll('[data-school-tab]').forEach(b=>{b.setAttribute('aria-selected',String((b.dataset.schoolTab==='realschule')===rs));b.tabIndex=(b.dataset.schoolTab===section)?0:-1;});
+ if(rs){document.activeElement?.blur();if(typeof mgHideKeypad==='function')mgHideKeypad();if(window._roundTimerTimeout){gsRemaining=Math.max(0,(window._roundTimerDeadline||Date.now())-Date.now());clearRoundTimer();}}
+ else {if(gsNextPending){gsNextPending=false;initGame(false,false);}else if(gsRemaining!==null){const remaining=gsRemaining;gsRemaining=null;window._roundTimerDeadline=Date.now()+remaining;window._roundTimerTimeout=setTimeout(()=>{window._roundTimerTimeout=null;onRoundTimeout();},remaining);}}
+ try{localStorage.setItem(TAB,section);}catch(e){}save();}
+window.RealschuleUI={getState:()=>data,pauseGrundschuleTimer:ms=>{gsRemaining=ms;},pausePendingGrundschule:()=>{gsNextPending=true;},switchSection};
+const tabs=Array.from(document.querySelectorAll('[data-school-tab]'));tabs.forEach((b,i)=>{b.onclick=()=>switchSection(b.dataset.schoolTab);b.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();const target=tabs[1-i];switchSection(target.dataset.schoolTab);target.focus();}});});
+config();render();let section='grundschule';try{if(localStorage.getItem(TAB)==='realschule')section='realschule';}catch(e){}switchSection(section);
+})();
+</script>
   </body>
 </html>
