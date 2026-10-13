@@ -289,7 +289,9 @@ function Set-VersionManifest {
         cacheVersion = $WebCacheVersion
     }
 
-    $content = ($payload | ConvertTo-Json -Depth 3) + "`n"
+    # PowerShell 5.1 and 7 must produce the same flat version manifest.
+    $json = ($payload | ConvertTo-Json -Depth 3) -replace '(?m)^    (?=")', '  ' -replace '":  "', '": "'
+    $content = $json + "`n"
     Write-Utf8NoBomIfChanged -Path $Path -Content $content
 }
 
