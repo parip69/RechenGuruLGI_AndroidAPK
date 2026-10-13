@@ -34,7 +34,7 @@ Gemeinsame Signierung: `android-signing/original.keystore`, `android-signing/sig
 - `assembleRelease` einschließlich Kotlin-Kompilierung und Release-Lint mit JDK 17 / SDK 35 erfolgreich. Die tatsächlich gebaute APK 212 wurde anschließend geprüft.
 - Projekt-Signierung ohne externe Variablen bestanden; falscher Alias, unkonfigurierter Schlüsselpfad und falsches externes Passwort korrekt abgelehnt.
 - APK-Negativprüfungen bestanden: anderes historisches Zertifikat, Debug-APK, wiederverwendete Version, falsche erwartete Version und manipulierte APK abgelehnt.
-- Alle sechs Build-/Download-/Archiv-APK-Kopien haben denselben SHA-256; HTML-Archiv und Web-Spiegel sind synchron.
+- Alle sechs Build-/Download-/Archiv-APK-Kopien haben denselben SHA-256; HTML-Archiv und Web-Spiegel sind synchron; das HTML-Archiv entfernt nur Einrückung auf Leerzeilen für die Git-Whitespace-Prüfung.
 - Bestehende Release-APK 211 mit unverändertem Paketnamen und Zertifikat sowie v1/v2/v3-Signaturen nachgeprüft.
 - Kein Android-Gerät per ADB erkannt. Touch-Emulation ist kein echter Android-/iOS-Gerätetest; Passwortleistenfreiheit und Installation auf einem realen Gerät bleiben zu prüfen.
 

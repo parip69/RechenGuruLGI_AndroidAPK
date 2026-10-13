@@ -30,7 +30,11 @@ $apk = Join-Path $root ".release-build/app/outputs/apk/release/MatheKids-v$Versi
 $proof = & "$PSScriptRoot/verify-apk.ps1" -Apk $apk -ExpectedVersion $VersionCode
 if ($PublishFiles) {
     foreach ($destination in $destinations[0..2]) { Copy-Item -LiteralPath $apk -Destination $destination }
-    Copy-Item -LiteralPath 'app/src/main/assets/index.html' -Destination $destinations[3]
+    # Normalize whitespace-only lines in the HTML archive so git's release check
+    # also accepts inherited blank-line indentation from existing app sources.
+    $html = [IO.File]::ReadAllText((Join-Path $root 'app/src/main/assets/index.html'))
+    $html = [regex]::Replace($html, '(?m)^[ \t]+(?=\r?$)', '')
+    [IO.File]::WriteAllText((Join-Path $root $destinations[3]), $html, [Text.UTF8Encoding]::new($false))
     [IO.File]::WriteAllText((Join-Path $root $destinations[4]), ($proof -join "`n") + "`n", [Text.UTF8Encoding]::new($false))
     Copy-Item -LiteralPath $apk -Destination 'docs/MatheKids-latest.apk' -Force
     Copy-Item -LiteralPath $apk -Destination 'docs/MatheGuru-latest.apk' -Force
