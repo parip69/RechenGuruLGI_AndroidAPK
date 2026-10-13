@@ -1,0 +1,41 @@
+// Browser check: Playwright and Chromium; CHROMIUM_PATH can select a local browser.
+const {chromium}=require('playwright'),fs=require('fs'),path=require('path'),assert=require('node:assert/strict');
+(async()=>{const assets=path.resolve(__dirname,'../app/src/main/assets'),version=fs.readFileSync(path.resolve(__dirname,'../version.properties'),'utf8').match(/VERSION_NAME=(\d+)/)[1];
+const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',headless:true,args:['--no-sandbox']});try{
+ const context=await browser.newContext({viewport:{width:390,height:844}}),page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await context.route('**/*',r=>{const n=new URL(r.request().url()).pathname.replace('/RechenGuruLGI_AndroidAPK/','')||'index.html',file=path.join(assets,n);if(fs.existsSync(file)&&fs.statSync(file).isFile())return r.fulfill({body:fs.readFileSync(file),contentType:n.endsWith('.html')?'text/html':n.endsWith('.js')?'application/javascript':n.endsWith('.css')?'text/css':undefined});return r.abort();});
+ await page.addInitScript(v=>{window.AndroidInterface={getAppVersionName:()=>v,openExternal:()=>true,shareLink:u=>{window.__sharedUrl=u;return true;}};},version);
+ await page.goto('https://parip69.github.io/RechenGuruLGI_AndroidAPK/');await page.waitForTimeout(500);
+ await page.evaluate(()=>{document.getElementById('viewSelect').value='mixedMal';wechselAnsicht(false);document.getElementById('settingsDetails').open=true;});
+ assert(await page.locator('#worksheetGroup').isVisible());assert(await page.locator('#mixedMalEnabled').isChecked());assert(!(await page.locator('#taskFormatGroup').isVisible()));
+ await page.locator('#difficulty').selectOption('hard');await page.locator('#taskCount').selectOption('3');await page.locator('#maxWert').fill('100');await page.locator('#maxWert').dispatchEvent('change');
+ await page.evaluate(()=>{document.getElementById('rowTrain').value='7';syncRowChipsFromValue();saveModeSettings('mixedMal');initGame(false);document.getElementById('settingsDetails').open=false;});
+ assert.equal(await page.locator('#zeilenAufgaben [data-task]').count(),1);assert((await page.locator('.task-position').innerText()).includes('1 von 3'));
+ let t=await page.evaluate(()=>JSON.parse(document.querySelector('#zeilenAufgaben [data-task]').dataset.task));assert(t.products.every(p=>p.row===7));
+ const key=t.key,wrongBefore=await page.evaluate(()=>wrongPool.length),correctBefore=Number(await page.locator('#scoreCorrect').innerText());
+ await page.locator('#zeilenAufgaben input').fill(String(t.res+1));await page.locator('[data-chain-check]').click();
+ assert.equal(await page.locator('.steinInput').getAttribute('data-state'),'wrong');assert(await page.locator('[data-chain-next]').isDisabled());assert.equal(await page.evaluate(()=>wrongPool.length),wrongBefore+1);
+ assert.equal(await page.evaluate(()=>JSON.parse(document.querySelector('#zeilenAufgaben [data-task]').dataset.task).key),key);
+ await page.locator('[data-chain-hint]').click();assert.equal(await page.locator('#chainGuide .chain-paper>div').count(),1);await page.locator('#chainGuide [data-next]').click();assert.equal(await page.locator('#chainGuide .chain-paper>div').count(),2);
+ await page.locator('#chainGuide [data-solution]').click();const lines=await page.locator('#chainGuide .chain-paper>div').allTextContents();assert.equal(lines[0],t.expression);
+ for(const line of lines.slice(1)){const expression=line.replace(/^\d+\. /,'').replaceAll('×','*').replaceAll('−','-').replaceAll('÷','/'),sides=expression.split('=');assert.equal(sides.length,2);assert.equal(Function('return '+sides[0])(),Function('return '+sides[1])());}
+ await page.locator('#chainGuide [data-close]').click();
+ await page.locator('#zeilenAufgaben input').fill(String(t.res));await page.locator('[data-chain-check]').click();assert.equal(await page.locator('.steinInput').getAttribute('data-state'),'correct');assert.equal(Number(await page.locator('#scoreCorrect').innerText()),correctBefore+1);
+ const url=page.url();await page.waitForTimeout(1300);assert.equal(await page.evaluate(()=>JSON.parse(document.querySelector('#zeilenAufgaben [data-task]').dataset.task).key),key);
+ await page.locator('[data-chain-next]').click();assert.equal(page.url(),url);assert((await page.locator('.task-position').innerText()).includes('2 von 3'));
+ await page.reload();await page.waitForTimeout(500);assert.equal(await page.locator('#viewSelect').inputValue(),'mixedMal');assert.equal(await page.locator('#difficulty').inputValue(),'hard');assert.equal(await page.locator('#rowTrain').inputValue(),'7');assert.equal(await page.locator('#taskCount').inputValue(),'3');assert(await page.evaluate(k=>wrongPool.some(t=>t.key===k),key));
+ await page.evaluate(k=>{document.getElementById('viewSelect').value='fehler';wechselAnsicht(false);const saved=wrongPool.find(t=>t.key===k);const box=document.getElementById('zeilenAufgaben');box.replaceChildren();renderTask(box,saved,getMax());},key);
+ assert.equal(await page.locator('.worksheet-task').count(),1);assert((await page.locator('.chain-expression').innerText()).includes('□'));
+ await page.evaluate(()=>{document.getElementById('viewSelect').value='mal';wechselAnsicht(false);document.getElementById('settingsDetails').open=true;});
+ await page.locator('#mixedMalEnabled').check();await page.locator('#taskCount').selectOption('20');
+ const mixed=await page.evaluate(()=>Array.from(document.querySelectorAll('#zeilenAufgaben [data-task]')).map(e=>JSON.parse(e.dataset.task).op));assert(mixed.includes('worksheet'));assert(mixed.includes('mal'));
+ await page.locator('#mixedMalEnabled').uncheck();assert((await page.evaluate(()=>Array.from(document.querySelectorAll('#zeilenAufgaben [data-task]')).map(e=>JSON.parse(e.dataset.task).op))).every(op=>op==='mal'));
+ for(const width of [320,390,768]){await page.setViewportSize({width,height:844});await page.evaluate(()=>openViewSelectPopup());assert(await page.evaluate(()=>document.getElementById('viewSelectPopupList').scrollWidth<=document.getElementById('viewSelectPopupList').clientWidth+1));await page.evaluate(()=>closeViewSelectPopup());}
+ await page.evaluate(()=>{document.getElementById('viewSelect').value='mixedMal';wechselAnsicht(false);saveModeSettings('mixedMal');});
+ await page.locator('#appShareWidget button').click();await page.locator('input[name="appShareMode"][value="data"]').check();await page.locator('#appShareStart').click();
+ const payload=await page.evaluate(()=>{const s=window.__sharedUrl.split('#settings=')[1].replace(/-/g,'+').replace(/_/g,'/');return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(s),c=>c.charCodeAt(0))));});
+ assert(payload.selectedModes.includes('mixedMal'));assert(payload.selectedModes.includes('chain'));assert(Object.keys(payload.settings).some(k=>k.endsWith(':mixedMal')));
+ const portable=await page.evaluate(async()=>bundleRealschuleAssets(await (await fetch(location.href)).text()));assert(!portable.includes('src="rechenketten.js"'));assert(!portable.includes('src="gemischte-malaufgaben.js"'));
+ const exported=await context.newPage();await exported.route('**/portable-test.html',r=>r.fulfill({body:portable,contentType:'text/html'}));await exported.goto('https://parip69.github.io/RechenGuruLGI_AndroidAPK/portable-test.html');await exported.waitForTimeout(300);assert.equal(await exported.evaluate(()=>typeof MatheChains.generate),'function');assert.equal(await exported.evaluate(()=>typeof MatheMixedMal.generate),'function');assert.equal(await exported.locator('.worksheet-task').count(),1);await exported.close();
+ assert.deepEqual(errors,[]);await page.screenshot({path:'/workspace/.cloud-tools/artifacts/gemischte-malaufgaben-settings.png',fullPage:true});console.log('PASS: six-type mode, selected rows, check/retry, score and wrong-pool persistence, progressive help, same-page next, blending checkbox, disabling and responsive menu');
+}finally{await browser.close();}})().catch(e=>{console.error(e);process.exit(1);});

@@ -1,10 +1,12 @@
-const CACHE_NAME = 'rechenguru-lgi-v210';
+const CACHE_NAME = 'rechenguru-lgi-v211';
 const CACHE_PREFIX = 'rechenguru-lgi-v';
 const PRECACHE_URLS = [
   './',
   './index.html',
   './manifest.webmanifest',
   './version.json',
+  './rechenketten.js',
+  './gemischte-malaufgaben.js',
   './realschule/core.js',
   './realschule/ui.js',
   './realschule/style.css',

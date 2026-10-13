@@ -18,3 +18,12 @@ Cloud-Builds verwenden JDK 17, Android SDK 35 und den Gradle-Wrapper. Die vorber
 - Aussagen über viele Übungsmöglichkeiten mit unterschiedlichen erzeugten Aufgabenstellungen belegen. Übungsvarianten nicht als komplette Prüfungen oder vollständige Lehrplanabdeckung bezeichnen; keine unbelegte Prozentzahl nennen.
 - Standardwerte, lokale Speicherung und bewusstes Teilen erhalten. Änderungen an der Grundschul-Auswahl zunächst mit einem konkreten Vorschlag zur Bedienung besprechen. Erste und zweite Zahl müssen weiter getrennt einstellbar bleiben.
 - Freies Zeichnen/Konstruieren und dessen Platzbedarf vor einer Implementierung besprechen. Nach Version 209 zunächst eine Bedienbarkeits-Testphase anstreben; keine weiteren Generatoren allein zur Vergrößerung der Anzahl hinzufügen.
+
+# Grundschul-Erweiterungen ab Version 211
+
+- Rechenketten: 2–10 Zahlen, frei kombinierbare Plus/Minus/Mal/Geteilt-Auswahl, Punkt vor Strich, ganzzahlige nichtnegative Ergebnisse. Alle Zahlen und jeder Zwischenschritt müssen die gewählte Grenze einhalten.
+- Gemischte Malaufgaben: Typen A–F aus dem Nutzerauftrag; gewählte Einmaleinsreihen/Zahlenprofile verwenden, bekannte Reihe bei fehlenden Faktoren sichtbar lassen, unbekannte Zahl eindeutig lösbar. Schwere Aufgaben enthalten kombinierte Lücken und Klammern.
+- Standardwerte und gespeicherte Profile der bisherigen Aufgabenarten schützen. Beimischen per Checkbox derzeit bei Mal, Mal/Geteilt und Alle Rechenarten mit „Ergebnis fehlt“ und ohne Blitzmodus; andere Formate behalten ihr bisheriges Verhalten.
+- Neue Aufgabenarten auch in RG_SHARE_MODES, App-Info, Service-Worker-Cache, Web-Sync und portablem HTML-Export berücksichtigen. Die native Export-Whitelist bleibt auf ausdrücklich erlaubte Asset-Dateien begrenzt.
+- Papier-Rechenweg: einzelne Produktrechnungen sind getrennte Gleichungen, keine falsche Gleichheitskette zwischen unterschiedlichen Produkten. Nächster Hinweis gibt Schritte auf Nachfrage frei; vollständiger Rechenweg nur auf ausdrücklichen Druck.
+- Automatische Generator- und Browserprüfungen liegen unter tests/rechenketten* und tests/gemischte-malaufgaben*.

@@ -325,6 +325,10 @@ function Sync-DocsFromAssets {
     Copy-FileIfChanged -SourcePath $SourceSwFile -DestinationPath (Join-Path $TargetDocsDir "sw.js")
     Copy-FileIfChanged -SourcePath $SourceVersionManifestFile -DestinationPath (Join-Path $TargetDocsDir "version.json")
 
+    Copy-FileIfChanged -SourcePath (Join-Path $SourceAssetsDir "rechenketten.js") -DestinationPath (Join-Path $TargetDocsDir "rechenketten.js")
+
+    Copy-FileIfChanged -SourcePath (Join-Path $SourceAssetsDir "gemischte-malaufgaben.js") -DestinationPath (Join-Path $TargetDocsDir "gemischte-malaufgaben.js")
+
     $moduleSource = Join-Path $SourceAssetsDir "realschule"
     if (Test-Path -LiteralPath $moduleSource) {
         $moduleTarget = Join-Path $TargetDocsDir "realschule"

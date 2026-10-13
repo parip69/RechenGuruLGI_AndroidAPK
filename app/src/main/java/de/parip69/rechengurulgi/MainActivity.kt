@@ -283,7 +283,7 @@ class MainActivity : AppCompatActivity() {
 
         @JavascriptInterface
         fun getBundledTextAsset(path: String): String {
-            if (path !in setOf("realschule/style.css", "realschule/core.js", "realschule/ui.js")) return ""
+            if (path !in setOf("rechenketten.js", "gemischte-malaufgaben.js", "realschule/style.css", "realschule/core.js", "realschule/ui.js")) return ""
             return try { assets.open(path).bufferedReader(Charsets.UTF_8).use { it.readText() } }
             catch (_: Exception) { "" }
         }
