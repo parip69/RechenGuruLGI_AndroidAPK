@@ -1,5 +1,6 @@
 import java.util.Properties
 
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -21,6 +22,21 @@ val appVersionName = versionProperties
     .getProperty("VERSION_NAME")
     ?.takeIf { it.isNotBlank() }
     ?: appVersionCode.toString()
+
+// Explicit user choice: clone-and-build with the original project key.
+// External signing variables continue to take precedence. Never log these values.
+val projectSigning = Properties().apply {
+    val settings = rootProject.file("android-signing/signing.properties")
+    if (settings.isFile) settings.inputStream().use(::load)
+}
+val releaseKeyPath = System.getenv("ANDROID_KEYSTORE_PATH")?.takeIf { it.isNotBlank() }
+    ?: projectSigning.getProperty("keystore")?.let { rootProject.file("android-signing/$it").absolutePath }
+val releaseStorePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")?.takeIf { it.isNotBlank() }
+    ?: projectSigning.getProperty("storePassword")
+val releaseKeyAlias = System.getenv("ANDROID_KEY_ALIAS")?.takeIf { it.isNotBlank() }
+    ?: projectSigning.getProperty("alias")
+val releaseKeyPassword = System.getenv("ANDROID_KEY_PASSWORD")?.takeIf { it.isNotBlank() }
+    ?: projectSigning.getProperty("keyPassword")
 
 val syncLauncherForegroundFromAssets = tasks.register<Copy>("syncLauncherForegroundFromAssets") {
     from(layout.projectDirectory.file("src/main/assets/icons/icon-512.png"))
@@ -49,11 +65,11 @@ android {
 
     signingConfigs {
         create("existingRelease") {
-            val path = System.getenv("ANDROID_KEYSTORE_PATH")
+            val path = releaseKeyPath
             if (!path.isNullOrBlank()) storeFile = file(path)
-            storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
-            keyAlias = System.getenv("ANDROID_KEY_ALIAS")
-            keyPassword = System.getenv("ANDROID_KEY_PASSWORD")
+            storePassword = releaseStorePassword
+            keyAlias = releaseKeyAlias
+            keyPassword = releaseKeyPassword
             enableV1Signing = true
             enableV2Signing = true
             enableV3Signing = true
@@ -102,13 +118,14 @@ android {
 
 val validateReleaseSigning = tasks.register("validateReleaseSigning") {
     doLast {
-        listOf("ANDROID_KEYSTORE_PATH", "ANDROID_KEYSTORE_PASSWORD", "ANDROID_KEY_ALIAS", "ANDROID_KEY_PASSWORD").forEach {
-            check(!System.getenv(it).isNullOrBlank()) { "Missing secure signing environment variable: $it" }
+        check(listOf(releaseKeyPath, releaseStorePassword, releaseKeyAlias, releaseKeyPassword).all { !it.isNullOrBlank() }) {
+            "Original signing configuration is incomplete; no replacement will be generated"
         }
-        val keyFile = file(System.getenv("ANDROID_KEYSTORE_PATH"))
-        check(keyFile.isFile) { "External signing keystore is unavailable" }
-        check(!keyFile.canonicalFile.toPath().startsWith(rootProject.projectDir.canonicalFile.toPath())) {
-            "The signing keystore must be outside the repository"
+        val keyFile = file(releaseKeyPath!!)
+        check(keyFile.isFile) { "Original signing keystore is unavailable" }
+        check(keyFile.canonicalFile == rootProject.file("android-signing/original.keystore").canonicalFile ||
+            !keyFile.canonicalFile.toPath().startsWith(rootProject.projectDir.canonicalFile.toPath())) {
+            "Only the configured original key may be inside the repository"
         }
         check(JavaVersion.current() == JavaVersion.VERSION_17) { "Release builds require Java 17" }
     }

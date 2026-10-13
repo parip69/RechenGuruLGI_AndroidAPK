@@ -1,0 +1,130 @@
+name: Build Signed APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact uploaded source commit to build
+        required: true
+        type: string
+      version:
+        description: New, unused integer version (0 selects the next version)
+        required: false
+        default: '0'
+        type: string
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: signed-apk
+  cancel-in-progress: false
+
+jobs:
+  build:
+    # The workflow definition runs only from main; no PR or push signs automatically.
+    if: github.ref == 'refs/heads/main'
+    environment: android-signing
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check requested source
+        env:
+          SOURCE_SHA: ${{ inputs.source_sha }}
+          REQUESTED_VERSION: ${{ inputs.version }}
+        shell: bash
+        run: |
+          [[ "$SOURCE_SHA" =~ ^[a-f0-9]{40}$ ]] || exit 1
+          [[ "$REQUESTED_VERSION" =~ ^[0-9]+$ ]] || exit 1
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.source_sha }}
+          fetch-depth: 0
+      - name: Protect existing main and fixed signing identity
+        shell: pwsh
+        run: |
+          git merge-base --is-ancestor origin/main HEAD
+          if ($LASTEXITCODE -ne 0) { throw 'Update the source branch from main before building. No history will be overwritten.' }
+          $trusted = git show origin/main:android-signing.json | ConvertFrom-Json
+          $source = Get-Content android-signing.json -Raw | ConvertFrom-Json
+          if ($source.certificateSHA256 -ne $trusted.certificateSHA256 -or $source.applicationId -ne $trusted.applicationId -or $source.keyAlias -ne $trusted.keyAlias) { throw 'Signing identity change refused.' }
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check generators and answer flow
+        run: node --test tests/answer-flow.test.cjs tests/realschule.test.cjs tests/rechenketten.test.cjs tests/gemischte-malaufgaben.test.cjs
+      - name: Ensure Android SDK 35
+        run: '"$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-35" "build-tools;35.0.0"'
+      - name: Prepare the existing private key outside the checkout
+        shell: pwsh
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          $keyPath = Join-Path $env:RUNNER_TEMP 'mathekids-existing-signing.keystore'
+          if ($env:KEYSTORE_BASE64) {
+            [IO.File]::WriteAllBytes($keyPath, [Convert]::FromBase64String($env:KEYSTORE_BASE64))
+          } elseif (Test-Path -LiteralPath 'android-signing/original.keystore') {
+            Copy-Item -LiteralPath 'android-signing/original.keystore' -Destination $keyPath
+          } else { throw 'Original key unavailable. No replacement is generated.' }
+          & chmod 600 $keyPath
+          if ($LASTEXITCODE -ne 0) { throw 'Unable to protect temporary signing key.' }
+          "ANDROID_KEYSTORE_PATH=$keyPath" >> $env:GITHUB_ENV
+      - name: Build, verify and archive the signed release
+        id: release
+        shell: pwsh
+        env:
+          REQUESTED_VERSION: ${{ inputs.version }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          $version = [int]$env:REQUESTED_VERSION
+          if ($version -eq 0) {
+            $current = [int][regex]::Match((Get-Content version.properties -Raw), '(?m)^VERSION_CODE=(\d+)').Groups[1].Value
+            $published = (Get-ChildItem docs -Filter '*-v*.apk' | ForEach-Object { if ($_.Name -match '-v(\d+)\.apk$') { [int]$Matches[1] } } | Measure-Object -Maximum).Maximum
+            $version = [Math]::Max($current, $published + 1)
+          }
+          ./scripts/build-release.ps1 -VersionCode $version -PublishFiles
+          ./tests/project-signing-checks.ps1
+          if ($LASTEXITCODE -ne 0) { throw 'Project signing regression checks failed.' }
+          ./tests/android-release-checks.ps1 -Apk "docs/MatheKids-v$version.apk"
+          if ($LASTEXITCODE -ne 0) { throw 'APK regression checks failed.' }
+          "version=$version" >> $env:GITHUB_OUTPUT
+      - name: Upload verified APK and public signature proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: MatheKids-v${{ steps.release.outputs.version }}
+          path: |
+            docs/MatheKids-v${{ steps.release.outputs.version }}.apk
+            Privat/MatheKids-v${{ steps.release.outputs.version }}-signature.json
+          if-no-files-found: error
+      - name: Commit and publish verified source and downloads
+        shell: pwsh
+        env:
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- version.properties app/src/main/assets docs Privat
+          git diff --cached --check
+          if ($LASTEXITCODE -ne 0) { throw 'Invalid staged release files.' }
+          git commit -m "$env:RELEASE_VERSION`: Verified signed APK and synchronized web assets"
+          if ($LASTEXITCODE -ne 0) { throw 'Release commit failed.' }
+          git push origin HEAD:main
+          if ($LASTEXITCODE -ne 0) { throw 'main changed while building. Nothing was force-pushed; download the verified artifact and reconcile source history.' }
+          # Pushes with GITHUB_TOKEN do not start ordinary push workflows.
+          gh workflow run verify-web-sync.yml --ref main
+          if ($LASTEXITCODE -ne 0) { throw 'Web verification dispatch failed.' }
+          gh workflow run deploy-pages.yml --ref main
+          if ($LASTEXITCODE -ne 0) { throw 'Pages dispatch failed.' }
+      - name: Remove temporary private key
+        if: always()
+        shell: pwsh
+        run: |
+          $keyPath = Join-Path $env:RUNNER_TEMP 'mathekids-existing-signing.keystore'
+          if (Test-Path -LiteralPath $keyPath) { Remove-Item -LiteralPath $keyPath -Force }

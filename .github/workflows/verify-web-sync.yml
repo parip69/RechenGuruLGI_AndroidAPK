@@ -1,6 +1,7 @@
 name: Verify Web Sync
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
       - "app/src/main/assets/**"
@@ -28,7 +29,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Validate Realschule generators and input
-        run: node --test tests/realschule.test.cjs tests/rechenketten.test.cjs tests/gemischte-malaufgaben.test.cjs
+        run: node --test tests/answer-flow.test.cjs tests/realschule.test.cjs tests/rechenketten.test.cjs tests/gemischte-malaufgaben.test.cjs
 
       - name: Sync docs from assets
         shell: pwsh
@@ -41,6 +42,8 @@ jobs:
             app/src/main/assets/manifest.webmanifest \
             app/src/main/assets/sw.js \
             app/src/main/assets/version.json \
+            app/src/main/assets/answer-flow.js \
+            docs/answer-flow.js \
             app/src/main/assets/icons \
             app/src/main/assets/realschule \
             docs/realschule \

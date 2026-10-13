@@ -14,7 +14,7 @@
     <meta property="og:locale" content="de_DE" />
     <meta property="og:title" content="Mathe Kids – Rechnen üben, spielerisch lernen" />
     <meta property="og:description" content="Mathe Kids öffnen und die aktuelle Android-App herunterladen. Auf Wunsch lassen sich Rechen-Einstellungen mit dem Link teilen." />
-    <meta property="og:url" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?v=211&amp;update-check=211&amp;preview=whatsapp-v1" />
+    <meta property="og:url" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?v=212&amp;update-check=212&amp;preview=whatsapp-v1" />
     <meta property="og:image" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/icons/share-preview-whatsapp-v1.jpg" />
     <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1200" />
@@ -61,7 +61,7 @@
           { id: "score", label: "Punkte & Level", hint: "Punkte, Serien, Level und Fortschritt", def: false,
             test: listTest(["mathScoreCorrect", "mathScoreWrong", "mathStreak", "mathLevel", "mathMaxLevelEver", "mathBestStreakEver",
               "mathTotalCorrect", "mathTotalWrong", "mathTotalPracticeSolved", "mathTotalFullResets", "mathLevelBaseCorrect",
-              "mathLevelBaseStreakBonus", "mathRecentOutcomes"]) },
+              "mathLevelBaseStreakBonus", "mathRecentOutcomes", "mathAnswerStats_v1"]) },
           { id: "wrong", label: "Fehler-Sammlung", hint: "Gespeicherte Üben-Aufgaben", def: false, test: listTest(["mathWrongPool"]) },
         ];
         /* Der Eltern-PIN darf durch keine Gruppen-/Schleifenlogik jemals erfasst werden. */
@@ -2245,11 +2245,6 @@
         }
       }
 
-      /* =============================
-       In-App Zahlentastatur (Mobile)
-       - verhindert Android/Chrome Autofill-Leiste (Key/Card/Pin)
-       - verhindert Layout-Jumps durch System-Tastatur
-       ============================= */
       .mgKeypad {
         position: fixed;
         left: 0;
@@ -2332,7 +2327,7 @@
 
       body.mgKeypadActive {
         padding-bottom: calc(
-          100vh + var(--mgKpH, 0px) + env(safe-area-inset-bottom)
+          var(--mgKpH, 0px) + env(safe-area-inset-bottom)
         );
       }
 
@@ -2566,6 +2561,7 @@
       @media print { .matheHelpShareRow, .matheFooter, #developerInfoOverlay { display:none!important; } }
     </style>
   <link rel="stylesheet" href="realschule/style.css">
+  <script src="answer-flow.js"></script>
   <script src="rechenketten.js"></script>
   <script src="gemischte-malaufgaben.js"></script>
   <style>
@@ -2575,7 +2571,7 @@
     .selectPopupItem{min-width:0;min-height:76px;padding:12px;border-radius:14px;align-items:flex-start!important}
     .selectPopupTitleLine{flex-wrap:wrap}.selectPopupBase{font-size:14px;white-space:normal;overflow:visible;overflow-wrap:anywhere}.selectPopupDescription{font-size:12px}.selectPopupRange{font-size:11px}
     #chainGroup,#worksheetGroup{order:8;flex-basis:100%}
-    .chain-task>button{width:100%;min-height:44px}.chain-ready{outline:3px solid #398b6c;outline-offset:3px}
+    .chain-task>button{min-height:44px}.chain-ready{outline:3px solid #398b6c;outline-offset:3px}
     .chain-task .task-position{flex-basis:100%;font-size:14px;opacity:.8}
     .chain-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:8px 0}
     .chain-options button{min-height:44px;font:inherit;border:1px solid var(--dividerStrong);border-radius:12px;background:var(--surface78);color:var(--text)}
@@ -2588,6 +2584,26 @@
     #chainGuide footer{display:grid;gap:8px;padding-bottom:env(safe-area-inset-bottom)}#chainGuide footer button{width:100%;min-height:48px;font:inherit;border-radius:12px;border:1px solid var(--dividerStrong);background:var(--surface78);color:var(--text)}
     #chainGuide::backdrop{background:rgba(0,0,0,.45)}
   </style>
+<style>
+    .zeilenAufgabe { font-size:clamp(24px,6vw,36px); gap:8px; flex-wrap:wrap; white-space:normal; }
+    .chain-expression { display:flex; flex-wrap:wrap; align-items:center; gap:8px; font-size:clamp(24px,6vw,36px); line-height:1.4; }
+    .zeilenAufgabe .stein, .chain-expression .stein { font-size:inherit; font-weight:800; width:auto; min-width:2ch; flex:0 0 auto; min-height:54px; }
+    .zeilenAufgabe .task-operator { font-size:inherit; font-weight:700; }
+    .zeilenAufgabe .stein input { font-size:inherit; font-weight:800; width:calc(var(--answer-digits,3)*1ch); }
+    .zeilenAufgabe span.stein { font-size:inherit; color:var(--text); }
+    .zeilenAufgabe > span { font-size:inherit; }
+    .chain-expression .chain-part { display:inline-flex; align-items:center; gap:8px; font-size:inherit; }
+    .steinInput { display:inline-flex; align-items:center; vertical-align:middle; min-width:0; }
+    .steinInput input { width:calc(var(--answer-digits,3)*1ch); min-width:2ch; max-width:100%; font-size:inherit; line-height:1.3; padding:8px 4px; }
+    .steinInput:focus-within { outline:3px solid var(--primary); outline-offset:2px; }
+    .steinInput input:read-only { cursor:default; }
+    .answer-feedback { flex-basis:100%; margin:4px 0; font-size:16px; line-height:1.4; }
+    .answer-feedback[data-kind="wrong"] { color:var(--text); }
+    .chain-task .chain-actions { width:auto; flex-wrap:wrap; }
+    .chain-actions button { flex:0 1 auto; padding:8px 14px; }
+    #buttonRow .btn-action { min-height:44px; padding:10px 16px; }
+    @media(max-width:360px) { .zeilenAufgabe { font-size:24px; gap:5px; } }
+</style>
   </head>
 
   <body>
@@ -2979,9 +2995,17 @@
             <div class="hintSmall">Ein Rechenzeichen = nur diese Rechenart. Mehrere ausgewählte Zeichen = gemischt. Mindestens eines bleibt ausgewählt.</div>
             <label for="chainLength">Wie viele Zahlen pro Kette?</label>
             <select id="chainLength" onchange="updateSettingsSummary();initGame(true)">
+              <option value="mixed">Gemischte Länge (2–10 Zahlen)</option>
               <option value="2">2 Zahlen</option><option value="3">3 Zahlen</option><option value="4" selected>4 Zahlen</option><option value="5">5 Zahlen</option><option value="6">6 Zahlen</option><option value="7">7 Zahlen</option><option value="8">8 Zahlen</option><option value="9">9 Zahlen</option><option value="10">10 Zahlen</option>
             </select>
-            <div class="hintSmall">Punkt vor Strich. Alle Zahlen, Zwischen- und Endergebnisse bleiben innerhalb „Zahlen bis“. Geteilt ohne Rest; keine negativen Ergebnisse. Bei kleinen Grenzen können 0 oder 1 nötig sein.</div>
+            <label for="chainPattern">Wie soll die Kette aufgebaut sein?</label>
+            <select id="chainPattern" onchange="updateSettingsSummary();initGame(true)">
+              <option value="free" selected>Rechenzeichen frei mischen</option>
+              <option value="terms">Mal/Geteilt · Plus/Minus · wieder Mal/Geteilt</option>
+              <option value="startHigh">Zuerst Mal/Geteilt, danach Plus/Minus</option>
+              <option value="mixed">Aufbau zufällig mischen</option>
+            </select>
+            <div class="hintSmall">Gemischte Blöcke benötigen Mal oder Geteilt und zusätzlich Plus oder Minus. Mit einer einzigen Rechenart bleibt die Kette rein. Punkt vor Strich gilt. Alle Zahlen, Zwischen- und Endergebnisse bleiben innerhalb „Zahlen bis“. Geteilt ohne Rest; keine negativen Ergebnisse. Bei kleinen Grenzen können 0 oder 1 nötig sein.</div>
           </div>
           <div class="control-group" id="taskCountGroup">
             <label>Aufgaben pro Runde</label>
@@ -3297,7 +3321,7 @@
           id="refreshBtn"
           class="btn-action"
           type="button"
-          onclick="initGame(false, true)"
+          onclick="newAnswerTask(event)"
           aria-label="Neue Aufgaben laden"
         >
           <svg class="newTaskIcon" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
@@ -5104,7 +5128,7 @@
           return response.text();
         };
         let result = htmlText;
-        for (const path of ["rechenketten.js", "gemischte-malaufgaben.js", "realschule/style.css", "realschule/core.js", "realschule/ui.js"]) {
+        for (const path of ["answer-flow.js", "rechenketten.js", "gemischte-malaufgaben.js", "realschule/style.css", "realschule/core.js", "realschule/ui.js"]) {
           const tag = path.endsWith(".css") ? '<link rel="stylesheet" href="'+path+'">' : '<script src="'+path+'"><\/script>';
           if (!result.includes(tag)) continue;
           const text = await read(path);
@@ -5577,7 +5601,8 @@
             mgSetActiveInput(target);
           } else {
             // Kein blur -> Tastatur bleibt stabil
-            focusWithoutAutofill(target, { moveCaretToEnd: true });
+            if (window.__mgUseInAppKeypad) mgSetActiveInput(target);
+          else focusWithoutAutofill(target, { moveCaretToEnd: true });
             if (openKeyboard) {
               try {
                 target.click();
@@ -5691,7 +5716,7 @@
         if (showMs > 0) {
           const ft = setTimeout(() => {
             try {
-              focusFirstTaskInput(true);
+              if (!answerRoot()?.contains(document.activeElement)) focusFirstTaskInput(true);
             } catch (e) {}
           }, showMs + 60);
           window._flashTimers.push(ft);
@@ -5750,58 +5775,15 @@
       }
 
       function onRoundTimeout() {
-        if (window.__schoolSection === "realschule") return;
-        if (window._roundTimedOut) return;
-        if (roundIsSolved()) return;
+        if (window.__schoolSection === 'realschule' || window._roundTimedOut) return;
         window._roundTimedOut = true;
-
-        scoreWrong++;
-        streak = 0;
-        try {
-          recordOutcome(false);
-        } catch (e) {}
-
-        const msg = document.getElementById("statusMessage");
-        if (msg) {
-          msg.textContent = t("⏱ Zeit abgelaufen.");
-          msg.style.color = "#bc4749";
-        }
-
-        updateScoreboard();
-
-        // Eingaben sperren
-        let container = document.getElementById("zeilenAufgaben");
-        const mode = document.getElementById("viewSelect")?.value;
-        if (mode === "pyramide") container = document.getElementById("mauer");
-        else if (mode === "traube")
-          container = document.getElementById("traube");
-
-        try {
-          const inputs = container
-            ? Array.from(container.querySelectorAll("input"))
-            : [];
-          const selects = container
-            ? Array.from(container.querySelectorAll("select"))
-            : [];
-          inputs.forEach((i) => {
-            try {
-              i.disabled = true;
-              i.blur();
-            } catch (e) {}
-          });
-          selects.forEach((s) => {
-            try {
-              s.disabled = true;
-              s.blur();
-            } catch (e) {}
-          });
-        } catch (e) {}
-
-        setTimeout(() => {
-          window.__lastUserGestureTs = Date.now();
-          if (window.__schoolSection === "realschule") { window.RealschuleUI?.pausePendingGrundschule(); return; }
-          initGame(false, true);
-        }, 650);
+        const root = answerRoot(), rows = Array.from(root.querySelectorAll('.zeilenAufgabe'));
+        (rows.length ? rows : [root]).forEach(row => {
+          if (answerState(row).phase !== 'done') {
+            completeAnswer(row, MatheAnswerFlow.finish(answerState(row), 'wrong'));
+            answerMessage(row, 'Zeit abgelaufen. Mit Weiter geht es zur nächsten Aufgabe.', true);
+          }
+        });
       }
 
       function setupRoundTimer() {
@@ -6551,6 +6533,12 @@
       function applyTaskAccessibility(aufg, task) {
         if (!aufg || !task) return;
         aufg.setAttribute("role", "group");
+        const answerSelect = aufg.querySelector('select.inlineSelect');
+        if (answerSelect && !aufg.querySelector('[data-answer-next]')) {
+          const next = document.createElement('button'); next.type = 'button'; next.className = 'btn-mini';
+          next.dataset.answerNext = '1'; next.textContent = '→'; next.setAttribute('aria-label', t('Antwort bestätigen und weiter'));
+          next.onclick = event => nextAnswer(answerSelect, event); aufg.appendChild(next);
+        }
 
         if (task.fmt === "wahrfalsch") {
           aufg.setAttribute(
@@ -7721,6 +7709,13 @@
 
         inp.setAttribute("inputmode", "numeric");
         inp.setAttribute("pattern", "[0-9]*");
+        if (inp.hasAttribute('data-mg-answer')) {
+          inp.setAttribute('enterkeyhint', 'next');
+          const digits = Math.max(2, String(inp.dataset.correct || getMax()).length + 1);
+          inp.style.setProperty('--answer-digits', digits);
+          inp.setAttribute('maxlength', String(Math.max(4, digits + 1)));
+          inp.setAttribute('placeholder', '□');
+        }
 
         // Autofill/Payment/Password-Manager möglichst unterdrücken
         inp.setAttribute("autocomplete", "off");
@@ -7817,59 +7812,7 @@
 
       // Schiebt den Aufgabenbereich bei eingeblendeter In-App-Tastatur nach oben,
       // damit oben möglichst viel Platz für die Aufgaben bleibt.
-      function mgScrollGameAreaAboveKeypad() {
-        const settingsOpen = !!document.getElementById("settingsDetails")?.open;
-        if (settingsOpen) return;
-
-        const kp = document.getElementById("mgKeypad");
-        const gameArea = document.getElementById("gameArea");
-        if (!kp || !gameArea) return;
-        if (!kp.classList.contains("show")) return;
-
-        const mode =
-          document.getElementById("viewSelect")?.value || getCurrentModeSafe();
-        let root = null;
-        if (mode === "pyramide") root = document.getElementById("mauer");
-        else if (mode === "traube") root = document.getElementById("traube");
-        else root = document.getElementById("zeilenAufgaben");
-
-        const activeTarget =
-          mgActiveInput ||
-          root?.querySelector('input[data-mg-answer="1"]:not([disabled])') ||
-          root?.querySelector(
-            "input:not([disabled]), select:not([disabled])",
-          ) ||
-          gameArea;
-
-        const anchor =
-          (activeTarget &&
-            (activeTarget.closest(".zeilenAufgabe") ||
-              activeTarget.closest(".grid") ||
-              activeTarget.closest(".stein"))) ||
-          gameArea;
-
-        const kpRect = kp.getBoundingClientRect();
-        const anchorRect = anchor.getBoundingClientRect();
-        const topSafe = 140;
-        const bottomSafe = Math.max(
-          topSafe + 40,
-          window.innerHeight - kpRect.height - 14,
-        );
-
-        let delta = 0;
-        if (anchorRect.bottom > bottomSafe) {
-          delta = anchorRect.bottom - bottomSafe;
-        } else if (anchorRect.top < topSafe) {
-          delta = anchorRect.top - topSafe;
-        }
-
-        if (Math.abs(delta) < 4) return;
-
-        window.scrollTo({
-          top: Math.max(0, window.scrollY + delta),
-          behavior: "smooth",
-        });
-      }
+      function mgScrollGameAreaAboveKeypad() { scrollAnswerIntoView(answerRow(mgActiveInput)); }
 
       function mgShowKeypad() {
         const kp = document.getElementById("mgKeypad");
@@ -7880,7 +7823,7 @@
         kp.setAttribute("aria-hidden", "false");
         mgUpdateKeypadHeight();
         if (wasHidden) {
-          setTimeout(() => mgScrollGameAreaAboveKeypad(), 80);
+          requestAnimationFrame(mgScrollGameAreaAboveKeypad);
         }
       }
 
@@ -7930,6 +7873,7 @@
         }
 
         mgShowKeypad();
+        scrollAnswerIntoView(answerRow(inp));
       }
 
       function mgGetAnswerInputs() {
@@ -7939,7 +7883,7 @@
       }
 
       function mgFocusNext() {
-        if (mgActiveInput) focusNextControl(mgActiveInput);
+        if (mgActiveInput) nextAnswer(mgActiveInput);
       }
 
       function mgApplyKeypadToInputs() {
@@ -7973,6 +7917,7 @@
 
         let selStart = mgActiveInput.selectionStart;
         if (typeof selStart !== "number") selStart = v.length;
+        const selEnd = typeof mgActiveInput.selectionEnd === 'number' ? mgActiveInput.selectionEnd : selStart;
 
         if (key === "lf") {
           if (selStart > 0) {
@@ -7989,18 +7934,20 @@
           }
           return;
         } else if (key === "bk") {
-          if (selStart > 0) {
+          if (selEnd > selStart) {
+            v = v.slice(0, selStart) + v.slice(selEnd);
+          } else if (selStart > 0) {
             v = v.slice(0, selStart - 1) + v.slice(selStart);
             selStart--;
           }
         } else if (key === "nx") {
-          mgFocusNext();
+          nextAnswer(mgActiveInput);
           return;
         } else {
           // Ziffer
           if (!/^\d$/.test(String(key))) return;
-          if (maxLen > 0 && v.length >= maxLen) return;
-          v = v.slice(0, selStart) + String(key) + v.slice(selStart);
+          if (maxLen > 0 && v.length - (selEnd - selStart) >= maxLen) return;
+          v = v.slice(0, selStart) + String(key) + v.slice(selEnd);
           selStart++;
         }
 
@@ -8009,13 +7956,7 @@
           mgActiveInput.setSelectionRange(selStart, selStart);
         } catch (e) {}
 
-        // Sofort prüfen (weil kein echtes oninput durch Systemtastatur)
-        const correct = parseInt(mgActiveInput.dataset.correct || "", 10);
-        if (Number.isFinite(correct)) {
-          try {
-            pruefeEingabe(mgActiveInput, correct);
-          } catch (e) {}
-        }
+        mgActiveInput.dispatchEvent(new Event('input', { bubbles: true }));
       }
 
       function setupInAppKeypad() {
@@ -8048,13 +7989,15 @@
 
         // Tap außerhalb schließt (aber nicht, wenn man auf ein Eingabefeld tippt)
         document.addEventListener(
-          "pointerdown",
+          "click",
           (e) => {
             const t = e.target;
             if (!t) return;
             if (
               t.closest &&
               (t.closest("#mgKeypad") ||
+                t.closest('#refreshBtn') ||
+                t.closest('#gameArea') ||
                 t.closest('input[data-mg-answer="1"]') ||
                 t.closest("#settingsDetails") ||
                 t.closest("#viewSelectPopup") ||
@@ -8065,7 +8008,7 @@
               return;
             mgHideKeypad();
           },
-          true,
+          false,
         );
 
         window.addEventListener("resize", () => mgUpdateKeypadHeight(), {
@@ -8087,9 +8030,7 @@
         try {
           decorateAllNumericInputs();
         } catch (e) {}
-        try {
-          setupInAppKeypad();
-        } catch (e) {}
+        setupInAppKeypad();
         // Vollbild-Kick deaktiviert (wurde als „komisch“ gemeldet)
         const lastMode = appStorage.getItem("mathLastMode");
         if (lastMode) document.getElementById("viewSelect").value = lastMode;
@@ -8254,7 +8195,7 @@
         if (!document.hidden)
           setTimeout(() => {
             try {
-              focusFirstTaskInput(true);
+              if (!answerRoot()?.contains(document.activeElement)) focusFirstTaskInput(true);
             } catch (e) {}
           }, 80);
       });
@@ -8485,90 +8426,7 @@
           hardenNumericInput(inp, i++);
         });
       }
-      function scrollToTasks() {
-        const settingsOpen = !!document.getElementById("settingsDetails")?.open;
-        if (settingsOpen) return;
-
-        const gameArea = document.getElementById("gameArea");
-        if (!gameArea) return;
-
-        const kp = document.getElementById("mgKeypad");
-        const kpVisible = !!(kp && kp.classList.contains("show"));
-        const kpHeight = kpVisible
-          ? Math.round(kp.getBoundingClientRect().height || 0)
-          : 0;
-
-        const mode =
-          document.getElementById("viewSelect")?.value || getCurrentModeSafe();
-        let root = null;
-        if (mode === "pyramide") root = document.getElementById("mauer");
-        else if (mode === "traube") root = document.getElementById("traube");
-        else root = document.getElementById("zeilenAufgaben");
-
-        const activeTarget =
-          mgActiveInput ||
-          root?.querySelector('input[data-mg-answer="1"]:not([disabled])') ||
-          root?.querySelector(
-            "input:not([disabled]), select:not([disabled])",
-          ) ||
-          gameArea;
-
-        const anchor =
-          (activeTarget &&
-            (activeTarget.closest(".zeilenAufgabe") ||
-              activeTarget.closest(".grid") ||
-              activeTarget.closest(".stein"))) ||
-          gameArea;
-
-        const anchorRect = anchor.getBoundingClientRect();
-        const topSafe = kpHeight > 0 ? 140 : 110;
-        const bottomSafe =
-          kpHeight > 0
-            ? Math.max(topSafe + 40, window.innerHeight - kpHeight - 14)
-            : window.innerHeight - 12;
-
-        let delta = 0;
-        if (anchorRect.bottom > bottomSafe) {
-          delta = anchorRect.bottom - bottomSafe;
-        } else if (anchorRect.top < topSafe) {
-          delta = anchorRect.top - topSafe;
-        }
-
-        let targetY = Math.max(0, window.scrollY + delta);
-
-        // Nicht höher scrollen als knapp oberhalb der Modus-Auswahl / des Score-Bereichs.
-        // So bleibt oben die Dropdown-Zeile sichtbar und es wird nicht "zu weit" hochgezogen.
-        const settingsDetails = document.getElementById("settingsDetails");
-        const scoreArea = document.getElementById("scoreArea");
-        const settingsRect = settingsDetails?.getBoundingClientRect();
-        const scoreRect = scoreArea?.getBoundingClientRect();
-        const clampTop = kpHeight > 0 ? 96 : 88;
-        let maxTargetY = Infinity;
-
-        if (scoreRect) {
-          maxTargetY = Math.min(
-            maxTargetY,
-            Math.max(0, window.scrollY + scoreRect.top - (clampTop + 72)),
-          );
-        }
-        if (settingsRect) {
-          maxTargetY = Math.min(
-            maxTargetY,
-            Math.max(0, window.scrollY + settingsRect.top - clampTop),
-          );
-        }
-
-        if (Number.isFinite(maxTargetY)) {
-          targetY = Math.min(targetY, maxTargetY);
-        }
-
-        if (Math.abs(targetY - window.scrollY) < 4) return;
-
-        window.scrollTo({
-          top: targetY,
-          behavior: "smooth",
-        });
-      }
+      function scrollToTasks() { scrollAnswerIntoView(activeAnswerRow()); }
 
       function focusFirstTaskInput(openKeyboard = false) {
         if (window.__schoolSection === "realschule") return;
@@ -8593,23 +8451,8 @@
         if (target) {
           decorateNumericInputs(root);
 
-          if (
-            window.__mgUseInAppKeypad &&
-            typeof mgSetActiveInput === "function"
-          ) {
-            mgSetActiveInput(target);
-          } else if (openKeyboard) {
-            // Manche Mobile-Browser zeigen die Tastatur nicht, wenn das Feld schon Fokus hat.
-            try {
-              if (document.activeElement === target) target.blur();
-            } catch (e) {}
-            focusWithoutAutofill(target, { moveCaretToEnd: true });
-            try {
-              target.click();
-            } catch (e) {}
-          } else {
-            focusWithoutAutofill(target, { moveCaretToEnd: true });
-          }
+          if (window.__mgUseInAppKeypad) mgSetActiveInput(target);
+          else focusWithoutAutofill(target, { moveCaretToEnd: true });
         }
       }
 
@@ -9354,7 +9197,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         if (title) title.style.display = hasVisibleDetail ? "" : "none";
       }
 
-      function editCompoundAnswer(input){const row=input.closest('.chain-task');row?.querySelector('[data-chain-next]')?.setAttribute('disabled','');input.parentElement.classList.remove('korrekt','falsch');setControlValidationState(input,'neutral');document.getElementById('refreshBtn')?.classList.remove('chain-ready');}
+      function editCompoundAnswer(input) { editAnswer(input); }
       function syncWorksheetAvailability(){const mode=document.getElementById('viewSelect').value;document.getElementById('mixedMalEnabled').disabled=mode!=='mixedMal'&&(getTaskFormat()!=='standard'||isFlashActiveForMode(mode));}
       function makeWorksheetTask(max){
         const raw=getDifficulty(),difficulty=raw==='mixed'?getAdaptiveDifficulty('mal',raw):raw;
@@ -9368,17 +9211,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           document.getElementById('mixedMalEnabled').checked=false;saveModeSettings('mal');initGame(false);
         }else{saveModeSettings(document.getElementById('viewSelect').value);initGame(false);}
       }
-      function nextCompoundTask(row,task){
-        if(row.querySelector('input').parentElement.dataset.state!=='correct')return;
-        if(document.getElementById('viewSelect').value==='mixedMal'&&task.roundPosition){
-          const round=window.__worksheetRound;if(round.index+1>=round.total){initGame(false,true);return;}
-          const next=makeWorksheetTask(getMax());round.index++;next.roundPosition=round.index+1;next.roundTotal=round.total;
-          const container=document.getElementById('zeilenAufgaben');container.replaceChildren();renderTask(container,next,getMax());document.getElementById('statusMessage').textContent='';setupRoundTimer();focusFirstTaskInput(true);return;
-        }
-        const rows=Array.from(document.querySelectorAll('#zeilenAufgaben .zeilenAufgabe'));
-        const next=rows.find(r=>r.querySelector('input')?.parentElement.dataset.state!=='correct');
-        if(next){next.scrollIntoView({block:'center',behavior:'smooth'});next.querySelector('input')?.focus();}else initGame(false,true);
-      }
+      function nextCompoundTask(row) { advanceAnswer(row); }
       function syncChainOps(){const ops=MatheChains.normalizeOps(document.getElementById('chainOps').value);document.getElementById('chainOps').value=ops.join(',');document.querySelectorAll('[data-chain-op]').forEach(b=>b.setAttribute('aria-pressed',String(ops.includes(b.dataset.chainOp))));}
       function setChainOps(value){document.getElementById('chainOps').value=value;syncChainOps();saveModeSettings('chain');updateSettingsSummary();initGame(true);}
       function toggleChainOp(op){const ops=MatheChains.normalizeOps(document.getElementById('chainOps').value);if(ops.includes(op)){if(ops.length===1)return;ops.splice(ops.indexOf(op),1);}else ops.push(op);setChainOps(ops.join(','));}
@@ -9418,7 +9251,9 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         }
 
         if(document.getElementById('viewSelect').value==='chain') {
-          parts.push(document.getElementById('chainLength').value+' Zahlen pro Kette');
+          const length = document.getElementById('chainLength').value;
+          parts.push(length === 'mixed' ? 'Gemischte Länge: 2–10 Zahlen' : length+' Zahlen pro Kette');
+          parts.push(document.getElementById('chainPattern').selectedOptions[0].textContent);
           parts.push(MatheChains.normalizeOps(document.getElementById('chainOps').value).map(o=>({plus:'+',minus:'−',mal:'×',geteilt:'÷'}[o])).join(' / '));
         }
         target.textContent = parts.join(" · ");
@@ -10049,14 +9884,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
         decorateNumericInputs(container);
 
-        if (
-          window.__mgUseInAppKeypad &&
-          typeof mgSetActiveInput === "function"
-        ) {
-          mgSetActiveInput(next);
-        } else {
-          focusWithoutAutofill(next);
-        }
+        focusWithoutAutofill(next);
       }
 
       function printSheet() {
@@ -10473,6 +10301,8 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       }
 
       function initGame(shouldScroll = true, fromRefresh = false) {
+        mgActiveInput = null;
+        ['mauer', 'traube', 'zeilenAufgaben'].forEach(id => { const root = document.getElementById(id); answerStates.delete(root); ['answerCounted', 'answerPhase', 'outcome'].forEach(key => delete root.dataset[key]); });
         document.getElementById('refreshBtn')?.classList.remove('chain-ready');
         document.getElementById('refreshBtnLabel').textContent=t('Neue Aufgaben');
         if (window._autoNextTimeout) {
@@ -10531,24 +10361,24 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         if (shouldScroll) {
           // Erst sofort fokussieren (damit Mobile die Zahlentastatur zulässt), dann sauber scrollen
           try {
-            if (openKb) focusFirstTaskInput(true);
+            if (openKb && !answerRoot()?.contains(document.activeElement)) focusFirstTaskInput(true);
           } catch (e) {}
           setTimeout(() => {
             scrollToTasks();
-            focusFirstTaskInput(openKb);
+            if (!answerRoot()?.contains(document.activeElement)) focusFirstTaskInput(openKb);
           }, 70);
         } else if (fromRefresh) {
           try {
-            if (openKb) focusFirstTaskInput(true);
+            if (openKb && !answerRoot()?.contains(document.activeElement)) focusFirstTaskInput(true);
           } catch (e) {}
           setTimeout(() => {
             try {
-              focusFirstTaskInput(true);
+              if (!answerRoot()?.contains(document.activeElement)) focusFirstTaskInput(true);
             } catch (e2) {}
           }, 80);
         } else {
           try {
-            if (openKb) focusFirstTaskInput(true);
+            if (openKb && !answerRoot()?.contains(document.activeElement)) focusFirstTaskInput(true);
           } catch (e) {}
         }
       }
@@ -11068,7 +10898,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           try{return makeWorksheetTask(max);}catch(error){document.getElementById('statusMessage').textContent=error.message;}
         }
 
-        if(mode === "chain") return MatheChains.generate({max,count:Number(document.getElementById('chainLength').value),ops:MatheChains.normalizeOps(document.getElementById('chainOps').value)});
+        if(mode === "chain") return MatheChains.generate({max,count:document.getElementById('chainLength').value,pattern:document.getElementById('chainPattern').value,ops:MatheChains.normalizeOps(document.getElementById('chainOps').value)});
         // Welche Operatoren sind in diesem Modus erlaubt?
         const allowedOps =
           mode === "plus"
@@ -12249,14 +12079,18 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
         if(task.op === 'chain' || task.op === 'worksheet') {
           aufg.classList.add('chain-task');if(task.op==='worksheet')aufg.classList.add('worksheet-task');
-          const input=mkInput(task.res).replace(`oninput="pruefeEingabe(this, ${task.res})"`,`oninput="this.value=this.value.replace(/[^0-9]/g,'');editCompoundAnswer(this)"`);
-          aufg.innerHTML = `${task.roundPosition?`<div class="task-position">Aufgabe ${task.roundPosition} von ${task.roundTotal}</div>`:''}<div class="chain-expression">${task.expression}${task.op==='chain'?' = □':''}</div><div class="stein steinInput">${input}</div><button type="button" class="btn-mini" data-chain-check>Prüfen</button><div class="chain-actions"><button type="button" class="btn-mini" data-chain-hint>Hilfe</button><button type="button" class="btn-mini" data-chain-solution>Rechenweg</button></div><button type="button" class="btn-mini" data-chain-next disabled>${task.roundPosition&&task.roundTotal>1&&task.roundPosition===task.roundTotal?'Neue Übungsrunde':task.op==='chain'?'Weiter →':'Nächste Aufgabe'}</button>`;
-          const answerInput=aufg.querySelector('input');
-          aufg.querySelector('[data-chain-check]').onclick=()=>{pruefeEingabe(answerInput,task.res,true);aufg.querySelector('[data-chain-next]').disabled=answerInput.parentElement.dataset.state!=='correct';};
-          aufg.querySelector('[data-chain-next]').onclick=()=>nextCompoundTask(aufg,task);
-          answerInput.addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();aufg.querySelector('[data-chain-check]').click();}});
-          aufg.querySelector('[data-chain-hint]').onclick=()=>openChainGuide(task,false);
-          aufg.querySelector('[data-chain-solution]').onclick=()=>openChainGuide(task,true);
+          const input = `<span class="stein steinInput">${mkInput(task.res)}</span>`;
+          const raw = task.op === 'chain' ? task.expression + ' = □' : task.expression;
+          const tokens = raw.match(/\d+|□|[^\d\s]/g) || [];
+          const tokenHtml = token => token === '□' ? input : /^\d+$/.test(token) ? `<span class="stein">${token}</span>` : `<span class="task-operator">${token}</span>`;
+          let expression = '';
+          for (let i = 0; i < tokens.length; i++) {
+            if ('+−-×÷='.includes(tokens[i]) && /^(?:\d+|□)$/.test(tokens[i + 1] || '')) expression += `<span class="chain-part">${tokenHtml(tokens[i])}${tokenHtml(tokens[++i])}</span>`;
+            else expression += tokenHtml(tokens[i]);
+          }
+          aufg.innerHTML = `${task.roundPosition ? `<div class="task-position">Aufgabe ${task.roundPosition} von ${task.roundTotal}</div>` : ''}<div class="chain-expression">${expression}</div><div class="chain-actions"><button type="button" class="btn-mini" data-chain-hint>Hilfe</button><button type="button" class="btn-mini" data-chain-solution>Rechenweg</button></div>`;
+          aufg.querySelector('[data-chain-hint]').onclick = () => { rememberAnswerHelp(aufg); openChainGuide(task, false); };
+          aufg.querySelector('[data-chain-solution]').onclick = () => { rememberAnswerHelp(aufg); openChainGuide(task, true); };
           aufg.setAttribute('aria-label',task.expression+' =');
           container.appendChild(aufg);applyTaskAccessibility(aufg,task);decorateNumericInputs(aufg);
           aufg.setAttribute('aria-label',task.expression+' =');return;
@@ -12436,346 +12270,179 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         decorateNumericInputs(aufg);
       }
 
-      function pruefeWahrFalsch(btn, userSaysTrue) {
-        const aufg = btn.closest(".zeilenAufgabe");
-        if (!aufg || !aufg.dataset.task) return;
-        let t;
-        try {
-          t = JSON.parse(aufg.dataset.task);
-        } catch (e) {
-          t = null;
+      // One state per equation, or per pyramid/grape with multiple answer boxes.
+      const answerStates = new WeakMap();
+      let lastAnswerControl = null;
+      function answerRoot() {
+        const mode = getCurrentModeSafe();
+        return document.getElementById(mode === 'pyramide' ? 'mauer' : mode === 'traube' ? 'traube' : 'zeilenAufgaben');
+      }
+      function focusAnswer(control) {
+        if (!control) return;
+        if (window.__mgUseInAppKeypad && control.matches('input[data-mg-answer]')) mgSetActiveInput(control);
+        else focusWithoutAutofill(control);
+      }
+      function answerRow(control) { return control?.closest('.zeilenAufgabe') || answerRoot(); }
+      function answerState(row) {
+        if (!answerStates.has(row)) answerStates.set(row, MatheAnswerFlow.create());
+        return answerStates.get(row);
+      }
+      function answerControls(row) { return Array.from(row.querySelectorAll('input[data-mg-answer], select.inlineSelect')); }
+      function answerMessage(row, text, wrong = false) {
+        let status = row.querySelector('.answer-feedback');
+        if (!status) {
+          status = document.createElement('p'); status.className = 'answer-feedback';
+          status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite'); row.appendChild(status);
         }
-        if (!t) return;
-        if (aufg.dataset.done === "1") return;
-        aufg.dataset.done = "1";
-
-        const correct = userSaysTrue === t.isTrue;
+        status.textContent = t(text); status.dataset.kind = wrong ? 'wrong' : '';
+      }
+      function editAnswer(control) {
+        const row = answerRow(control); if (!row) return;
+        const state = answerState(row);
+        if (state.phase === 'done') {
+          if (state.values) answerControls(row).forEach((c, i) => { c.value = state.values[i]; });
+          return;
+        }
+        MatheAnswerFlow.edit(state);
+        answerControls(row).forEach(c => {
+          c.parentElement.classList.remove('korrekt', 'falsch'); c.parentElement.dataset.state = 'neutral';
+          c.classList.remove('ok', 'bad'); setControlValidationState(c, 'neutral'); c.title = '';
+        });
+        row.querySelector('.answer-feedback')?.remove();
+      }
+      function rememberAnswerHelp(row) { if (row) answerState(row).helped = true; }
+      function activeAnswerRow() {
+        const root = answerRoot(); if (!root) return null;
+        if (root.contains(document.activeElement)) return answerRow(document.activeElement);
+        if (mgActiveInput && root.contains(mgActiveInput)) return answerRow(mgActiveInput);
+        if (lastAnswerControl && root.contains(lastAnswerControl)) return answerRow(lastAnswerControl);
+        return Array.from(root.querySelectorAll('.zeilenAufgabe')).find(r => answerState(r).phase !== 'done') || root.querySelector('.zeilenAufgabe') || root;
+      }
+      function completeAnswer(row, result) {
+        if (row.dataset.answerCounted === '1') return;
+        row.dataset.answerCounted = '1'; row.dataset.answerPhase = 'done'; row.dataset.outcome = result.outcome;
+        const correct = result.outcome === 'correct';
         if (correct) {
-          scoreCorrect++;
-          bumpTargetProgress(+1);
-          streak++;
-          recordOutcome(true);
-          celebrateSuccess(btn);
-          if (
-            streak === 5 ||
-            streak === 10 ||
-            streak === 20 ||
-            (streak % 10 === 0 && streak > 0)
-          ) {
-            celebrateStreakMilestone(streak);
-          }
+          scoreCorrect++; bumpTargetProgress(1); streak++;
+          celebrateSuccess(row);
+          if ([5, 10, 20].includes(streak) || (streak > 0 && streak % 10 === 0)) celebrateStreakMilestone(streak);
         } else {
-          scoreWrong++;
-          streak = 0;
-          if (aufg.dataset.addedWrong !== "1") {
-            aufg.dataset.addedWrong = "1";
-            addWrongTask({ ...t, wrongCount: 1 });
-            recordOutcome(false);
-          }
-          const msg = document.getElementById("statusMessage");
-          if (msg) {
-            msg.textContent = getQuickHint(t);
-            msg.style.color = "#bc4749";
-          }
+          scoreWrong++; streak = 0;
+          if (row.dataset.task && row.dataset.addedWrong !== '1') {
+            row.dataset.addedWrong = '1'; addWrongTask(JSON.parse(row.dataset.task));
+          } else if (!row.dataset.task) answerControls(row).forEach(c => { if (Number(c.value) !== Number(c.dataset.correct)) maybeStoreWrongFromGridInput(c); });
         }
-
-        btn.setAttribute("aria-pressed", correct ? "true" : "false");
+        recordOutcome(correct);
+        let details = {};
+        try { details = JSON.parse(appStorage.getItem('mathAnswerStats_v1') || '{}') || {}; } catch (_) {}
+        const category = correct ? (result.secondAttempt ? 'secondCorrect' : 'firstCorrect') : result.outcome;
+        details[category] = (Number(details[category]) || 0) + 1;
+        if (answerState(row).helped) details.helped = (Number(details.helped) || 0) + 1;
+        appStorage.setItem('mathAnswerStats_v1', JSON.stringify(details));
+        answerState(row).values = answerControls(row).map(c => c.value);
         updateScoreboard();
+        if (Array.from(answerRoot().querySelectorAll('.zeilenAufgabe')).every(r => answerState(r).phase === 'done')) clearRoundTimer();
         checkAllFinished();
       }
-
-      function pruefeOperator(sel) {
-        const aufg = sel.closest(".zeilenAufgabe");
-        if (!aufg || !aufg.dataset.task) return;
-        let t;
-        try {
-          t = JSON.parse(aufg.dataset.task);
-        } catch (e) {
-          t = null;
-        }
-        if (!t) return;
-
-        const val = sel.value;
-        if (val === "") {
-          sel.classList.remove("ok", "bad");
-          setControlValidationState(sel, "neutral");
-          return;
-        }
-
-        const correct = val === t.correctOp;
-        const old = aufg.dataset.state || "neutral";
-        const neu = correct ? "correct" : "wrong";
-
-        if (neu !== old) {
-          if (old === "correct") {
-            scoreCorrect--;
-            bumpTargetProgress(-1);
-          }
-          if (old === "wrong") scoreWrong--;
-
-          if (neu === "correct") {
-            scoreCorrect++;
-            bumpTargetProgress(+1);
-            streak++;
-            if (old === "neutral") recordOutcome(true);
-          } else {
-            scoreWrong++;
-            streak = 0;
-            if (aufg.dataset.addedWrong !== "1") {
-              aufg.dataset.addedWrong = "1";
-              addWrongTask(t);
-              recordOutcome(false);
-            }
-            const msg = document.getElementById("statusMessage");
-            if (msg) {
-              msg.textContent = getQuickHint(t);
-              msg.style.color = "#bc4749";
-            }
-          }
-
-          aufg.dataset.state = neu;
-          updateScoreboard();
-        }
-
-        sel.classList.toggle("ok", correct);
-        sel.classList.toggle("bad", !correct);
-        setControlValidationState(sel, neu);
-        sel.title = correct ? window.t("Richtig") : window.t("Falsch");
-        if (correct) focusNextControl(sel);
-        checkAllFinished();
+      function paintAnswer(row, matches) {
+        answerControls(row).forEach((control, i) => {
+          const correct = matches[i]; const box = control.parentElement;
+          box.classList.toggle('korrekt', correct); box.classList.toggle('falsch', !correct);
+          box.dataset.state = correct ? 'correct' : 'wrong';
+          if (control.tagName === 'SELECT') { control.classList.toggle('ok', correct); control.classList.toggle('bad', !correct); }
+          setControlValidationState(control, correct ? 'correct' : 'wrong');
+        });
       }
-
-      function pruefeCompare(sel) {
-        const aufg = sel.closest(".zeilenAufgabe");
-        if (!aufg || !aufg.dataset.task) return;
-        let t;
-        try {
-          t = JSON.parse(aufg.dataset.task);
-        } catch (e) {
-          t = null;
-        }
-        if (!t) return;
-
-        const val = sel.value;
-        if (val === "") {
-          sel.classList.remove("ok", "bad");
-          setControlValidationState(sel, "neutral");
-          return;
-        }
-
-        const correct = val === t.correct;
-        const old = aufg.dataset.state || "neutral";
-        const neu = correct ? "correct" : "wrong";
-
-        if (neu !== old) {
-          if (old === "correct") {
-            scoreCorrect--;
-            bumpTargetProgress(-1);
+      function advanceAnswer(row) {
+        const task = row.dataset.task ? JSON.parse(row.dataset.task) : null;
+        if (getCurrentModeSafe() === 'mixedMal' && task?.roundPosition) {
+          const round = window.__worksheetRound;
+          if (round.index + 1 < round.total) {
+            const next = makeWorksheetTask(getMax()); round.index++; next.roundPosition = round.index + 1; next.roundTotal = round.total;
+            answerRoot().replaceChildren(); renderTask(answerRoot(), next, getMax()); setupRoundTimer(); focusFirstTaskInput(true); scrollToTasks(); return;
           }
-          if (old === "wrong") scoreWrong--;
-
-          if (neu === "correct") {
-            scoreCorrect++;
-            bumpTargetProgress(+1);
-            streak++;
-            if (old === "neutral") recordOutcome(true);
-          } else {
-            scoreWrong++;
-            streak = 0;
-            if (aufg.dataset.addedWrong !== "1") {
-              aufg.dataset.addedWrong = "1";
-              addWrongTask({
-                op: "compare",
-                fmt: "compare",
-                leftTxt: t.leftTxt,
-                rightTxt: t.rightTxt,
-                leftVal: t.leftVal,
-                rightVal: t.rightVal,
-                correct: t.correct,
-                a: 0,
-                b: 0,
-                res: 0,
-                sym: "?",
-                missing: -1,
-                key: t.key,
-              });
-              recordOutcome(false);
-            }
-            const msg = document.getElementById("statusMessage");
-            if (msg) {
-              msg.textContent = getQuickHint(t);
-              msg.style.color = "#bc4749";
-            }
-          }
-
-          aufg.dataset.state = neu;
-          updateScoreboard();
-        }
-
-        sel.classList.toggle("ok", correct);
-        sel.classList.toggle("bad", !correct);
-        setControlValidationState(sel, neu);
-        sel.title = correct ? window.t("Richtig") : window.t("Falsch");
-        if (correct) focusNextControl(sel);
-        checkAllFinished();
-      }
-
-      function pruefeEingabe(inp, correct, submitted = false) {
-        const stein = inp.parentElement;
-
-        // Nur Ziffern erlauben (keine Bewertung, solange die Zahl noch nicht vollständig ist)
-        const before = inp.value || "";
-        let cleaned = before.replace(/[^\d]/g, "");
-
-        // Caret beim Säubern möglichst erhalten
-        if (cleaned !== before) {
-          try {
-            const s =
-              typeof inp.selectionStart === "number"
-                ? inp.selectionStart
-                : before.length;
-            const digitsBefore = before
-              .slice(0, s)
-              .replace(/[^\d]/g, "").length;
-            inp.value = cleaned;
-            inp.setSelectionRange(digitsBefore, digitsBefore);
-          } catch (e) {
-            inp.value = cleaned;
-          }
-        }
-
-        const expectedLen = Math.max(1, String(correct).length); // z.B. 17 => 2, 100 => 3
-        const oldState = stein.dataset.state || "neutral";
-
-        // Leer: zurück auf neutral + Scores sauber korrigieren
-        if (inp.value === "") {
-          if (oldState === "correct") {
-            scoreCorrect--;
-            bumpTargetProgress(-1);
-          } else if (oldState === "wrong") {
-            scoreWrong--;
-          }
-
-          stein.classList.remove("korrekt", "falsch");
-          stein.dataset.state = "neutral";
-          setControlValidationState(inp, "neutral");
-          inp.title = "";
-
-          const modeNow = document.getElementById("viewSelect")?.value;
-          const msg = document.getElementById("statusMessage");
-          if (msg) {
-            if (modeNow === "traube") {
-              msg.innerHTML =
-                '<small style="opacity:0.7">' +
-                t(
-                  "Tipp: Links − Rechts = Unten (umgekehrt: Unten + Rechts = Links)",
-                ) +
-                "</small>";
-              msg.style.color = "";
-            } else {
-              msg.textContent = "";
-            }
-          }
-
-          updateScoreboard();
-          checkAllFinished();
-          return;
-        }
-
-        // Wichtig: Während der Eingabe einer mehrstelligen Zahl NICHT als "falsch" zählen (sonst killt das die Serie)
-        if (!submitted && expectedLen > 1 && String(inp.value).length < expectedLen) {
-          if (oldState === "correct") {
-            scoreCorrect--;
-            bumpTargetProgress(-1);
-          } else if (oldState === "wrong") {
-            scoreWrong--;
-          }
-
-          stein.classList.remove("korrekt", "falsch");
-          stein.dataset.state = "neutral";
-          setControlValidationState(inp, "neutral");
-          inp.title = "";
-
-          updateScoreboard();
-          checkAllFinished();
-          return;
-        }
-
-        const val = parseInt(inp.value, 10);
-        const newState = val === correct ? "correct" : "wrong";
-
-        if (newState !== oldState) {
-          if (oldState === "correct") {
-            scoreCorrect--;
-            bumpTargetProgress(-1);
-          } else if (oldState === "wrong") scoreWrong--;
-
-          if (newState === "correct") {
-            scoreCorrect++;
-            bumpTargetProgress(+1);
-            streak++;
-            if (oldState === "neutral") recordOutcome(true);
-
-            // Erfolgs-Feedback und Animationen
-            celebrateSuccess(stein);
-
-            // Streak-Meilensteine feiern
-            if (
-              streak === 5 ||
-              streak === 10 ||
-              streak === 20 ||
-              (streak % 10 === 0 && streak > 0)
-            ) {
-              celebrateStreakMilestone(streak);
-            }
-          } else {
-            scoreWrong++;
-            streak = 0;
-            if (oldState === "neutral") recordOutcome(false);
-          }
-
-          updateScoreboard();
-          stein.dataset.state = newState;
-
-          if (newState === "wrong") {
-            const aufg = inp.closest(".zeilenAufgabe");
-            if (aufg && aufg.dataset.task) {
-              try {
-                const t = JSON.parse(aufg.dataset.task);
-                if (t && (t.fmt === "standard" || t.fmt === "faktor")) {
-                  if (aufg.dataset.addedWrong !== "1") {
-                    aufg.dataset.addedWrong = "1";
-                    addWrongTask(t);
-                  }
-                  const msg = document.getElementById("statusMessage");
-                  if (msg) {
-                    msg.textContent = getQuickHint(t);
-                    msg.style.color = "#bc4749";
-                  }
-                }
-              } catch (e) {}
-            } else {
-              // Pyramide/Traube: optional (nur bei kleinen Zahlen) als Plus/Minus-Aufgabe in den Fehlerpool übernehmen
-              try {
-                maybeStoreWrongFromGridInput(inp);
-              } catch (e) {}
-            }
-          }
-        }
-
-        if (newState === "correct") {
-          stein.classList.add("korrekt");
-          stein.classList.remove("falsch");
-          focusNextControl(inp);
         } else {
-          stein.classList.add("falsch");
-          stein.classList.remove("korrekt");
+          const rows = Array.from(answerRoot().querySelectorAll('.zeilenAufgabe'));
+          const next = rows.slice(rows.indexOf(row) + 1).concat(rows.slice(0, rows.indexOf(row))).find(r => answerState(r).phase !== 'done');
+          if (next) { focusAnswer(answerControls(next)[0] || next.querySelector('button')); scrollAnswerIntoView(next); return; }
         }
-        setControlValidationState(inp, newState);
-        inp.title = newState === "correct" ? t("Richtig") : t("Falsch");
-
-        checkAllFinished();
+        initGame(false, true); focusFirstTaskInput(true); scrollToTasks();
       }
+      function nextAnswer(control, event, choice) {
+        if (!MatheAnswerFlow.accept(event)) return;
+        const row = answerRow(control); if (!row) return;
+        const state = answerState(row);
+        if (state.phase === 'done') { advanceAnswer(row); return; }
+        const controls = answerControls(row);
+        if (controls.length > 1 && !(state.phase === 'retry' && !state.edited)) {
+          const index = controls.indexOf(control);
+          if (index >= 0 && index < controls.length - 1) {
+            if (!control.value.trim()) { answerMessage(row, 'Trage zuerst eine Zahl ein.'); return; }
+            focusAnswer(controls[index + 1]); scrollAnswerIntoView(row); return;
+          }
+        }
+        const task = row.dataset.task ? JSON.parse(row.dataset.task) : null;
+        const values = controls.map(c => c.value.trim());
+        const matches = controls.map(c => c.tagName === 'SELECT' ? c.value === (task.fmt === 'operator' ? task.correctOp : task.correct) : /^\d+$/.test(c.value) && Number(c.value) === Number(c.dataset.correct));
+        const valid = choice !== undefined || values.every(Boolean);
+        const result = MatheAnswerFlow.submit(state, { answer: choice !== undefined ? String(choice) : JSON.stringify(values), valid, correct: choice !== undefined ? choice === task.isTrue : matches.every(Boolean) });
+        row.dataset.answerPhase = state.phase;
+        if (result.action === 'incomplete') { answerMessage(row, 'Fülle zuerst die Antwortkästchen aus.'); focusAnswer(controls.find(c => !c.value.trim())); return; }
+        paintAnswer(row, matches);
+        if (choice !== undefined) { row.dataset.state = choice === task.isTrue ? 'correct' : 'wrong'; control.setAttribute('aria-pressed', 'true'); }
+        if (result.action === 'retry') {
+          answerMessage(row, 'Versuch es noch einmal. Hilfe ist für dich da.', true);
+          focusAnswer(controls.find((_, i) => !matches[i]) || control); return;
+        }
+        if (result.action === 'complete') {
+          completeAnswer(row, result);
+          answerMessage(row, result.outcome === 'correct' ? (result.secondAttempt ? 'Richtig im zweiten Versuch! Weiter zur nächsten Aufgabe.' : 'Richtig! Weiter zur nächsten Aufgabe.') : 'Noch nicht richtig. Schau dir die Hilfe an oder gehe mit Weiter zur nächsten Aufgabe.', result.outcome !== 'correct');
+          if (result.advance) advanceAnswer(row);
+        }
+      }
+      function newAnswerTask(event) {
+        if (!MatheAnswerFlow.accept(event)) return;
+        const row = activeAnswerRow(); if (!row) return;
+        const state = answerState(row);
+        if (state.phase !== 'done') completeAnswer(row, MatheAnswerFlow.finish(state, 'skipped'));
+        advanceAnswer(row);
+      }
+      function scrollAnswerIntoView(row) {
+        if (!row || document.getElementById('settingsDetails')?.open) return;
+        const viewport = window.visualViewport;
+        const top = viewport?.offsetTop || 0;
+        const keypad = document.getElementById('mgKeypad');
+        const bottom = Math.min(top + (viewport?.height || innerHeight), keypad?.classList.contains('show') ? keypad.getBoundingClientRect().top : Infinity);
+        let rect = row.getBoundingClientRect();
+        const stats = document.getElementById('scoreArea')?.getBoundingClientRect();
+        if (rect.height > bottom - top && row.contains(document.activeElement)) rect = document.activeElement.getBoundingClientRect();
+        let delta = 0;
+        if (rect.height <= bottom - top && rect.bottom > bottom) delta = rect.bottom - bottom;
+        else if (rect.top < top || rect.height > bottom - top) delta = rect.top - top;
+        else if (stats && stats.top < top && rect.bottom - stats.top <= bottom - top) delta = stats.top - top;
+        if (Math.abs(delta) > 1) window.scrollTo({ top: Math.max(0, scrollY + delta), behavior: 'auto' });
+      }
+      document.addEventListener('keydown', event => {
+        const control = event.target.closest?.('#zeilenAufgaben input, #zeilenAufgaben select, #mauer input, #traube input');
+        if (event.key !== 'Enter' || !control) return;
+        event.preventDefault(); nextAnswer(control, event);
+      });
+      document.addEventListener('focusin', event => {
+        const control = event.target.closest?.('input[data-mg-answer]');
+        if (control) { lastAnswerControl = control; scrollAnswerIntoView(answerRow(control)); }
+      });
+      window.visualViewport?.addEventListener('resize', () => {
+        const control = document.activeElement;
+        if (control?.matches('input[data-mg-answer]')) scrollAnswerIntoView(answerRow(control));
+      });
+      function pruefeWahrFalsch(btn, value) { nextAnswer(btn, null, value); }
+      function pruefeOperator(control) { editAnswer(control); }
+      function pruefeCompare(control) { editAnswer(control); }
+      function pruefeEingabe(control, correct, submitted = false) {
+        if (submitted) nextAnswer(control);
+        else { control.value = control.value.replace(/[^\d]/g, ''); editAnswer(control); }
+      }
+
 
       /* Übersetze deutsche Textfragmente in Tipp-Schritten (HTML-Steps) */
       const STEP_RO = [
@@ -12939,8 +12606,9 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       }
 
       function showTip() {
+        rememberAnswerHelp(activeAnswerRow());
         const mode = document.getElementById("viewSelect").value;
-        if(mode==='chain'){const row=document.querySelector('#zeilenAufgaben [data-task]');if(row)openChainGuide(JSON.parse(row.dataset.task),false);return;}
+        if(mode==='chain'){const row=activeAnswerRow();if(row?.dataset.task)openChainGuide(JSON.parse(row.dataset.task),false);return;}
         const msg = document.getElementById("statusMessage");
         msg.style.color = "#1d3557";
 
@@ -12972,7 +12640,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
         const container = document.getElementById("zeilenAufgaben");
         const firstOpen =
-          container.querySelector("input:not([disabled])") ||
+          activeAnswerRow()?.querySelector('input, select') || container.querySelector("input:not([disabled])") ||
           container.querySelector("select:not([disabled])");
 
         if (!firstOpen) {
@@ -13529,79 +13197,12 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       }
 
       function checkAllFinished() {
-        let container = document.getElementById("zeilenAufgaben");
-        const mode = document.getElementById("viewSelect")?.value;
-        if (mode === "pyramide") container = document.getElementById("mauer");
-        else if (mode === "traube")
-          container = document.getElementById("traube");
-
-        const inputs = container
-          ? Array.from(container.querySelectorAll("input:not([disabled])"))
-          : [];
-        const selects = container
-          ? Array.from(
-              container.querySelectorAll("select.inlineSelect:not([disabled])"),
-            )
-          : [];
-
-        const allInputsOk = inputs.length
-          ? inputs.every((i) => i.parentElement.classList.contains("korrekt"))
-          : true;
-        const allSelectsOk = selects.length
-          ? selects.every((s) => {
-              const aufg = s.closest(".zeilenAufgabe");
-              return aufg && aufg.dataset.state === "correct";
-            })
-          : true;
-
-        const anyInputEmpty = inputs.some((i) => i.value === "");
-        const anySelectEmpty = selects.some((s) => s.value === "");
-
-        const msg = document.getElementById("statusMessage");
-
-        if (
-          (inputs.length || selects.length) &&
-          allInputsOk &&
-          allSelectsOk &&
-          !anyInputEmpty &&
-          !anySelectEmpty
-        ) {
-          msg.textContent = t("Super gemacht! 🌟");
-          if(mode==='chain'||mode==='mixedMal'||container.querySelector('.worksheet-task'))document.getElementById('refreshBtn')?.classList.add('chain-ready');
-          msg.style.color = "#2d6a4f";
-
+        const root = answerRoot(); if (!root) return;
+        const rows = Array.from(root.querySelectorAll('.zeilenAufgabe'));
+        const groups = rows.length ? rows : [root];
+        if (groups.every(row => answerState(row).phase === 'done')) {
           clearRoundTimer();
-
-          const autoDelay = isFlashActiveForMode(mode) ? 450 : 1100;
-
-          inputs.forEach((i) => {
-            try {
-              i.blur();
-            } catch (e) {}
-          });
-          selects.forEach((s) => {
-            try {
-              s.blur();
-            } catch (e) {}
-          });
-
-          if (mode !== "chain" && mode !== "mixedMal" && !container.querySelector(".worksheet-task") && !window._autoNextTimeout) {
-            window._autoNextTimeout = setTimeout(() => {
-              window._autoNextTimeout = null;
-              window.__lastUserGestureTs = Date.now();
-              if (window.__schoolSection === "realschule") { window.RealschuleUI?.pausePendingGrundschule(); return; }
-              initGame(false, true);
-            }, autoDelay);
-          }
-        } else if (
-          !anyInputEmpty &&
-          !anySelectEmpty &&
-          (inputs.length || selects.length)
-        ) {
-          msg.textContent = t("Noch nicht ganz richtig...");
-          msg.style.color = "#bc4749";
-        } else {
-          if (mode !== "traube") msg.textContent = "";
+          document.getElementById('refreshBtn')?.classList.add('chain-ready');
         }
       }
 
@@ -13669,7 +13270,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v211";
+        const SW_VERSION = "rechenguru-lgi-v212";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -14985,7 +14586,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       <button class="appDownloadBtn" id="appDownloadBtn" type="button" title="Android-APK herunterladen" aria-label="Android-APK herunterladen" aria-haspopup="dialog" aria-controls="appUpdateDialog"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M10 3h8v13h5l-9 9-9-9h5z" /></svg></button>
       <span id="appShareWidget"></span>
     </div>
-    <footer id="appFooter" data-app-version="211" class="matheFooter">
+    <footer id="appFooter" data-app-version="212" class="matheFooter">
       <span class="footerCredits"><span id="footerDeveloperLabel">Entwickelt von:</span> <button id="developerInfoLink" type="button">Bachner Gerhard</button> <span class="footerIsabella">&amp; Isabella</span> · Ver.<span id="appVersion"></span></span>
       <div class="appUpdateWidget" id="appUpdateWidget">
         <button class="appUpdateBtn" id="appUpdateBtn" type="button" title="Kurz drücken: Update prüfen · Lang drücken: Update-Einstellungen" aria-label="Update prüfen. Lange drücken für Update-Einstellungen.">↻</button>
@@ -15058,7 +14659,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
           <a
             class="developer-project-card"
-            href="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?update-check=211"
+            href="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?update-check=212"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Mathe Kids öffnen"
@@ -15379,13 +14980,6 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       </div>
     </div>
 
-    <!-- PRINT ONLY: Vollblatt-Arbeitsblatt (A4) -->
-    <div id="printArea">
-      <div id="printSheetTitle">Arbeitsblatt – Mathe</div>
-      <div id="printMeta"></div>
-      <div id="printGrid"></div>
-    </div>
-
     <!-- ✅ In-App Zahlentastatur (Mobile) -->
     <div id="mgKeypad" class="mgKeypad" aria-hidden="true">
       <div class="mgKeypadGrid">
@@ -15410,6 +15004,14 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         <button type="button" class="mgKeypadBtn" data-mgk="nx">↵</button>
       </div>
     </div>
+
+    <!-- PRINT ONLY: Vollblatt-Arbeitsblatt (A4) -->
+    <div id="printArea">
+      <div id="printSheetTitle">Arbeitsblatt – Mathe</div>
+      <div id="printMeta"></div>
+      <div id="printGrid"></div>
+    </div>
+
     <script>
       (() => {
         const selector =

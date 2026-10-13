@@ -38,6 +38,8 @@ jobs:
       - name: Validate actual APK and compatibility checks
         shell: pwsh
         run: |
+          ./tests/project-signing-checks.ps1
+          if ($LASTEXITCODE -ne 0) { throw 'Original project signing configuration failed.' }
           $version = [int][regex]::Match((Get-Content version.properties -Raw), '(?m)^VERSION_CODE=(\d+)').Groups[1].Value
           ./scripts/verify-apk.ps1 -Apk docs/MatheKids-latest.apk -Baseline docs/MatheKids-v209.apk -ExpectedVersion $version
           ./tests/android-release-checks.ps1 -Apk docs/MatheKids-latest.apk

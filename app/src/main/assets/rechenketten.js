@@ -15,11 +15,18 @@ function evaluate(numbers,ops,max=Infinity){
  }
  return {res:ns[0],steps,intermediates};
 }
-function generate({max=100,count=4,ops=['plus'],rng=Math.random}={}){
- max=Math.trunc(Number(max));count=Math.trunc(Number(count));if(max<1||max>9999||count<2||count>10)throw Error('Invalid settings');ops=normalizeOps(ops);
+function generate({max=100,count=4,ops=['plus'],pattern='free',rng=Math.random}={}){
+ max=Math.trunc(Number(max));count=count==='mixed'?2+Math.min(8,Math.floor(rng()*9)):Math.trunc(Number(count));if(max<1||max>9999||count<2||count>10)throw Error('Invalid settings');ops=normalizeOps(ops);
  const pick=n=>Math.min(n-1,Math.floor(rng()*n)),int=(a,b)=>a+pick(b-a+1);
  const shuffled=ops.slice();for(let i=shuffled.length-1;i>0;i--){const j=int(0,i);[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}
- const schedule=Array.from({length:count-1},(_,i)=>i<shuffled.length?shuffled[i]:ops[pick(ops.length)]);
+ let schedule=Array.from({length:count-1},(_,i)=>i<shuffled.length?shuffled[i]:ops[pick(ops.length)]);
+ const high=shuffled.filter(o=>o==='mal'||o==='geteilt'),low=shuffled.filter(o=>o==='plus'||o==='minus');
+ if(!['free','terms','startHigh','mixed'].includes(pattern))throw Error('Invalid pattern');
+ if(pattern==='mixed')pattern=['free','terms','startHigh'][pick(3)];
+ if(high.length&&low.length&&pattern!=='free'){
+  let hi=0,lo=0;
+  schedule=schedule.map((_,i)=>(pattern==='terms'?i%2===0:i===0)?high[hi++%high.length]:low[lo++%low.length]);
+ }
  if(ops.length===1&&ops[0]==='geteilt'){
   let product=int(1,Math.min(9,Math.max(1,Math.floor(max/(2**(count-1))))));const divisors=[];
   for(let i=0;i<count-1;i++){const room=Math.max(1,Math.floor((max/product)**(1/(count-1-i))+1e-9));const d=int(room>=2?2:1,Math.min(9,room));divisors.push(d);product*=d;}

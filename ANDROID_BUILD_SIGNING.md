@@ -1,5 +1,30 @@
 # Mathe Kids: Android-Build und bestehende Signatur
 
+## Gemeinsamer Windows-/Cloud-Build ab 13. Oktober 2026
+
+Der Nutzer hat nach Prüfung der öffentlichen Repository-Sichtbarkeit ausdrücklich entschieden, den vorhandenen Originalschlüssel mit dem Projekt zu synchronisieren. Die Projektkopie steht in `android-signing/original.keystore`, ihre Build-Konfiguration in `android-signing/signing.properties`. Der Schlüssel ist damit öffentlich zugänglich und kein Geheimnis mehr; andere können APKs mit derselben Signatur erstellen. Diese bewusst gewählte Ablage ersetzt die frühere Vorgabe einer ausschließlich externen Signierung. Die Kopie stimmt bytegenau mit dem bisherigen Cloud-Keystore überein; kein neuer Schlüssel wurde erzeugt.
+
+Die Signierungsdateien liegen außerhalb aller Web-/APK-Quellen. `docs`, Pages, HTML-/APK-Archive und Release-Downloads enthalten sie nicht. Der APK-Prüfer kontrolliert zusätzlich, dass keine Keystore-/Signing-Dateien in der APK liegen. Öffentliches Git-Klonen liefert die Signierungsdateien ausdrücklich mit. Ihre Werte werden trotzdem nicht in Chat oder Build-Logs ausgegeben.
+
+Windows und Cloud bauen lokal ohne GitHub-API oder separate Secret-Einrichtung:
+
+```powershell
+# JDK 17, SDK/Build Tools 35 und PowerShell bereitstellen, dann:
+pwsh -NoProfile -File scripts/build-release.ps1 -VersionCode 213 -PublishFiles
+# Alternativ: nächste freie Version wählen und bauen:
+pwsh -NoProfile -File sync_version_and_build.ps1
+```
+
+Unter Windows funktioniert auch `powershell` statt `pwsh`. `213` ist ein Beispiel für die nächste Version nach 212; bereits veröffentlichte Nummern dürfen nicht erneut verwendet werden. VS Code bietet den vorhandenen Build-Task und den Git-Fast-forward-Task. Externe `ANDROID_KEYSTORE_*`-Variablen bleiben optional und haben Vorrang. Es werden niemals neue Schlüssel automatisch erzeugt.
+
+Der optionale GitHub-Workflow `build-signed-apk.yml` bleibt auf `main` und manuellen Dispatch beschränkt. Er verwendet vorhandene GitHub-Secrets bevorzugt, andernfalls die Originalkopie im Projekt. Es wurde in dieser Cloud keine erfolgreiche Übernahme in GitHub-Secrets durchgeführt: der API-Zugriff meldet Forbidden. Der lokale Build benötigt diesen Zugriff nicht. `scripts/request-signed-build.ps1` benötigt für den optionalen Workflow-Aufruf einen funktionierenden GitHub-API-Zugriff.
+
+Paketname, Fingerabdruck und Release-Prüfung bleiben unverändert. Jede veröffentlichte APK benötigt einen höheren versionCode. Veröffentlichung erst nach Build und Tests: notwendige Dateien gezielt stagen, normal committen/pushen und den wirklich heruntergeladenen Pages-APK-Hash vergleichen. Keystore und Build-Konfiguration zusätzlich außerhalb des Projekts sichern; beim Verlust aller Originalkopien keinen Ersatz als kompatibles Update ausgeben. Ein öffentlicher Fingerabdruck allein kann den privaten Schlüssel nicht ersetzen.
+
+### Historischer Stand vor der ausdrücklichen Projektablage
+
+Die folgenden Bestandsaufnahme- und Sicherheitsabschnitte beschreiben die frühere externe Bereitstellung. Ihre Aussagen zur Geheimhaltung/Repository-Ablage sind durch die oben dokumentierte Nutzerentscheidung überholt; die technischen Angaben und die Signaturhistorie bleiben gültig.
+
 ## Ergebnis der Bestandsaufnahme (10. Oktober 2026)
 
 Die tatsächlich öffentlich heruntergeladene `MatheKids-v209.apk` entspricht bytegenau der Datei in `docs`: SHA-256 `03714020038b60de58a7faba14559c9cf1601cb17596ce169d0288dee9af136d`.

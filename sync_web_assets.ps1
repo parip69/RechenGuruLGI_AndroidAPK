@@ -326,6 +326,7 @@ function Sync-DocsFromAssets {
     Copy-FileIfChanged -SourcePath $SourceManifestFile -DestinationPath (Join-Path $TargetDocsDir "manifest.webmanifest")
     Copy-FileIfChanged -SourcePath $SourceSwFile -DestinationPath (Join-Path $TargetDocsDir "sw.js")
     Copy-FileIfChanged -SourcePath $SourceVersionManifestFile -DestinationPath (Join-Path $TargetDocsDir "version.json")
+    Copy-FileIfChanged -SourcePath (Join-Path $SourceAssetsDir "answer-flow.js") -DestinationPath (Join-Path $TargetDocsDir "answer-flow.js")
 
     Copy-FileIfChanged -SourcePath (Join-Path $SourceAssetsDir "rechenketten.js") -DestinationPath (Join-Path $TargetDocsDir "rechenketten.js")
 

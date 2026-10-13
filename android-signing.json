@@ -1,0 +1,8 @@
+{
+  "applicationId": "de.parip69.rechengurulgi",
+  "certificateSHA256": "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+  "keyAlias": "androiddebugkey",
+  "baselineApk": "docs/MatheKids-v209.apk",
+  "githubEnvironment": "android-signing",
+  "githubWorkflow": "build-signed-apk.yml"
+}

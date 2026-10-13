@@ -22,11 +22,11 @@ const {chromium}=require('playwright'),fs=require('fs'),path=require('path'),ass
  await page.reload();await page.waitForTimeout(500);assert.equal(await page.locator('#viewSelect').inputValue(),'chain');assert.equal(await page.locator('#chainLength').inputValue(),'6');assert.equal(await page.locator('#chainOps').inputValue(),before.ops);
  await page.locator('#settingsDetails').evaluate(e=>e.open=false);
  const taskKey=await page.locator('#zeilenAufgaben [data-task]').first().getAttribute('data-task'),task=JSON.parse(taskKey);
- await page.locator('#zeilenAufgaben input').first().fill(String(task.res));await page.locator('[data-chain-check]').first().click();await page.waitForTimeout(1400);
+ await page.locator('#zeilenAufgaben input').first().fill(String(task.res));await page.waitForTimeout(270);await page.locator('#zeilenAufgaben input').first().press('Enter');await page.waitForTimeout(1400);
  assert.equal(await page.locator('#zeilenAufgaben [data-task]').first().getAttribute('data-task'),taskKey);assert((await page.locator('#zeilenAufgaben .steinInput').first().getAttribute('data-state'))==='correct');
  await page.evaluate(()=>{document.getElementById('viewSelect').value='plus';wechselAnsicht(false);});assert.equal(await page.locator('#maxWert').inputValue(),'100');assert.equal(await page.locator('#op1Mode').inputValue(),'tens');
  await page.locator('#schoolInfoBtn').click();assert((await page.locator('#schoolInfo').innerText()).includes('Rechenketten'));await page.locator('#schoolInfoClose').click();
  for(const width of [320,390,768]){await page.setViewportSize({width,height:844});await page.evaluate(()=>{document.getElementById('viewSelect').value='chain';wechselAnsicht(false);document.getElementById('settingsDetails').open=true;});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`Overflow at ${width}`);}
- assert.deepEqual(errors,[]);await page.screenshot({path:'/workspace/.cloud-tools/artifacts/rechenketten-settings.png',fullPage:true});console.log('PASS: grouped menu, six operands, arbitrary operators, bounds, full-screen paper solution, local restore, manual next, old settings and responsive layout');
+ assert.deepEqual(errors,[]);await page.screenshot({path:(process.env.TEST_ARTIFACT_DIR||require('os').tmpdir())+'/rechenketten-settings.png',fullPage:true});console.log('PASS: grouped menu, six operands, arbitrary operators, bounds, full-screen paper solution, local restore, manual next, old settings and responsive layout');
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1);});

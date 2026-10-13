@@ -21,3 +21,8 @@ keystore.properties
 signing.properties
 .env
 .env.*
+
+# Explicit user-authorized exception: shared original signing identity.
+# This directory must never be copied to docs, app assets, or release artifacts.
+!/android-signing/original.keystore
+!/android-signing/signing.properties

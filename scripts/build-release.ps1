@@ -3,12 +3,14 @@ param([int]$VersionCode = 0, [switch]$PublishFiles)
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
+& "$PSScriptRoot/check-signing-key.ps1"
 foreach ($name in @('ANDROID_KEYSTORE_PATH','ANDROID_KEYSTORE_PASSWORD','ANDROID_KEY_ALIAS','ANDROID_KEY_PASSWORD')) {
     if (-not [Environment]::GetEnvironmentVariable($name)) { throw "Missing secure environment variable: $name" }
 }
 $keyPath = [IO.Path]::GetFullPath($env:ANDROID_KEYSTORE_PATH)
 $rootPrefix = [IO.Path]::GetFullPath($root) + [IO.Path]::DirectorySeparatorChar
-if ($keyPath.StartsWith($rootPrefix, [StringComparison]::OrdinalIgnoreCase)) { throw 'Keystore must be outside the repository.' }
+$bundledPath = [IO.Path]::GetFullPath((Join-Path $root 'android-signing/original.keystore'))
+if ($keyPath.StartsWith($rootPrefix, [StringComparison]::OrdinalIgnoreCase) -and $keyPath -ne $bundledPath) { throw 'Unconfigured keystore inside the repository.' }
 if (-not (Test-Path -LiteralPath $keyPath -PathType Leaf)) { throw 'Existing keystore is unavailable; no replacement will be generated.' }
 $properties = Get-Content -LiteralPath 'version.properties' -Raw
 $current = [int][regex]::Match($properties, '(?m)^VERSION_CODE=(\d+)').Groups[1].Value

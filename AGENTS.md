@@ -10,7 +10,16 @@ Der Nutzer hat folgenden Ablauf für jede Änderung ausdrücklich autorisiert:
 - Build und APK-Signatur prüfen. Keine erfolgreiche Installation oder WhatsApp-Karte behaupten, wenn kein entsprechender Gerätetest erfolgt ist.
 - Bestehende Dateien und Nutzeränderungen schützen; kein Force-Push. Keine Signierschlüssel oder Zugangsdaten veröffentlichen.
 
-Cloud-Builds verwenden JDK 17, Android SDK 35 und den Gradle-Wrapper. Die vorbereitete Umgebung speichert Werkzeuge unter `/workspace/.cloud-tools`. Build-Ausgaben liegen jetzt plattformübergreifend im ignorierten `.release-build`, da `app/build` bereits getrackte historische Ausgaben enthält. PowerShell (`powershell` unter Windows, `pwsh` unter Linux) muss im PATH verfügbar sein. Externe Signierungsvariablen und Schlüssel werden sicher bereitgestellt; keine Schlüsseldatei ins Repository kopieren. Siehe `ANDROID_BUILD_SIGNING.md`.
+Cloud-Builds verwenden JDK 17, Android SDK 35 und den Gradle-Wrapper. Die vorbereitete Umgebung speichert Werkzeuge unter `/workspace/.cloud-tools`. Build-Ausgaben liegen jetzt plattformübergreifend im ignorierten `.release-build`, da `app/build` bereits getrackte historische Ausgaben enthält. PowerShell (`powershell` unter Windows, `pwsh` unter Linux) muss im PATH verfügbar sein. Signierung verwendet die ausdrücklich autorisierte Projektkopie oder externe Signierungsvariablen. Siehe `ANDROID_BUILD_SIGNING.md`.
+
+## Gemeinsamer Signierungsweg für Windows und Cloud
+
+- Am 13. Oktober 2026 hat der Nutzer nach ausdrücklicher Erklärung der öffentlichen Repository-Sichtbarkeit die Aufnahme des Originalschlüssels und seiner Build-Konfiguration ins Repository autorisiert. Diese Entscheidung ersetzt die bisherigen Vorgaben zur ausschließlich externen Speicherung. Nicht behaupten, dass dieser Schlüssel noch geheim oder ausschließlich in GitHub-Secrets liegt.
+- Der vorhandene Originalschlüssel liegt in `android-signing/original.keystore`, die zugehörige Build-Konfiguration in `android-signing/signing.properties`. Niemals einen neuen oder abweichenden Schlüssel erzeugen. Der öffentliche Fingerabdruck und Paketname bleiben in `android-signing.json` festgelegt.
+- Signierungsdateien dürfen ausschließlich in diesem separaten Root-Verzeichnis liegen: niemals unter `docs`, `Privat`, App-Assets, APK-Inhalten oder Download-Artefakten. Ihre Inhalte nicht in Chat oder Logs ausgeben.
+- Windows/Cloud: `scripts/build-release.ps1` prüft den Originalfingerabdruck, baut mit dem Wrapper und prüft die tatsächliche APK. `sync_version_and_build.ps1` wählt die nächste freie Version. Externe Signierungsvariablen haben weiterhin Vorrang.
+- Der optionale GitHub-Workflow verwendet vorhandene Environment-Secrets bevorzugt, andernfalls dieselbe Projektkopie. Er bleibt auf `main` und expliziten Workflow-Dispatch beschränkt. Die Übernahme in GitHub-Secrets ist aktuell nicht erfolgt; die GitHub-API ist aus dieser Cloud blockiert.
+- Vor einem lokalen Build keine Quellen committen oder veröffentlichen. Erst nach erfolgreichem Build und Tests explizit die notwendigen Quellen, Signierungsdateien, Web-Spiegel und geprüften APK-/HTML-Archive committen und ohne Force-Push veröffentlichen.
 
 # Info und weiterer Ausbau
 
