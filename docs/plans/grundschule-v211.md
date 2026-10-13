@@ -31,8 +31,11 @@ Service-Worker-Cache und Web-Sync berücksichtigen die beiden neuen Offline-Modu
 - Die 19 vorhandenen Realschul-Mathematiktests bleiben Teil der Regression. Insgesamt 28 Testfälle in den drei Generator-Testdateien.
 - Browserprüfungen: Auswahlkarten; Zahlenanzahl und Zeichenwahl; Prüfen/Wiederholen; Punkte und persistente Fehlerliste; nächste Aufgabe ohne Seitenwechsel; gespeicherte Einstellungen; Checkbox-Mischung und Abschalten; schrittweise Hilfe und mathematisch korrekte sichtbare Gleichungen; Teilen und vollständiger portabler Export; Breiten 320/390/768. Bestehende Realschul-Browserregression erfolgreich.
 - Release-APK wird mit dem bisherigen Schlüssel gebaut und auf Paketname, Version, nicht debuggable, v1/v2/v3-Signaturen und Zertifikat von 209/210 geprüft. Kein neuer Signierschlüssel.
-- Kein echter Android-Installationstest durchgeführt. Die veröffentlichte APK wird anschließend vollständig heruntergeladen und bytegenau verglichen.
+- Kein echter Android-Installationstest durchgeführt. Die veröffentlichte APK wurde vollständig heruntergeladen und bytegenau verglichen. Alle vier GitHub-Prüfläufe sind erfolgreich. Die öffentliche HTML-Seite meldet 211; beide neuen Module sind HTTP 200 und byteidentisch mit der Quelle.
 
 ## Geänderte Bereiche
 
 Neue Module: app/src/main/assets/rechenketten.js und gemischte-malaufgaben.js. Integration, Einstellungen, Menü, Prüfen, Hilfe, Teilen und Export: index.html. Grundschul-Info: realschule/ui.js. Offline-/Web-Auslieferung: sw.js, sync_web_assets.ps1, docs-Spiegel und Versionsmetadaten. Native Änderung: ausschließlich Export-Whitelist in MainActivity.kt. Tests und CI: vier neue Testdateien und verify-web-sync.yml. APK/HTML/Prüfbericht werden versioniert archiviert; bestehende Releases bleiben erhalten.
+
+APK: https://parip69.github.io/RechenGuruLGI_AndroidAPK/MatheKids-v211.apk?v=211
+SHA-256: `345d5a08690e54a76922543750394b62caa3ad7df3295a2ef4c2f5dc132ac362`
