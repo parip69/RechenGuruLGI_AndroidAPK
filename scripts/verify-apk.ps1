@@ -11,6 +11,14 @@ $expectedPackage = $signing.applicationId
 $expectedCert = $signing.certificateSHA256
 $sdk = $env:ANDROID_HOME
 if (-not $sdk) { $sdk = $env:ANDROID_SDK_ROOT }
+if (-not $sdk) {
+    # Use the same local SDK as Gradle when a VS Code terminal has no SDK variable.
+    $localProperties = Join-Path $PSScriptRoot '../local.properties'
+    if (Test-Path -LiteralPath $localProperties -PathType Leaf) {
+        $match = [regex]::Match((Get-Content -LiteralPath $localProperties -Raw), '(?m)^\s*sdk\.dir\s*=\s*(.+?)\s*$')
+        if ($match.Success) { $sdk = $match.Groups[1].Value.Replace('\\', '\').Replace('\:', ':').Replace('\ ', ' ') }
+    }
+}
 if (-not $sdk) { throw 'ANDROID_HOME must point to Android SDK 35.' }
 $tools = Join-Path $sdk 'build-tools/35.0.0'
 $windowsHost = [Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT
