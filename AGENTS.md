@@ -23,6 +23,15 @@ Cloud-Builds verwenden JDK 17, Android SDK 35 und den Gradle-Wrapper. Die vorber
 
 # Info und weiterer Ausbau
 
+## MCP-Fähigkeiten und Erweiterungswünsche
+
+- Das unabhängige Modul `mcp-capabilities` stellt fünf MCP-Tools bereit. Es führt keine App-Funktionen aus und ändert/veröffentlicht/installiert keinen Programmcode.
+- Funktionsauskünfte nur aus dem geprüften Katalog ableiten. Unvollständige, veraltete oder mehrdeutige Daten bedeuten unbekannt. Fehlende Berechtigung bedeutet niemals fehlende Implementierung.
+- Vorschläge ausschließlich nach ausdrücklicher Benutzerbestätigung speichern. Lokale Aufgabenliste: `.feature-requests/requests.json`, standardmäßig nicht mit Git synchronisiert und niemals automatisch über Pages veröffentlichen.
+- Codex kann diese Liste im ausdrücklich autorisierten Entwicklungsworkflow lesen. Ein offener Vorschlag allein autorisiert keine Umsetzung. Statusänderungen erfolgen über das getrennte Entwickler-CLI; umgesetzt erfordert dokumentierte Commit-, Test- und Freigabebelege.
+- Neue Anwendungsadapter müssen ihre Funktionsermittlung und Berechtigungsabgrenzung belegen. Ein Anwendungsname im Katalog ist kein Nachweis vorhandener Funktionen. GitHub-Export erzeugt nur Daten und keine Issues.
+- Modulprüfungen: in `mcp-capabilities` `npm test` ausführen. Sie benötigen Node.js >=20 und keine zusätzlichen Pakete. Persönliche MCP-Client-Konfiguration nicht ohne Auftrag ändern.
+
 - Jede neue oder geänderte Aufgabenfamilie muss in der anklickbaren, zum Schulbereich passenden App-Info berücksichtigt werden. Den Realschul-Themenkatalog aus den aktiven Generatoren erzeugen, damit die Info automatisch mitwächst.
 - Aussagen über viele Übungsmöglichkeiten mit unterschiedlichen erzeugten Aufgabenstellungen belegen. Übungsvarianten nicht als komplette Prüfungen oder vollständige Lehrplanabdeckung bezeichnen; keine unbelegte Prozentzahl nennen.
 - Standardwerte, lokale Speicherung und bewusstes Teilen erhalten. Änderungen an der Grundschul-Auswahl zunächst mit einem konkreten Vorschlag zur Bedienung besprechen. Erste und zweite Zahl müssen weiter getrennt einstellbar bleiben.

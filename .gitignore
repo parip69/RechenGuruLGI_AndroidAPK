@@ -26,3 +26,6 @@ signing.properties
 # This directory must never be copied to docs, app assets, or release artifacts.
 !/android-signing/original.keystore
 !/android-signing/signing.properties
+
+# Local, user-confirmed MCP requests; never publish through Pages/APK by default.
+/.feature-requests/

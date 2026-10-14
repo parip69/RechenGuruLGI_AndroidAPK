@@ -1,0 +1,17 @@
+# MCP-Capability-Discovery und Feature Requests – Version 215
+
+Das getrennte Modul `mcp-capabilities` implementiert die fünf angeforderten Tools: `check_capability`, `find_alternative`, `create_feature_request`, `list_feature_requests`, `get_feature_request_status`. Es ist unabhängig von der Android-Oberfläche und einzelnen Anwendungen. Node.js ab 20, stdio-MCP, keine Zusatzpakete und keine Netzwerk-/Codeänderungs-/Veröffentlichungs-/Installationswerkzeuge.
+
+Die sechs Funktionszustände sind getrennt. Funktions- und Discovery-Berechtigungen stammen aus vertrauenswürdiger Serverkonfiguration; Tool-Aufrufer können keine Rechte erteilen. Veraltete, fehlende und mehrdeutige Belege ergeben unbekannt. Nur ein aktueller expliziter Abwesenheitsbeleg oder ein aktuelles vollständiges Inventar ergibt nicht implementiert.
+
+Der mitgelieferte Katalog belegt Mathe-Gurus vorhandene zweite Antwortchance mit Hilfe auf Nachfrage. Andere Funktionen und Anwendungen sind nicht pauschal geprüft. Die Abfragen sind Katalogauskünfte, keine Ausführungs- oder Remote-Laufzeitprüfung. Barcode-Scanner und Lianas Backwelt benötigen eigene geprüfte Adapter/Inventare. Die KI muss Einschränkungen nennen und darf eine erfolgreiche Ausführung nicht behaupten.
+
+Vorschläge verlangen `confirmed: true` nach tatsächlicher Benutzerbestätigung. Sie enthalten eindeutige ID, Titel, Beschreibung, Anwendung/Funktion, gewünschtes Verhalten, geprüfte Alternativen, Priorität, Status und Verlauf. Exakte Dubletten behalten ihre ID; nur ähnliche Wünsche werden zur manuellen Prüfung vorgeschlagen. Lokale Speicherung verwendet Lock und atomaren Dateiaustausch. Beschädigte Dateien bleiben erhalten.
+
+Codex kann die lokale, Git-ignorierte Aufgabenliste lesen. Ein separates Entwickler-CLI kann nach expliziter Autorisierung Status setzen. Umgesetzt verlangt dokumentierte Commit-, Test- und Freigabebelege. Die optionale GitHub-Anbindung ist ein reiner JSON-Issue-Export; eine echte Veröffentlichung wird nicht automatisch durchgeführt. Die Tests speichern ausschließlich temporäre Beispiele, keine produktiven Vorschläge.
+
+25 MCP-Tests bestanden, darunter ein echter stdio-Serverprozess mit Initialize/Tools, lokaler Erstellung, Neustart und Statusabruf. Fehlende Rechte, unbekannte Funktionen, Alternativen, Bestätigung, Dubletten/Negationen, beschädigte Speicherdateien, Locks und Umsetzungsbelege werden geprüft. Der vorhandene Mathe-Guru-Antwortzustandstest besteht ebenfalls. GitHub CI prüft das MCP-Modul mit Node 20 und 22.
+
+APK 215 wurde im autorisierten Entwicklungsworkflow zusätzlich gebaut: JDK 17, SDK/Build Tools 35, Wrapper 8.9, Paket `de.parip69.rechengurulgi`, tatsächlicher versionCode/versionName 215, nicht debuggable, gültige v1/v2/v3-Signaturen. Originalzertifikat SHA-256 `3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc`; APK SHA-256 `b7d2f6821dfa372d8ffa20df4dc1f322ed5dc35fe171340de06c7cd9f2fc0ff7`. Android-Quellen wurden nur für Versions-/Cachemetadaten synchronisiert; die MCP-Tools laufen nicht in der APK.
+
+Die MCP-Aktivierung in einem echten KI-Client ist ein separater Einrichtungsschritt. Die README enthält ein Codex-Konfigurationsbeispiel. Es wurde keine persönliche Client-Konfiguration überschrieben und keine automatische KI-Verhaltensänderung in fremden Clients behauptet. Keine tatsächliche Android-Installation getestet. Nach Veröffentlichung Pages und heruntergeladenen APK-Hash prüfen.
