@@ -43,3 +43,10 @@
 - Realschule: richtige Endantworten automatisch bestätigen und nach sichtbarer Bestätigung weitergehen; falsche Antworten bleiben stehen. Einstellungen unten schließen und durch Außenklick schließen; Grundschul-Außenklick einschließlich Neue Aufgabe geprüft.
 - Validierung: 39 Generator-/Bewertungsprüfungen sowie Browserprüfungen für Desktop und Android-Touch, gespeicherter Aus-Schalter, Korrektur, Abbruch eines vorgemerkten Wechsels, Fokus, Zähler und beide Einstellungsfenster. Signierter Release mit Originalschlüssel über vorhandene Build-/Prüfskripte.
 - GitHub Pages ist durch die Netzwerkregeln dieser Umgebung gesperrt (HTTP 403); öffentlicher GitHub-Download wird nach dem Push separat mit dem lokalen APK-Hash verglichen. Kein Installationstest auf einem Android-Gerät.
+
+
+## 2026-10-16 · Version 224
+- Nutzerwunsch anhand zweier Screenshots: großer, gestalteter Schließen-Button über die gesamte Menübreite oben und zusätzlich ganz unten hinter dem Zurücksetzen-Bereich. CSS-Flexreihenfolge explizit festgelegt; Automatik-Schalter unten vor Zurücksetzen einsortiert.
+- Schließen-Button im Realschulbereich ebenfalls über volle Breite gestaltet. Keine Änderung der Bewertungs-/Automatiklogik von 223.
+- Browserprüfung bei 390 und 1280 Pixeln: beide Grundschul-Buttons volle Breite, mindestens 56 Pixel hoch, unterer Button hinter Automatik und Zurücksetzen; beide schließen. Mobile Darstellung zusätzlich als Screenshot geprüft.
+- Ergänzter Nutzerwunsch: Neue Aufgabe bei leerem Feld bleibt ohne jede Richtig-/Fehlerwertung, verändert weder Gesamtzähler noch Fehlerpool, Serie oder Zielstand. Eingetragene Antworten einschließlich 0 werden beim bewussten Weitergehen ausgewertet. Browserprüfungen entsprechend erweitert.

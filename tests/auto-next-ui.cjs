@@ -14,6 +14,13 @@ const simple={op:'plus',fmt:'standard',a:3,b:5,res:8,sym:'+',missing:2,key:'auto
   const inject=async()=>{await page.evaluate(task=>{RealschuleUI.switchSection('grundschule');document.getElementById('viewSelect').value='plus';document.getElementById('settingsDetails').open=false;initGame(false);const root=document.getElementById('zeilenAufgaben');root.replaceChildren();renderTask(root,task,100);focusFirstTaskInput(true);},simple);await page.waitForTimeout(280);};
   assert.equal(await page.locator('[data-answer-next]').count(),0);
   assert.equal(await page.locator('#autoNextCorrect').isChecked(),true,'default on');
+  // Blank skips keep every result and the error pool unchanged; zero is an answer.
+  await inject();
+  const fullStats=()=>page.evaluate(()=>({right:scoreCorrect,wrong:scoreWrong,totalCorrect,totalWrong,streak,pool:JSON.stringify(wrongPool),details:appStorage.getItem('mathAnswerStats_v1'),target:appStorage.getItem('mathTargetProgress')}));
+  const ungraded=await fullStats();
+  for(let i=0;i<3;i++){await page.locator('#refreshBtn').click();await page.waitForTimeout(280);assert.equal(await input().inputValue(),'');assert.deepEqual(await fullStats(),ungraded);}
+  await inject();const zeroBefore=await score();await input().fill('0');await page.locator('#refreshBtn').click();assert.deepEqual(await score(),{right:zeroBefore.right,wrong:zeroBefore.wrong+1});assert.equal(await input().inputValue(),'');
+
   await inject();let initial=await score();await input().fill('8');
   assert.equal(await input().evaluate(e=>e.parentElement.dataset.state),'correct');
   await page.waitForTimeout(1100);assert.equal(await input().inputValue(),'');

@@ -14,7 +14,7 @@
     <meta property="og:locale" content="de_DE" />
     <meta property="og:title" content="Mathe Kids – Rechnen üben, spielerisch lernen" />
     <meta property="og:description" content="Mathe Kids öffnen und die aktuelle Android-App herunterladen. Auf Wunsch lassen sich Rechen-Einstellungen mit dem Link teilen." />
-    <meta property="og:url" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?v=223&amp;update-check=223&amp;preview=whatsapp-v1" />
+    <meta property="og:url" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?v=224&amp;update-check=224&amp;preview=whatsapp-v1" />
     <meta property="og:image" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/icons/share-preview-whatsapp-v1.jpg" />
     <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1200" />
@@ -544,7 +544,28 @@
       #rowGroup { order: 11; }
       #mulProfileGroup { order: 12; }
       #advancedSettings { order: 13; }
-      #resetSelectedModeGroup { order: 14; flex-basis: 100%; }
+      #autoNextCorrectGroup { order: 14; flex-basis: 100%; }
+      #resetSelectedModeGroup { order: 15; flex-basis: 100%; }
+      #closeSettingsBottom { order: 16; }
+      .settings-close-button {
+        display: block;
+        flex: 0 0 100%;
+        width: 100%;
+        box-sizing: border-box;
+        min-height: 56px;
+        padding: 16px 20px;
+        border: 0;
+        border-radius: 16px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: #fff;
+        font: inherit;
+        font-size: 1.08rem;
+        font-weight: 900;
+        text-align: center;
+        cursor: pointer;
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.16);
+        touch-action: manipulation;
+      }
 
       /* === Reihe-Chips (Mehrfachauswahl) === */
       .row-chips {
@@ -2710,6 +2731,7 @@
           >
         </summary>
         <div class="controls" id="controlsArea">
+          <button type="button" id="closeSettingsTop" class="settings-close-button" onclick="closeSettings()">Einstellungen schließen</button>
           <div class="settings-guide">
             <span class="settings-guide-number">1</span>
             <div>
@@ -3178,11 +3200,11 @@
               <option value="free">Frei (auch über 10)</option>
             </select>
           </div>
-          <div class="control-group">
+          <div class="control-group" id="autoNextCorrectGroup">
             <label><input type="checkbox" id="autoNextCorrect" data-mg-global="1" checked onchange="setAutoNextCorrect(this.checked)"> Bei richtiger Antwort automatisch zur nächsten Aufgabe</label>
             <div class="hintSmall">Nach kurzer grüner Bestätigung geht es weiter. Falsche Antworten bleiben zum Korrigieren oder Nachsehen stehen.</div>
           </div>
-          <button type="button" id="closeSettingsBottom" onclick="closeSettings()">Einstellungen schließen</button>
+          <button type="button" id="closeSettingsBottom" class="settings-close-button" onclick="closeSettings()">Einstellungen schließen</button>
         </div>
       </details>
 
@@ -12359,6 +12381,11 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       function completeAnswer(row, result) {
         if (row.dataset.answerCounted === '1') return;
         row.dataset.answerCounted = '1'; row.dataset.answerPhase = 'done'; row.dataset.outcome = result.outcome;
+        if (result.outcome === 'skipped') {
+          // A blank task has no right/wrong outcome and does not break a streak.
+          checkAllFinished();
+          return;
+        }
         const correct = result.outcome === 'correct';
         if (correct) {
           scoreCorrect++; bumpTargetProgress(1); streak++;
@@ -13344,7 +13371,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v223";
+        const SW_VERSION = "rechenguru-lgi-v224";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -14660,7 +14687,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       <button class="appDownloadBtn" id="appDownloadBtn" type="button" title="Android-APK herunterladen" aria-label="Android-APK herunterladen" aria-haspopup="dialog" aria-controls="appUpdateDialog"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M10 3h8v13h5l-9 9-9-9h5z" /></svg></button>
       <span id="appShareWidget"></span>
     </div>
-    <footer id="appFooter" data-app-version="223" class="matheFooter">
+    <footer id="appFooter" data-app-version="224" class="matheFooter">
       <span class="footerCredits"><span id="footerDeveloperLabel">Entwickelt von:</span> <button id="developerInfoLink" type="button">Bachner Gerhard</button> <span class="footerIsabella">&amp; Isabella</span> · Ver.<span id="appVersion"></span></span>
       <div class="appUpdateWidget" id="appUpdateWidget">
         <button class="appUpdateBtn" id="appUpdateBtn" type="button" title="Kurz drücken: Update prüfen · Lang drücken: Update-Einstellungen" aria-label="Update prüfen. Lange drücken für Update-Einstellungen.">↻</button>
@@ -14733,7 +14760,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
           <a
             class="developer-project-card"
-            href="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?update-check=223"
+            href="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?update-check=224"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Mathe Kids öffnen"

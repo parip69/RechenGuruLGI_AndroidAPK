@@ -23,7 +23,7 @@ root.innerHTML=`<h2>Realschule Bayern</h2><p class="rs-subtitle">Klassen 5–10 
 <label class="rs-check"><input type="checkbox" id="rsBasics"> Grundlagen früherer Realschulklassen wiederholen</label>
 <label class="rs-check"><input type="checkbox" id="rsAll"> Alle verfügbaren Themen</label><fieldset id="rsTopics"><legend>Themen</legend></fieldset>
 <p id="rsCoverage" class="rs-note"></p><p class="rs-note">Die Auswahl ist ein ausbaufähiger Einstieg, kein vollständiger Lehrplan. Schwierigkeit bleibt innerhalb der gewählten Klasse. Ändere Einstellungen für die nächste Übungsrunde.</p>
-<button type="button" id="rsStart">Neue Übungsrunde</button><p id="rsConfigMessage" role="status"></p><label class="rs-check"><input type="checkbox" id="rsAutoNextCorrect"> Bei richtiger Antwort automatisch zur nächsten Aufgabe</label><button type="button" id="rsCloseSettings">Einstellungen schließen</button></details>
+<button type="button" id="rsStart">Neue Übungsrunde</button><p id="rsConfigMessage" role="status"></p><label class="rs-check"><input type="checkbox" id="rsAutoNextCorrect"> Bei richtiger Antwort automatisch zur nächsten Aufgabe</label><button type="button" id="rsCloseSettings" class="settings-close-button">Einstellungen schließen</button></details>
 <div id="rsSession"></div><details class="rs-progress"><summary>Fortschritt und Wiederholung</summary><div id="rsProgress"></div><button type="button" id="rsReview">Fehlerthemen mit neuen Zahlen üben</button></details><p class="rs-note" id="rsStorage">Realschul-Daten werden getrennt auf diesem Gerät gespeichert.</p>`;
 const el=id=>root.querySelector('#'+id);
 function pulse(id){const button=el(id);if(!button)return;button.classList.add('rs-pressed');setTimeout(()=>button.classList.remove('rs-pressed'),450);}

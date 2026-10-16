@@ -22,8 +22,8 @@ const simple={op:'plus',fmt:'standard',a:3,b:5,res:8,sym:'+',missing:2,key:'flow
    await page.evaluate(mode=>{document.getElementById('viewSelect').value=mode;wechselAnsicht(false);document.getElementById('settingsDetails').open=false;document.getElementById('taskCount').value='1';initGame(false);},mode);
    const before=await score();assert(await input().count(),mode);const answer=await input().getAttribute('data-correct');await input().fill(answer);await page.waitForTimeout(270);await input().press('Enter');assert.equal((await score()).correct,before.correct+1,mode);assert.equal((await score()).wrong,before.wrong,mode);assert.equal(await input().inputValue(),'');assert(await input().evaluate(e=>e===document.activeElement));assert.equal(await page.locator('[data-answer-next]').count(),0);
   }
-  // Empty new-task skips once; a wrong answer scores once and moves immediately.
-  await inject();let before=await score();await page.locator('#refreshBtn').click();assert.equal((await score()).wrong,before.wrong+1);
+  // Empty new-task has no rating; a submitted wrong answer stays for correction.
+  await inject();let before=await score();await page.locator('#refreshBtn').click();assert.deepEqual(await score(),before);
   await inject();before=await score();await input().fill('7');await next();assert.equal((await score()).wrong,before.wrong);assert.equal(await input().inputValue(),'7');await input().fill('8');await next();assert.equal((await score()).correct,before.correct+1);assert.equal(await input().inputValue(),'');
   // Both inline answer selections remain usable without an extra button.
   for(const task of [{...simple,fmt:'operator',correctOp:'+'},{...simple,fmt:'compare',leftTxt:'3 + 5',rightTxt:'8',correct:'='}]){
