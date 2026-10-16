@@ -1,5 +1,13 @@
 # Agent Worklog
 
+## 2026-10-16 · Version 221
+- Richtige Eingaben zeigen bereits beim Tippen den grünen Rahmen und Haken; gezählt wird erst beim ausdrücklichen Weitergehen.
+- Auf ausdrücklichen Wunsch den zusätzlichen Weiter-Knopf am Antwortfeld und den verzögerten Aufgabenwechsel entfernt.
+- Enter, Bildschirm-Eingabetaste und Neue Aufgaben bewerten eine eingetragene Antwort einmal als richtig oder falsch und wechseln sofort weiter. Bereits bestätigte Aufgaben werden nicht erneut gezählt. Der Cursor springt ins nächste Eingabefeld.
+- Hinweise/Rechenweg sind vor dem Weitergehen aufrufbar; der Schließknopf unten in den Einstellungen bleibt erhalten.
+- Regressionen für Desktop und Android-Touch-Simulation prüfen direkte Übergänge, Zählung, Fokus und alle numerischen Grundschulmodi. Die 39 Generator-/Ablauftests sind bestanden. Kein echter Android-Installationstest.
+- Bereits lokal vorhandene Archive von Version 218 und die lokalen Zwischenstände 219/220 werden unverändert erhalten.
+
 ## 2026-10-16 · Version 217
 - Enter, Weiter und Neue Aufgaben verwenden für eingetragene Antworten dieselbe Prüfung. Bereits bestätigte Antworten werden beim Aufgabenwechsel nicht erneut gezählt.
 - Richtige Antworten: grüner Rahmen und Häkchen, nach 1,2 Sekunden automatisch weiter. Die neue Checkbox in den Einstellungen ist standardmäßig aktiv und wird lokal gespeichert; ausgeschaltet bleibt der Wechsel manuell.

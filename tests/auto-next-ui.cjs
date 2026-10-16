@@ -12,27 +12,21 @@ const simple={op:'plus',fmt:'standard',a:3,b:5,res:8,sym:'+',missing:2,key:'auto
   const score=()=>page.evaluate(()=>({right:scoreCorrect,wrong:scoreWrong}));
   const input=()=>page.locator('#zeilenAufgaben input').first();
   const inject=async()=>{await page.evaluate(task=>{RealschuleUI.switchSection('grundschule');document.getElementById('viewSelect').value='plus';document.getElementById('settingsDetails').open=false;initGame(false);const root=document.getElementById('zeilenAufgaben');root.replaceChildren();renderTask(root,task,100);focusFirstTaskInput(true);},simple);await page.waitForTimeout(280);};
-  assert(await page.locator('#autoNextCorrect').isChecked());
-  for(const submit of ['enter','inline','forward','keypad'].filter(v=>mobile||v!=='keypad')){
-   await inject();const before=await score();await input().fill('8');
-   if(submit==='enter')await input().press('Enter');else if(submit==='inline')await page.locator('[data-answer-next]').click();else if(submit==='forward')await page.locator('#refreshBtn').click();else {await input().click();await page.locator('#mgKeypad [data-mgk="nx"]').click();}
-   assert.deepEqual(await score(),{right:before.right+1,wrong:before.wrong},submit);
-   assert.equal(await page.locator('#zeilenAufgaben .steinInput').getAttribute('data-state'),'correct');
-   assert.match(await page.locator('#zeilenAufgaben .steinInput').evaluate(e=>getComputedStyle(e,'::after').content),/✓/);
-   await page.waitForTimeout(1450);assert.equal(await input().inputValue(),'');assert(await input().evaluate(e=>e===document.activeElement),'cursor in next answer');assert.deepEqual(await score(),{right:before.right+1,wrong:before.wrong});
+  assert.equal(await page.locator('[data-answer-next]').count(),0);
+  for(const submit of ['enter','forward','keypad'].filter(v=>mobile||v!=='keypad')){
+   for(const value of ['8','7']) {
+    await inject();const before=await score();await input().fill(value);assert.deepEqual(await score(),before,'typing never scores');if(value==='8')assert.equal(await input().evaluate(e=>e.parentElement.dataset.state),'correct','green confirmation before Enter');
+    if(submit==='enter')await input().press('Enter');else if(submit==='forward')await page.locator('#refreshBtn').click();else {await input().click();await page.locator('#mgKeypad [data-mgk="nx"]').click();}
+    assert.equal(await input().inputValue(),'','immediate next task: '+submit);
+    assert(await input().evaluate(e=>e===document.activeElement),'cursor in next answer');
+    assert.deepEqual(await score(),{right:before.right+(value==='8'?1:0),wrong:before.wrong+(value==='7'?1:0)},submit);
+    await page.waitForTimeout(1400);assert.deepEqual(await score(),{right:before.right+(value==='8'?1:0),wrong:before.wrong+(value==='7'?1:0)},'no delayed duplicate score');
+   }
   }
-  await page.evaluate(()=>setAutoNextCorrect(false));
-  for(const next of ['enter','inline','forward']){
-   await inject();const before=await score();await input().fill('8');await input().press('Enter');await page.waitForTimeout(1450);assert.equal(await input().inputValue(),'8');
-   if(next==='enter')await input().press('Enter');else if(next==='inline')await page.locator('[data-answer-next]').click();else await page.locator('#refreshBtn').click();
-   assert.equal(await input().inputValue(),'');assert(await input().evaluate(e=>e===document.activeElement),'cursor in next answer');assert.deepEqual(await score(),{right:before.right+1,wrong:before.wrong},'confirmed correct stays correct: '+next);
-  }
-  await page.evaluate(()=>setAutoNextCorrect(true));
-  await inject();let before=await score();await input().fill('7');await page.locator('#refreshBtn').click();await page.waitForTimeout(1450);assert.equal(await input().inputValue(),'7');assert.deepEqual(await score(),before);await page.locator('#tipBtn').click();await page.waitForTimeout(300);await input().press('Enter');assert.equal(await input().inputValue(),'');assert(await input().evaluate(e=>e===document.activeElement),'cursor in next answer');assert.deepEqual(await score(),{right:before.right,wrong:before.wrong+1});
-  await inject();before=await score();await input().fill('7');await input().press('Enter');await page.waitForTimeout(300);await input().fill('8');await page.locator('#refreshBtn').click();await page.waitForTimeout(1450);assert.equal(await input().inputValue(),'');assert(await input().evaluate(e=>e===document.activeElement),'cursor in next answer');assert.deepEqual(await score(),{right:before.right+1,wrong:before.wrong});
-  await page.evaluate(()=>document.getElementById('settingsDetails').open=true);await page.locator('#autoNextCorrect').uncheck();await page.locator('#closeSettingsBottom').click();assert.equal(await page.locator('#settingsDetails').getAttribute('open'),null);
+  // A previously confirmed answer must only advance, never score again.
+  await inject();let before=await score();await page.evaluate(()=>{const row=document.querySelector('#zeilenAufgaben .zeilenAufgabe');const state=answerState(row);document.querySelector('#zeilenAufgaben input').value='8';completeAnswer(row,MatheAnswerFlow.finish(state,'correct'));});await page.locator('#refreshBtn').click();assert.deepEqual(await score(),{right:before.right+1,wrong:before.wrong});assert(await input().evaluate(e=>e===document.activeElement));
+  await page.evaluate(()=>document.getElementById('settingsDetails').open=true);await page.locator('#closeSettingsBottom').click();assert.equal(await page.locator('#settingsDetails').getAttribute('open'),null);
   await page.evaluate(()=>document.getElementById('settingsDetails').open=true);await page.locator('#scoreArea').click();assert.equal(await page.locator('#settingsDetails').getAttribute('open'),null);
-  await page.reload();await page.waitForTimeout(400);assert.equal(await page.locator('#autoNextCorrect').isChecked(),false);
-  assert.deepEqual(errors,[]);await context.close();console.log('PASS',mobile?'Android touch':'Desktop','Enter/Weiter/forward, green confirmation, automatic/manual advance, correct counted once, wrong waits, retry/help, settings close/persistence');
+  assert.deepEqual(errors,[]);await context.close();console.log('PASS',mobile?'Android touch':'Desktop','Enter/new task/keypad: immediate advance, exact right/wrong counts, focus, no extra button, no double scoring, settings close');
  }}finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});
