@@ -35,3 +35,11 @@
   - **Neu:** Dropdown-Beschriftungen auf `Zeilen (x²)` und `Zeilen (÷x²)` gekürzt.
   - **Neu:** Option `2-stellig (10-99)` im Dropdown `mulProfile` hinzugefügt und in `makeStandardTask` für Quadratzahlen (und normale Mal/Geteilt) als Logik implementiert, damit man gezielt den Zahlenbereich einschränken kann.
 - **Erledigt**: Synchronisation von `docs/index.html` nach `app/src/main/assets/index.html` via Skript.
+
+
+## 2026-10-16 · Version 223
+- Aktuellen Stand 222 von GitHub übernommen. Automatisch weiter bei richtiger Antwort als globale, lokal gespeicherte Einstellung ergänzt, standardmäßig aktiv; Schalter unten in beiden Schulbereichen.
+- Grundschule: nach 850 ms grüner Bestätigung ohne Enter weiter, erst wenn alle Antwortfelder richtig sind. Fehler bleiben stehen, Korrektur und Rechenweg bleiben möglich; Neue Aufgabe erlaubt bewusstes Weitergehen. Bearbeiten, Hilfe und offene Einstellungen verhindern einen verzögerten Wechsel.
+- Realschule: richtige Endantworten automatisch bestätigen und nach sichtbarer Bestätigung weitergehen; falsche Antworten bleiben stehen. Einstellungen unten schließen und durch Außenklick schließen; Grundschul-Außenklick einschließlich Neue Aufgabe geprüft.
+- Validierung: 39 Generator-/Bewertungsprüfungen sowie Browserprüfungen für Desktop und Android-Touch, gespeicherter Aus-Schalter, Korrektur, Abbruch eines vorgemerkten Wechsels, Fokus, Zähler und beide Einstellungsfenster. Signierter Release mit Originalschlüssel über vorhandene Build-/Prüfskripte.
+- GitHub Pages ist durch die Netzwerkregeln dieser Umgebung gesperrt (HTTP 403); öffentlicher GitHub-Download wird nach dem Push separat mit dem lokalen APK-Hash verglichen. Kein Installationstest auf einem Android-Gerät.

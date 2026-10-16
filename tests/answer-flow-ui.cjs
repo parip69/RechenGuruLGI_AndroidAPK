@@ -12,6 +12,7 @@ const simple={op:'plus',fmt:'standard',a:3,b:5,res:8,sym:'+',missing:2,key:'flow
   await context.route('**/*',route=>{let name=new URL(route.request().url()).pathname.replace('/RechenGuruLGI_AndroidAPK/','')||'index.html';const file=path.join(assets,name);if(fs.existsSync(file)&&fs.statSync(file).isFile())return route.fulfill({body:fs.readFileSync(file),contentType:name.endsWith('.html')?'text/html':name.endsWith('.js')?'application/javascript':name.endsWith('.css')?'text/css':undefined});return route.abort();});
   await page.addInitScript(v=>{window.AndroidInterface={getAppVersionName:()=>v,openExternal:()=>true,shareLink:()=>true};},version);
   await page.goto('https://parip69.github.io/RechenGuruLGI_AndroidAPK/');await page.waitForTimeout(400);
+  await page.evaluate(()=>setAutoNextCorrect(false));
   const score=()=>page.evaluate(()=>({correct:scoreCorrect,wrong:scoreWrong,totalCorrect,totalWrong,details:JSON.parse(appStorage.getItem('mathAnswerStats_v1')||'{}')}));
   const inject=async(task=simple)=>{await page.evaluate(task=>{RealschuleUI.switchSection('grundschule');document.getElementById('viewSelect').value='plus';document.getElementById('settingsDetails').open=false;initGame(false);const root=document.getElementById('zeilenAufgaben');root.replaceChildren();renderTask(root,task,100);focusFirstTaskInput(true);},task);await page.waitForTimeout(280);};
   const input=()=>page.locator('#zeilenAufgaben input').first();
@@ -23,7 +24,7 @@ const simple={op:'plus',fmt:'standard',a:3,b:5,res:8,sym:'+',missing:2,key:'flow
   }
   // Empty new-task skips once; a wrong answer scores once and moves immediately.
   await inject();let before=await score();await page.locator('#refreshBtn').click();assert.equal((await score()).wrong,before.wrong+1);
-  await inject();before=await score();await input().fill('7');await next();assert.equal((await score()).wrong,before.wrong+1);assert.equal(await input().inputValue(),'');
+  await inject();before=await score();await input().fill('7');await next();assert.equal((await score()).wrong,before.wrong);assert.equal(await input().inputValue(),'7');await input().fill('8');await next();assert.equal((await score()).correct,before.correct+1);assert.equal(await input().inputValue(),'');
   // Both inline answer selections remain usable without an extra button.
   for(const task of [{...simple,fmt:'operator',correctOp:'+'},{...simple,fmt:'compare',leftTxt:'3 + 5',rightTxt:'8',correct:'='}]){
    await inject(task);const before=await score();await page.locator('#zeilenAufgaben select').selectOption(task.correctOp||task.correct);await page.waitForTimeout(270);await page.locator('#refreshBtn').click();assert.equal((await score()).correct,before.correct+1);
@@ -35,7 +36,7 @@ const simple={op:'plus',fmt:'standard',a:3,b:5,res:8,sym:'+',missing:2,key:'flow
   await begin(7,'termValue');let rt=await rsTask();await page.locator('#rsAnswer').fill(String(rt.answer.n+999));await rsNext();assert.equal((await page.evaluate(()=>RealschuleUI.getState().session)).wrong,0);assert.equal(await page.locator('#rsFeedback').getAttribute('data-kind'),'wrong');await page.locator('#rsHint').click();await page.locator('#rsGuideClose').click();await page.locator('#rsAnswer').fill(String(rt.answer.n/rt.answer.d));await rsNext();assert.equal((await page.evaluate(()=>RealschuleUI.getState().session)).secondCorrect,1);assert.equal(await page.locator('#rsCheck').count(),0);assert.equal(await page.locator('#rsAnswer').count(),1);
   const rsState=await page.evaluate(()=>RealschuleUI.getState());await page.reload();await page.waitForTimeout(400);assert.equal((await page.evaluate(()=>RealschuleUI.getState())).session.correct,rsState.session.correct);await rsNext();assert(!(await page.evaluate(()=>RealschuleUI.getState().session.current.done)));
   await begin(6,'fractionChain');rt=await rsTask();for(const step of rt.steps){await page.locator('#rsAnswer').fill(step);await rsNext();}assert.equal(await page.locator('.rs-card').getAttribute('data-result'),'correct');
-  await begin(7,'termValue');rt=await rsTask();await page.locator('#rsAnswer').fill('999999');await rsNext();await rsNext();assert.equal((await page.evaluate(()=>RealschuleUI.getState().session)).wrong,1);assert.equal(await page.locator('#rsAnswer').inputValue(),'');
+  await begin(7,'termValue');rt=await rsTask();await page.locator('#rsAnswer').fill('999999');await rsNext();await rsNext();await rsNext();assert.equal((await page.evaluate(()=>RealschuleUI.getState().session)).wrong,1);assert.equal(await page.locator('#rsAnswer').inputValue(),'');
   await begin(7,'termValue');await page.waitForTimeout(270);await page.locator('#rsNext').click();assert.equal((await page.evaluate(()=>RealschuleUI.getState().session)).skipped,1);
   assert.deepEqual(errors,[]);await context.close();console.log('PASS:',mobile?'Android touch emulation with existing digits-only keypad':'desktop Enter',': one-action Grundschule advance, all numerical modes, selections, scoring/focus, Realschule persistence and fraction steps');
  }

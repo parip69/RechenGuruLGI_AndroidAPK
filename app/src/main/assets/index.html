@@ -14,7 +14,7 @@
     <meta property="og:locale" content="de_DE" />
     <meta property="og:title" content="Mathe Kids – Rechnen üben, spielerisch lernen" />
     <meta property="og:description" content="Mathe Kids öffnen und die aktuelle Android-App herunterladen. Auf Wunsch lassen sich Rechen-Einstellungen mit dem Link teilen." />
-    <meta property="og:url" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?v=222&amp;update-check=222&amp;preview=whatsapp-v1" />
+    <meta property="og:url" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?v=223&amp;update-check=223&amp;preview=whatsapp-v1" />
     <meta property="og:image" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/icons/share-preview-whatsapp-v1.jpg" />
     <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1200" />
@@ -3178,6 +3178,10 @@
               <option value="free">Frei (auch über 10)</option>
             </select>
           </div>
+          <div class="control-group">
+            <label><input type="checkbox" id="autoNextCorrect" data-mg-global="1" checked onchange="setAutoNextCorrect(this.checked)"> Bei richtiger Antwort automatisch zur nächsten Aufgabe</label>
+            <div class="hintSmall">Nach kurzer grüner Bestätigung geht es weiter. Falsche Antworten bleiben zum Korrigieren oder Nachsehen stehen.</div>
+          </div>
           <button type="button" id="closeSettingsBottom" onclick="closeSettings()">Einstellungen schließen</button>
         </div>
       </details>
@@ -3742,6 +3746,32 @@
           return keys;
         },
       };
+
+      function autoNextCorrectEnabled() {
+        return appStorage.getItem('autoNextCorrect') !== 'false';
+      }
+      function setAutoNextCorrect(enabled) {
+        appStorage.setItem('autoNextCorrect', enabled);
+        document.querySelectorAll('#autoNextCorrect, #rsAutoNextCorrect').forEach(c => c.checked = enabled);
+        clearTimeout(window._autoNextTimeout);
+        window._autoNextTimeout = null;
+        window.dispatchEvent(new Event('auto-next-setting'));
+      }
+      document.getElementById('autoNextCorrect').checked = autoNextCorrectEnabled();
+      function scheduleCorrectAnswer(row, choice) {
+        clearTimeout(window._autoNextTimeout);
+        window._autoNextTimeout = null;
+        const controls = answerControls(row);
+        if (!autoNextCorrectEnabled() || !controls.length || !controls.every(c => c.parentElement.dataset.state === 'correct')) return;
+        const values = controls.map(c => c.value).join('|');
+        window._autoNextTimeout = setTimeout(() => {
+          window._autoNextTimeout = null;
+          if (!row.isConnected || !autoNextCorrectEnabled() || document.hidden || window.__schoolSection === 'realschule' || document.getElementById('settingsDetails').open || document.querySelector('dialog[open], .overlay.show') || controls.map(c => c.value).join('|') !== values) return;
+          const state = answerState(row);
+          if (state.phase !== 'done') submitAnswer(row, controls[controls.length - 1], choice);
+          else if (state.outcome === 'correct') advanceAnswer(row);
+        }, 850);
+      }
 
       /* Geteilte Einstellungen wie beim Barcode-Scanner:
          erst erkennen, dann ausdrücklich fragen, erst danach gezielt übernehmen.
@@ -12310,6 +12340,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           if (state.values) answerControls(row).forEach((c, i) => { c.value = state.values[i]; });
           return;
         }
+        clearTimeout(window._autoNextTimeout);
         MatheAnswerFlow.edit(state);
         answerControls(row).forEach(c => {
           c.parentElement.classList.remove('korrekt', 'falsch'); c.parentElement.dataset.state = 'neutral';
@@ -12317,7 +12348,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         });
         row.querySelector('.answer-feedback')?.remove();
       }
-      function rememberAnswerHelp(row) { if (row) answerState(row).helped = true; }
+      function rememberAnswerHelp(row) { clearTimeout(window._autoNextTimeout); if (row) answerState(row).helped = true; }
       function activeAnswerRow() {
         const root = answerRoot(); if (!root) return null;
         if (root.contains(document.activeElement)) return answerRow(document.activeElement);
@@ -12400,9 +12431,16 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         if (!valid) { answerMessage(row, t('Trage zuerst eine Antwort ein.')); focusAnswer(controls.find(c => !c.value.trim())); return; }
         const correct = choice !== undefined ? choice === task.isTrue : matches.every(Boolean);
         paintAnswer(row, matches);
-        const result = MatheAnswerFlow.finish(state, correct ? 'correct' : 'wrong');
+        const result = MatheAnswerFlow.submit(state, {answer: choice !== undefined ? String(choice) : values.join('|'), valid, correct});
+        if (result.action === 'retry') {
+          clearRoundTimer();
+          row.dataset.answerPhase = 'retry';
+          answerMessage(row, 'Noch nicht richtig. Du kannst korrigieren oder den Rechenweg ansehen.', true);
+          return;
+        }
         completeAnswer(row, result);
-        advanceAnswer(row);
+        if (correct) advanceAnswer(row);
+        else answerMessage(row, 'Noch nicht richtig. Du kannst den Rechenweg ansehen oder zur nächsten Aufgabe gehen.', true);
       }
 
       function newAnswerTask(event) {
@@ -12412,8 +12450,10 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         if (state.phase !== 'done') {
           const controls = answerControls(row);
           if (controls.some(c => c.value.trim())) {
-            // Delegate without consuming the shared event guard twice.
+            // An explicit new-task click may leave a wrong answer behind.
             submitAnswer(row, controls[controls.length - 1]);
+            if (state.phase !== 'done') completeAnswer(row, MatheAnswerFlow.finish(state, 'wrong'));
+            if (row.isConnected && state.outcome !== 'correct') advanceAnswer(row);
             return;
           }
           completeAnswer(row, MatheAnswerFlow.finish(state, 'skipped'));
@@ -12449,13 +12489,21 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         if (control?.matches('input[data-mg-answer]')) scrollAnswerIntoView(answerRow(control));
       });
       function pruefeWahrFalsch(btn, value) { nextAnswer(btn, null, value); }
-      function pruefeOperator(control) { editAnswer(control); }
-      function pruefeCompare(control) { editAnswer(control); }
+      function pruefeOperator(control) {
+        editAnswer(control);
+        const row = answerRow(control), task = JSON.parse(row.dataset.task);
+        paintAnswer(row, [control.value === task.correctOp]); scheduleCorrectAnswer(row);
+      }
+      function pruefeCompare(control) {
+        editAnswer(control);
+        const row = answerRow(control), task = JSON.parse(row.dataset.task);
+        paintAnswer(row, [control.value === task.correct]); scheduleCorrectAnswer(row);
+      }
       function pruefeEingabe(control, correct, submitted = false) {
         if (submitted) nextAnswer(control);
         else {
           control.value = control.value.replace(/[^\d]/g, ''); editAnswer(control);
-          // Show the familiar green confirmation while typing; only Enter/new task scores.
+          // Show confirmation first, then advance only when all answers are correct.
           const row = answerRow(control);
           if (!row || answerState(row).phase === 'done') return;
           answerControls(row).forEach(c => {
@@ -12465,6 +12513,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             c.parentElement.dataset.state = correct ? 'correct' : 'neutral';
             setControlValidationState(c, correct ? 'correct' : 'neutral');
           });
+          scheduleCorrectAnswer(row);
         }
       }
 
@@ -13295,7 +13344,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v222";
+        const SW_VERSION = "rechenguru-lgi-v223";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -14611,7 +14660,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       <button class="appDownloadBtn" id="appDownloadBtn" type="button" title="Android-APK herunterladen" aria-label="Android-APK herunterladen" aria-haspopup="dialog" aria-controls="appUpdateDialog"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M10 3h8v13h5l-9 9-9-9h5z" /></svg></button>
       <span id="appShareWidget"></span>
     </div>
-    <footer id="appFooter" data-app-version="222" class="matheFooter">
+    <footer id="appFooter" data-app-version="223" class="matheFooter">
       <span class="footerCredits"><span id="footerDeveloperLabel">Entwickelt von:</span> <button id="developerInfoLink" type="button">Bachner Gerhard</button> <span class="footerIsabella">&amp; Isabella</span> · Ver.<span id="appVersion"></span></span>
       <div class="appUpdateWidget" id="appUpdateWidget">
         <button class="appUpdateBtn" id="appUpdateBtn" type="button" title="Kurz drücken: Update prüfen · Lang drücken: Update-Einstellungen" aria-label="Update prüfen. Lange drücken für Update-Einstellungen.">↻</button>
@@ -14684,7 +14733,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
           <a
             class="developer-project-card"
-            href="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?update-check=222"
+            href="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?update-check=223"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Mathe Kids öffnen"
