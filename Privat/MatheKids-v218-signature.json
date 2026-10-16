@@ -1,0 +1,11 @@
+{
+    "Package":  "de.parip69.rechengurulgi",
+    "VersionCode":  218,
+    "VersionName":  "218",
+    "CertificateSHA256":  "3e3a9ad569b2e7abb9f8f77ea3e765832c81e2505f38a41f36be49f5ca79c4bc",
+    "FileSHA256":  "40a9080c445d161a2fe0a9d6f68430dc3c34d43836f91bc14a26f43a9d0c25ec",
+    "Debuggable":  false,
+    "V1":  true,
+    "V2":  true,
+    "V3":  true
+}
