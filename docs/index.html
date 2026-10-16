@@ -14,7 +14,7 @@
     <meta property="og:locale" content="de_DE" />
     <meta property="og:title" content="Mathe Kids – Rechnen üben, spielerisch lernen" />
     <meta property="og:description" content="Mathe Kids öffnen und die aktuelle Android-App herunterladen. Auf Wunsch lassen sich Rechen-Einstellungen mit dem Link teilen." />
-    <meta property="og:url" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?v=224&amp;update-check=224&amp;preview=whatsapp-v1" />
+    <meta property="og:url" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?v=225&amp;update-check=225&amp;preview=whatsapp-v1" />
     <meta property="og:image" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/icons/share-preview-whatsapp-v1.jpg" />
     <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1200" />
@@ -2612,12 +2612,20 @@
     .chain-expression { display:flex; flex-wrap:wrap; align-items:center; gap:8px; font-size:clamp(24px,6vw,36px); line-height:1.4; }
     .zeilenAufgabe .stein, .chain-expression .stein { font-size:inherit; font-weight:800; width:auto; min-width:2ch; flex:0 0 auto; min-height:54px; }
     .zeilenAufgabe .task-operator { font-size:inherit; font-weight:700; }
-    .zeilenAufgabe .stein input { font-size:inherit; font-weight:800; width:calc(var(--answer-digits,3)*1ch); }
+    .zeilenAufgabe .stein input { font-size:inherit; font-weight:800; }
     .zeilenAufgabe span.stein { font-size:inherit; color:var(--text); }
     .zeilenAufgabe > span { font-size:inherit; }
     .chain-expression .chain-part { display:inline-flex; align-items:center; gap:8px; font-size:inherit; }
-    .steinInput { display:inline-flex; align-items:center; vertical-align:middle; min-width:0; }
-    .steinInput input { width:calc(var(--answer-digits,3)*1ch); min-width:2ch; max-width:100%; font-size:inherit; line-height:1.3; padding:8px 4px; }
+    .stein.steinInput {
+      display:inline-flex; align-items:center; vertical-align:middle; flex:0 0 auto;
+      width:calc(var(--answer-digits,2)*1ch + 1ch + 20px);
+      min-width:calc(3ch + 20px); padding:0;
+      transition:border-color .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+    .stein.steinInput input {
+      box-sizing:border-box; width:100%; min-width:0; max-width:none;
+      font-size:inherit; line-height:1.3; padding:8px 6px;
+    }
     .steinInput:focus-within { outline:3px solid var(--primary); outline-offset:2px; }
     .steinInput input:read-only { cursor:default; }
     .answer-feedback { flex-basis:100%; margin:4px 0; font-size:16px; line-height:1.4; }
@@ -7745,6 +7753,15 @@
       }
 
       // --- Numeric Inputs: harte Zahlentastatur + kein Autofill/Payments ---
+      function sizeAnswerInput(inp) {
+        if (!inp?.hasAttribute('data-mg-answer')) return;
+        const rangeDigits = Math.max(2, String(getMax()).length, String(inp.dataset.correct || '').length);
+        const visibleDigits = Math.max(rangeDigits, String(inp.value || '').length);
+        // Size the box itself; padding, validation border and caret need extra space.
+        inp.closest('.steinInput')?.style.setProperty('--answer-digits', visibleDigits);
+        inp.setAttribute('maxlength', String(Math.max(4, rangeDigits + 1)));
+      }
+
       function hardenNumericInput(inp, idx = 0) {
         if (!inp) return;
 
@@ -7761,9 +7778,7 @@
         inp.setAttribute("pattern", "[0-9]*");
         if (inp.hasAttribute('data-mg-answer')) {
           inp.setAttribute('enterkeyhint', 'next');
-          const digits = Math.max(2, String(inp.dataset.correct || getMax()).length + 1);
-          inp.style.setProperty('--answer-digits', digits);
-          inp.setAttribute('maxlength', String(Math.max(4, digits + 1)));
+          sizeAnswerInput(inp);
           inp.removeAttribute('placeholder');
         }
 
@@ -7793,6 +7808,7 @@
               const v = String(inp.value || "");
               const cleaned = v.replace(/[^\d]/g, "");
               if (v !== cleaned) inp.value = cleaned;
+              sizeAnswerInput(inp);
             },
             { passive: true },
           );
@@ -13371,7 +13387,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v224";
+        const SW_VERSION = "rechenguru-lgi-v225";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -14687,7 +14703,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       <button class="appDownloadBtn" id="appDownloadBtn" type="button" title="Android-APK herunterladen" aria-label="Android-APK herunterladen" aria-haspopup="dialog" aria-controls="appUpdateDialog"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M10 3h8v13h5l-9 9-9-9h5z" /></svg></button>
       <span id="appShareWidget"></span>
     </div>
-    <footer id="appFooter" data-app-version="224" class="matheFooter">
+    <footer id="appFooter" data-app-version="225" class="matheFooter">
       <span class="footerCredits"><span id="footerDeveloperLabel">Entwickelt von:</span> <button id="developerInfoLink" type="button">Bachner Gerhard</button> <span class="footerIsabella">&amp; Isabella</span> · Ver.<span id="appVersion"></span></span>
       <div class="appUpdateWidget" id="appUpdateWidget">
         <button class="appUpdateBtn" id="appUpdateBtn" type="button" title="Kurz drücken: Update prüfen · Lang drücken: Update-Einstellungen" aria-label="Update prüfen. Lange drücken für Update-Einstellungen.">↻</button>
@@ -14760,7 +14776,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
           <a
             class="developer-project-card"
-            href="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?update-check=224"
+            href="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?update-check=225"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Mathe Kids öffnen"

@@ -50,3 +50,10 @@
 - Schließen-Button im Realschulbereich ebenfalls über volle Breite gestaltet. Keine Änderung der Bewertungs-/Automatiklogik von 223.
 - Browserprüfung bei 390 und 1280 Pixeln: beide Grundschul-Buttons volle Breite, mindestens 56 Pixel hoch, unterer Button hinter Automatik und Zurücksetzen; beide schließen. Mobile Darstellung zusätzlich als Screenshot geprüft.
 - Ergänzter Nutzerwunsch: Neue Aufgabe bei leerem Feld bleibt ohne jede Richtig-/Fehlerwertung, verändert weder Gesamtzähler noch Fehlerpool, Serie oder Zielstand. Eingetragene Antworten einschließlich 0 werden beim bewussten Weitergehen ausgewertet. Browserprüfungen entsprechend erweitert.
+
+
+## 2026-10-16 · Version 225
+- Antwortfelder richten sich nach dem eingestellten Zahlenraum: mindestens zwei Stellen, drei bei 100, vier bei 1000; zusätzlich längere vorhandene Lösungswerte berücksichtigen. Der Feldrahmen erhält die Breite direkt, mit Reserve für Innenabstand, grünen/roten Rand und Cursor.
+- Eingaben lassen das Feld ohne verzögerte Breitenanimation wachsen und beim Löschen bis zur Basisbreite schrumpfen. Große Schrift und sichtbare Rückmeldungen bleiben erhalten; Bildschirmtastatur und Hardware-Eingabe verwenden denselben Größenweg.
+- Neue Browserprüfung tests/answer-sizing-ui.cjs misst tatsächliche Text-/Feldbreite bei 320/390/1280 Pixeln: Zahlenraumgrenzen, längere Fehleingaben, Löschen, grüne Bestätigung, Android-Ziffernblock, Rechenketten, gemischte Malaufgaben, Pyramiden und Trauben. Mobile Darstellung zusätzlich visuell geprüft.
+- Bestehende Automatikprüfung auf Desktop und Android-Touch erfolgreich, einschließlich leerer Aufgaben ohne Wertung, Korrektur und gespeicherter Einstellungen. Release wird mit dem bestehenden Originalschlüssel gebaut und geprüft. GitHub-Pages-Zugriff bleibt in dieser Umgebung gesperrt; den öffentlichen GitHub-APK-Download nach Upload bytegenau prüfen.
