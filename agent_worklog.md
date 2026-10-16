@@ -1,5 +1,13 @@
 # Agent Worklog
 
+## 2026-10-16 · Version 217
+- Enter, Weiter und Neue Aufgaben verwenden für eingetragene Antworten dieselbe Prüfung. Bereits bestätigte Antworten werden beim Aufgabenwechsel nicht erneut gezählt.
+- Richtige Antworten: grüner Rahmen und Häkchen, nach 1,2 Sekunden automatisch weiter. Die neue Checkbox in den Einstellungen ist standardmäßig aktiv und wird lokal gespeichert; ausgeschaltet bleibt der Wechsel manuell.
+- Falsche Antworten bleiben zur Korrektur und für Hilfen stehen. Bewusstes Weitergehen nach dem ersten Fehler zählt einmal falsch. Der Fokus wechselt ins nächste Eingabefeld.
+- Einstellungen unten per Schaltfläche, per Klick außerhalb oder Escape schließen.
+- Geprüft: 39 Generator-/Ablauftests, bestehende umfassende Browserprüfung sowie neue Regression tests/auto-next-ui.cjs auf Desktop und Android-Touch-Simulation einschließlich Zählung und Cursorwechsel.
+- Kein Installationstest auf einem echten Android-Gerät.
+
 ## 2026-09-23
 - Einstellungen neu gegliedert: verständlicher 3-Schritt-Ablauf, kontextabhängige Hilfetexte und seltene Optionen in einem separaten Bereich.
 - Auswahl der Aufgabenarten umbenannt und im Popup nach Grundrechenarten, Mal/Geteilt und weiteren Übungen gruppiert; kurze Erklärungen je Modus ergänzt.
