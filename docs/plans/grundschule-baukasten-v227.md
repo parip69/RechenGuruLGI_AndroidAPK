@@ -41,4 +41,14 @@ Paket: `de.parip69.rechengurulgi`; Code/Name 227; nicht debuggable; gültige v1/
 
 APK-Datei: `Privat/MatheKids-v227.apk`, 13.694.077 Bytes. SHA-256: `dba221d06196897b93b019efa07560655e70e1f3ff47b0fe4dad171443975267`.
 
-**Veröffentlichung noch ausstehend:** Die Cloud blockiert den direkten HTTPS-Abruf von `parip69.github.io` mit CONNECT/HTTP 403. Eine asynchrone Bitte um Freigabe dieses Hosts in der Cloud-Netzwerkkonfiguration wurde gestellt. Bis diese notwendige Download-/Hashprüfung möglich ist, wird entsprechend dem Nutzerauftrag nicht auf GitHub veröffentlicht. Kein neuer öffentlicher Download oder erfolgreiches Geräteupdate wird behauptet. Die ursprüngliche Veröffentlichungsfreigabe des Nutzers gilt weiter; nach Beseitigung der Netzwerksperre normal auf main pushen, CI/Pages prüfen und die öffentliche APK herunterladen/haschen.
+## GitHub-Veröffentlichung
+
+Auf erneuten ausdrücklichen Upload-Auftrag wurde der geprüfte Stand am 23. Oktober 2026 ohne Force-Push auf `main` veröffentlicht: `c74ba23003aaa4c0ebe1ca172033cdcf44ccb39e`. Der GitHub-Branch wurde anschließend über die Verbindung und per Git abgefragt. Die versionierte APK wurde aus genau diesem öffentlichen Commit erneut heruntergeladen; Größe und SHA-256 stimmen mit der geprüften lokalen APK überein.
+
+Geprüfter direkter GitHub-Download: https://raw.githubusercontent.com/parip69/RechenGuruLGI_AndroidAPK/c74ba23003aaa4c0ebe1ca172033cdcf44ccb39e/docs/MatheKids-v227.apk
+
+Die Quellen und `docs` enthalten Version 227, den zugehörigen Service-Worker-Cache sowie die versionierten und bisherigen APK-Downloadadressen. Der bestehende Android-Updater lädt nach Erkennung der neuen öffentlichen HTML-Version `MatheKids-v227.apk`; die Installation bestätigt der Nutzer auf dem Gerät.
+
+Die automatischen Prüfungen und die Pages-Bereitstellung werden gesondert kontrolliert. Zum Zeitpunkt des ersten Abrufs waren für den neuen Commit noch keine Workflow-Läufe beziehungsweise Check-Runs gelistet. Eine erfolgreiche Pages-Bereitstellung wird erst nach entsprechendem GitHub-Nachweis bestätigt.
+
+**Offene externe Prüfung:** Diese laufende Cloud-Instanz verweigert den direkten HTTPS-Abruf von `parip69.github.io` weiterhin mit CONNECT/HTTP 403. Daher sind ein Download-/Hashvergleich über die Pages-Adresse und ein echtes Geräteupdate bisher nicht bestätigt. Der oben geprüfte GitHub-Download ist kein Nachweis für den Zustand des Pages-CDN. Keine erneute Installation auf einem physischen Android-Gerät durchgeführt.

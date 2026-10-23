@@ -22,4 +22,4 @@
 | Baukasten: Abschlussprüfung | 56 Unitprüfungen und alle 12 Browserdateien erfolgreich; sechs Themes mit Kontrastprüfung; Sondergeneratoren unverändert |
 | Baukasten: Release 226 | Intern gebaut, nicht veröffentlicht; Originalsignierung gültig; nach Kontrastkorrektur durch 227 abgelöst und unter .release-build/unpublished-v226 erhalten |
 | Baukasten: Release 227 lokal | Erledigt: Release-Lint/Build, Originalsignatur, Paket, Version, v1/v2/v3, nicht debuggable, fünf APK-Ablehnungsfälle, 26 Assets und sechs Kopien geprüft; SHA-256 dba221d06196897b93b019efa07560655e70e1f3ff47b0fe4dad171443975267 |
-| Baukasten: Veröffentlichung 227 | Blockiert: Cloud-Netzwerk verweigert parip69.github.io mit CONNECT/HTTP 403; Host-Freigabe angefragt. Noch kein Push, keine öffentlichen neuen Links oder echten Installationstests |
+| Baukasten: Veröffentlichung 227 | Auf erneuten Upload-Auftrag normal auf main gepusht: c74ba23003aaa4c0ebe1ca172033cdcf44ccb39e. Öffentliche GitHub-APK erneut geladen, SHA-256 identisch. CI/Pages separat zu prüfen; direkter Pages-Abruf bleibt in dieser Cloud mit HTTP 403 gesperrt. Kein echter Installationstest |
