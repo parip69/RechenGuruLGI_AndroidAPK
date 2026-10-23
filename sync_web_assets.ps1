@@ -332,6 +332,13 @@ function Sync-DocsFromAssets {
 
     Copy-FileIfChanged -SourcePath (Join-Path $SourceAssetsDir "gemischte-malaufgaben.js") -DestinationPath (Join-Path $TargetDocsDir "gemischte-malaufgaben.js")
 
+    $builderSource = Join-Path $SourceAssetsDir "grundschule"
+    $builderTarget = Join-Path $TargetDocsDir "grundschule"
+    New-Item -ItemType Directory -Force -Path $builderTarget | Out-Null
+    Get-ChildItem -LiteralPath $builderSource -File | ForEach-Object {
+        Copy-FileIfChanged -SourcePath $_.FullName -DestinationPath (Join-Path $builderTarget $_.Name)
+    }
+
     $moduleSource = Join-Path $SourceAssetsDir "realschule"
     if (Test-Path -LiteralPath $moduleSource) {
         $moduleTarget = Join-Path $TargetDocsDir "realschule"
