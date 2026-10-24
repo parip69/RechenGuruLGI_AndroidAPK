@@ -22,6 +22,19 @@ const {chromium}=require('playwright'),fs=require('fs'),path=require('path'),ass
   const local=await browser.newContext(),localPage=await local.newPage();await local.route('**/*',r=>r.request().url()===base+'portable-test.html'?r.fulfill({body:portable,contentType:'text/html'}):r.abort());await localPage.goto(base+'portable-test.html');await local.setOffline(true);await localPage.waitForTimeout(350);
   assert.equal(await localPage.locator('#positionConfig').inputValue(),raw);assert.equal(await localPage.locator('#zeilenAufgaben [data-task]').count(),1);
   await page.locator('#appShareWidget button').click();await page.locator('input[name=appShareMode][value=app]').check();await page.locator('#appShareStart').click();assert(!(await page.evaluate(()=>window.__shared)).includes('#settings='));
+  // Exercise native asset export with all JavaScript fetch access blocked.
+  const native=await browser.newContext(),nativePage=await native.newPage();
+  const bundled={html:fs.readFileSync(path.join(assets,'index.html'),'utf8'),assets:Object.fromEntries(['positions/config.js','positions/style.css','positions/ui.js','answer-flow.js','rechenketten.js','gemischte-malaufgaben.js','realschule/style.css','realschule/core.js','realschule/ui.js'].map(name=>[name,fs.readFileSync(path.join(assets,name),'utf8')]))};
+  await native.addInitScript(bundled=>{
+   window.fetch=()=>{throw new Error('File-origin fetch must not be needed');};
+   window.AndroidInterface={getAppVersionName:()=>'99999',getBundledIndexHtml:()=>bundled.html,getBundledTextAsset:name=>bundled.assets[name]||'',checkLatestVersion:requestId=>{setTimeout(()=>window.__matheLatestVersion({requestId,version:99999}),10);return true;}};
+  },bundled);
+  await native.route('**/*',r=>{const name=new URL(r.request().url()).pathname.replace('/RechenGuruLGI_AndroidAPK/','')||'index.html',file=path.join(assets,name);return fs.existsSync(file)&&fs.statSync(file).isFile()?r.fulfill({body:fs.readFileSync(file),contentType:name.endsWith('.html')?'text/html':name.endsWith('.js')?'application/javascript':name.endsWith('.css')?'text/css':undefined}):r.abort();});
+  await nativePage.goto(base);
+  const nativeExport=await nativePage.evaluate(async()=>{appStorage.setItem('mathModeSettings:plus',JSON.stringify({maxWert:'47'}));return bundleRealschuleAssets(embedPortableAppStateIntoHtml(await getBundledIndexHtmlText()));});
+  assert(nativeExport.includes('window.MathePositions'));assert(!nativeExport.includes('src="positions/config.js"'));assert(nativeExport.includes('mathModeSettings:plus'));assert(nativeExport.includes('47'));
+  assert.equal(await nativePage.evaluate(()=>MatheChains.generate({count:3,max:20,ops:['plus']}).numbers.length),3);
+  await native.close();
   console.log('PASS: position configuration travels inside existing mode sharing; import preserves other profiles and PIN; portable HTML embeds all new modules and works offline; plain sharing stays plain');
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1);});

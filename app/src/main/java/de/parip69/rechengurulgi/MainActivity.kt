@@ -38,12 +38,14 @@ import java.io.ByteArrayInputStream
 import java.io.File
 import org.json.JSONObject
 import kotlin.math.roundToInt
+import java.util.concurrent.Executors
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var appUpdater: AppUpdater
     private var currentChromeTheme: ChromeTheme? = null
+    private val updateChecks = Executors.newSingleThreadExecutor()
     private val immersiveModeRunnable = Runnable { hideSystemBars() }
 
     private data class ChromeTheme(
@@ -227,11 +229,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            window.isStatusBarContrastEnforced = false
-            window.isNavigationBarContrastEnforced = false
-        }
-
         applyChromeTheme(resolveFallbackChromeTheme())
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, _ ->
@@ -284,6 +281,28 @@ class MainActivity : AppCompatActivity() {
 
     inner class AndroidInterface {
         @JavascriptInterface
+        fun checkLatestVersion(requestId: String): Boolean {
+            if (!Regex("[0-9]{1,9}").matches(requestId)) return false
+            runOnUiThread {
+                if (isDestroyed || !isBundledPage()) return@runOnUiThread
+                updateChecks.execute {
+                    val answer = JSONObject().put("requestId", requestId)
+                    try {
+                        answer.put("version", ReleaseVersionReader().read())
+                    } catch (_: Exception) {
+                        answer.put("error", "Die Update-Version konnte nicht geladen werden. Bitte prüfe die Verbindung und versuche es erneut.")
+                    }
+                    runOnUiThread {
+                        if (!isDestroyed && isBundledPage()) {
+                            binding.webView.evaluateJavascript("window.__matheLatestVersion && window.__matheLatestVersion($answer);", null)
+                        }
+                    }
+                }
+            }
+            return true
+        }
+
+        @JavascriptInterface
         fun saveTextFile(fileName: String, content: String): Boolean {
             return saveBytesToDownloads(
                 fileName,
@@ -329,7 +348,7 @@ class MainActivity : AppCompatActivity() {
         @JavascriptInterface
         fun setSettingsDialogOpen(open: Boolean) {
             runOnUiThread {
-                if (binding.webView.url?.substringBefore('#')?.substringBefore('?') == "file:///android_asset/index.html") {
+                if (isBundledPage()) {
                     // WebView.canScrollVertically cannot see a dialog's inner DOM
                     // scroll container. Prevent the parent from stealing its swipes.
                     binding.swipeRefresh.isRefreshing = false
@@ -343,7 +362,7 @@ class MainActivity : AppCompatActivity() {
             val requested = version?.toIntOrNull()?.takeIf { it > 0 } ?: return false
             runOnUiThread {
                 // This privileged bridge is only available to the bundled app page.
-                if (binding.webView.url?.substringBefore('#')?.substringBefore('?') == "file:///android_asset/index.html") {
+                if (isBundledPage()) {
                     appUpdater.start(requested)
                 } else showToast("Updates bitte direkt in der Mathe-Kids-App starten.")
             }
@@ -421,7 +440,7 @@ class MainActivity : AppCompatActivity() {
         val settings = webView.settings
         settings.javaScriptEnabled = true
         settings.domStorageEnabled = true
-        settings.databaseEnabled = true
+        // DOM storage preserves existing profiles. The app does not use WebSQL.
         settings.allowFileAccess = true
         settings.allowContentAccess = true
         settings.loadsImagesAutomatically = true
@@ -434,10 +453,8 @@ class MainActivity : AppCompatActivity() {
         settings.loadWithOverviewMode = true
         settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            settings.allowFileAccessFromFileURLs = true
-            settings.allowUniversalAccessFromFileURLs = true
-        }
+        // Keep the existing file origin (and localStorage). Asset exports use
+        // the native bridge; release checks use HTTPS outside the WebView.
 
         webView.isVerticalScrollBarEnabled = false
         webView.isHorizontalScrollBarEnabled = false
@@ -542,13 +559,7 @@ class MainActivity : AppCompatActivity() {
         binding.webView.setBackgroundColor(chromeTheme.bottomColor)
         binding.swipeRefresh.setColorSchemeColors(chromeTheme.topColor, chromeTheme.bottomColor)
         binding.swipeRefresh.setProgressBackgroundColorSchemeColor(chromeTheme.bottomColor)
-        window.statusBarColor = Color.TRANSPARENT
-        window.navigationBarColor = Color.TRANSPARENT
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            window.isStatusBarContrastEnforced = false
-            window.isNavigationBarContrastEnforced = false
-        }
+        // Transparent bars and contrast policy are defined by the window theme.
 
         WindowCompat.getInsetsController(window, window.decorView)?.let { controller ->
             controller.isAppearanceLightStatusBars = isLightColor(chromeTheme.topColor)
@@ -569,15 +580,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun hideSystemBars() {
-        @Suppress("DEPRECATION")
-        window.decorView.systemUiVisibility =
-            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
-                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-                View.SYSTEM_UI_FLAG_FULLSCREEN
-
         WindowCompat.getInsetsController(window, window.decorView)?.let { controller ->
             controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             controller.hide(WindowInsetsCompat.Type.systemBars())
@@ -605,6 +607,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        updateChecks.shutdownNow()
         if (::appUpdater.isInitialized) appUpdater.destroy()
         if (::binding.isInitialized) {
             binding.root.removeCallbacks(immersiveModeRunnable)
@@ -612,4 +615,7 @@ class MainActivity : AppCompatActivity() {
         binding.webView.destroy()
         super.onDestroy()
     }
+
+    private fun isBundledPage(): Boolean =
+        binding.webView.url?.substringBefore('#')?.substringBefore('?') == "file:///android_asset/index.html"
 }

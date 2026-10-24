@@ -3,6 +3,8 @@
     <style name="Theme.RechenGuruLGI" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:enforceStatusBarContrast" tools:targetApi="q">false</item>
+        <item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
         <item name="android:windowBackground">@drawable/window_background</item>
         <item name="android:colorBackground">@color/app_window_background</item>
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
