@@ -18,7 +18,8 @@
 #tileSettingsDialog button{font:inherit;min-height:48px;padding:8px 12px;border:1px solid var(--dividerStrong);border-radius:12px;background:var(--surface78);color:var(--text);cursor:pointer;white-space:normal;overflow-wrap:anywhere}
 #tileSettingsDialog button[aria-pressed=true]{border:2px solid var(--primary);font-weight:800;background:var(--surface92)}
 #tileSettingsDialog button:disabled{opacity:.5;cursor:default}
-#tileSettingsDialog .position-dialog-body{padding:12px;overflow-y:auto;min-height:0;overscroll-behavior:contain}
+#tileSettingsDialog .position-dialog-body{flex:1 1 auto;padding:12px;overflow-y:auto;min-height:0;overscroll-behavior:contain}
+#tileSettingsDialog>header,#tileSettingsDialog>footer{flex-shrink:0}
 #tileSettingsDialog #settingsDetails{border:0;padding:0;box-shadow:none;background:transparent;margin:0}
 #tileSettingsDialog #settingsDetails>summary{display:none}
 #tileSettingsDialog #controlsArea{padding:0;margin:0;gap:12px}

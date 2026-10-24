@@ -297,3 +297,15 @@ test('Large square roots from existing free profiles survive adapting',()=>{
   const t=B.generate(c,{rng});assert.equal(t.rhs,mode==='squareMal'?961:31);
  }
 });
+test('Free multiplication and mixed division respect independent ranges and the result limit',()=>{
+ const c=base('mixMD');c.table=false;c.numbers[0]=B.numberSlot('n0',20,22);c.numbers[1]=B.numberSlot('n1',1,2);c.numbers[0].allowZero=false;c.numbers[1].allowZero=false;
+ c.max=c.intermediateMax=44;
+ const operators=new Set(),examples=new Set();
+ for(let i=0;i<200;i++){
+  const t=B.generate(c,{rng});check(t,c);operators.add(t.ops[0]);examples.add(t.numbers.join(',')+':'+t.ops[0]);
+  assert(t.numbers[0]>=20&&t.numbers[0]<=22);assert(t.numbers[1]>=1&&t.numbers[1]<=2);assert(Number.isInteger(t.rhs)&&t.rhs<=44);
+ }
+ assert.deepEqual([...operators].sort(),['geteilt','mal']);assert(examples.has('22,2:mal'));
+ c.numbers[0]={...c.numbers[0],kind:'fixed',value:22};c.numbers[1]={...c.numbers[1],kind:'fixed',value:2};c.operators[0].allowed=['mal'];c.max=c.intermediateMax=43;
+ assert.throws(()=>B.generate(c));
+});
