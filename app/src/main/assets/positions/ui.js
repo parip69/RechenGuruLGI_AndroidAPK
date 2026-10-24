@@ -132,14 +132,18 @@
   }
   function openSettings() {
     quietKeyboard();
-    if (!dialog.open) { anchor.after(dialog); dialog.querySelector('.position-dialog-body').append($('settingsDetails')); $('settingsDetails').open = true; refresh(); dialog.showModal(); }
+    if (!dialog.open) { anchor.after(dialog); dialog.querySelector('.position-dialog-body').append($('settingsDetails')); $('settingsDetails').open = true; refresh(); dialog.showModal(); syncNativeSettingsDialog(); }
+  }
+  function syncNativeSettingsDialog() {
+    const bridge = typeof getAndroidBridge === 'function' ? getAndroidBridge() : null;
+    if (typeof bridge?.setSettingsDialogOpen === 'function') bridge.setSettingsDialogOpen(dialog.open);
   }
   function finish(practice) {
     if (practice && supported.has(mode())) {
       try { B.generate(config()); } catch(e) { message(e.message); return; }
     }
     saveModeSettings(mode());
-    dialog.close(); restoring = true;
+    dialog.close(); syncNativeSettingsDialog(); restoring = true;
     $('settingsDetails').open = false; anchor.after($('settingsDetails')); restoring = false;
     if (practice) { initGame(true); focusFirstTaskInput(true); }
   }
@@ -323,6 +327,7 @@
     $('controlsArea').append(more);
     dialog.querySelector('[data-close]').onclick=()=>finish(false);$('positionPractice').onclick=()=>finish(true);
     dialog.addEventListener('cancel',e=>{e.preventDefault();finish(false);});
+    dialog.addEventListener('close',syncNativeSettingsDialog);
     const originalClose=window.closeSettings; window.closeSettings=function(focus=true){if(dialog.open){finish(focus);return;}originalClose(focus);};
     const originalApply=window.applyModeSettings;window.applyModeSettings=function(m){originalApply(m);if(!restoring)refresh();};
     window.renderViewSelectPopup=renderTiles;

@@ -327,6 +327,18 @@ class MainActivity : AppCompatActivity() {
         }
 
         @JavascriptInterface
+        fun setSettingsDialogOpen(open: Boolean) {
+            runOnUiThread {
+                if (binding.webView.url?.substringBefore('#')?.substringBefore('?') == "file:///android_asset/index.html") {
+                    // WebView.canScrollVertically cannot see a dialog's inner DOM
+                    // scroll container. Prevent the parent from stealing its swipes.
+                    binding.swipeRefresh.isRefreshing = false
+                    binding.swipeRefresh.isEnabled = !open
+                }
+            }
+        }
+
+        @JavascriptInterface
         fun downloadAndInstallUpdate(version: String?): Boolean {
             val requested = version?.toIntOrNull()?.takeIf { it > 0 } ?: return false
             runOnUiThread {
