@@ -44,6 +44,6 @@
 #realschulePanel .rs-actions button{width:100%;min-width:0;box-sizing:border-box;white-space:normal}
 #realschulePanel .rs-actions #rsNext{grid-column:1 / -1}
 
-#schoolInfoBtn{display:block;width:100%;min-height:48px;border:1px solid #8398ab;border-radius:12px;padding:12px;margin:16px 0;background:var(--surface78,#edf4f8);color:inherit;font:inherit;cursor:pointer}
+#schoolInfoBtn{display:block;width:min(900px,100%);box-sizing:border-box;min-height:48px;border:1px solid var(--dividerStrong);border-radius:12px;padding:12px;margin:16px auto;background:var(--surface78,#edf4f8);color:inherit;font:inherit;cursor:pointer}
 #schoolInfo{position:fixed;inset:0;margin:0;width:100vw;max-width:none;height:100vh;height:100dvh;max-height:100dvh;border:0;border-radius:0;padding:0;background:#f7fbff;color:#152b3b;box-sizing:border-box}
 #schoolInfo[open]{display:flex;flex-direction:column}#schoolInfo::backdrop{background:rgba(5,15,30,.7)}#schoolInfo header,#schoolInfo footer{padding:16px;background:#e4edf5;flex:none}#schoolInfo h2{margin:0;font-size:24px}#schoolInfo .school-info-body{flex:1;min-height:0;overflow:auto;padding:18px;font-size:17px;line-height:1.6}#schoolInfo details{border:1px solid #8398ab;border-radius:12px;margin:16px 0;padding:12px}#schoolInfo summary{cursor:pointer;font-weight:700}#schoolInfo footer{padding-bottom:max(16px,env(safe-area-inset-bottom))}#schoolInfoClose{width:100%;min-height:48px;font:inherit;border:2px solid #7499b3;border-radius:10px;background:#fff;color:#152b3b}
