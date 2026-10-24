@@ -14,7 +14,7 @@
     <meta property="og:locale" content="de_DE" />
     <meta property="og:title" content="Mathe Kids – Rechnen üben, spielerisch lernen" />
     <meta property="og:description" content="Mathe Kids öffnen und die aktuelle Android-App herunterladen. Auf Wunsch lassen sich Rechen-Einstellungen mit dem Link teilen." />
-    <meta property="og:url" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?v=225&amp;update-check=225&amp;preview=whatsapp-v1" />
+    <meta property="og:url" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?v=229&amp;update-check=229&amp;preview=whatsapp-v1" />
     <meta property="og:image" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/icons/share-preview-whatsapp-v1.jpg" />
     <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1200" />
@@ -2587,6 +2587,8 @@
   <script src="answer-flow.js"></script>
   <script src="rechenketten.js"></script>
   <script src="gemischte-malaufgaben.js"></script>
+  <script src="positions/config.js"></script>
+  <link rel="stylesheet" href="positions/style.css">
   <style>
     .selectPopupCard{width:min(640px,96vw)}
     .selectPopupList{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -2739,6 +2741,9 @@
           >
         </summary>
         <div class="controls" id="controlsArea">
+          <textarea id="positionConfig" hidden></textarea>
+          <div id="tileFamilyOptions"></div>
+          <div id="positionEditor"></div>
           <button type="button" id="closeSettingsTop" class="settings-close-button" onclick="closeSettings()">Einstellungen schließen</button>
           <div class="settings-guide">
             <span class="settings-guide-number">1</span>
@@ -5191,7 +5196,7 @@
           return response.text();
         };
         let result = htmlText;
-        for (const path of ["answer-flow.js", "rechenketten.js", "gemischte-malaufgaben.js", "realschule/style.css", "realschule/core.js", "realschule/ui.js"]) {
+        for (const path of ["positions/config.js", "positions/style.css", "positions/ui.js", "answer-flow.js", "rechenketten.js", "gemischte-malaufgaben.js", "realschule/style.css", "realschule/core.js", "realschule/ui.js"]) {
           const tag = path.endsWith(".css") ? '<link rel="stylesheet" href="'+path+'">' : '<script src="'+path+'"><\/script>';
           if (!result.includes(tag)) continue;
           const text = await read(path);
@@ -6396,7 +6401,7 @@
 
         // Zurück in den Übungsfluss: neue Aufgaben + Fokus auf erste Aufgabe
         try {
-          initGame(true);
+          initGame(!document.getElementById('settingsDetails')?.open);
         } catch (e) {}
       }
 
@@ -6521,6 +6526,7 @@
       }
 
       function getTaskInputA11yLabel(task) {
+        if(task.op === 'builder') return 'Fehlendes Kästchen für ' + task.expression + ' eingeben';
         if(task.op === 'chain' || task.op === 'worksheet') return `Antwort für ${task.expression} eingeben`;
         if (!task) return t("Antwort eingeben");
         if (task.operandCount === 3) {
@@ -7918,6 +7924,7 @@
       function mgSetActiveInput(inp) {
         if (window.__schoolSection === "realschule") return;
         if (window.__appUpdateDialogOpen) return;
+        if (exerciseConfigurationOpen()) return;
         if (!inp) return;
         mgActiveInput = inp;
 
@@ -8099,7 +8106,7 @@
         setupInAppKeypad();
         // Vollbild-Kick deaktiviert (wurde als „komisch“ gemeldet)
         const lastMode = appStorage.getItem("mathLastMode");
-        if (lastMode) document.getElementById("viewSelect").value = lastMode;
+        if (lastMode && [...document.getElementById("viewSelect").options].some(o=>o.value===lastMode)) document.getElementById("viewSelect").value = lastMode;
 
         ensureTaskCountOneDefaults();
         migrateLegacyModeExtras();
@@ -8297,7 +8304,7 @@
         if (vp) {
           vp.classList.add("show");
           requestAnimationFrame(() => {
-            const selected = vp.querySelector(".selectPopupItem.selected");
+            const selected = vp.querySelector(".position-tile.selected, .selectPopupItem.selected");
             if (selected) selected.scrollIntoView({ block: "nearest" });
           });
         }
@@ -8456,6 +8463,7 @@
       });
 
       function focusWithoutAutofill(el, opts = {}) {
+        if (el?.closest('#zeilenAufgaben, #mauer, #traube') && exerciseConfigurationOpen()) return;
         if (window.__schoolSection === "realschule") return;
         if (window.__appUpdateDialogOpen) return;
         if (!el || el.disabled) return;
@@ -8501,11 +8509,17 @@
           hardenNumericInput(inp, i++);
         });
       }
-      function scrollToTasks() { scrollAnswerIntoView(activeAnswerRow()); }
+      function exerciseConfigurationOpen() {
+        return !!document.getElementById('settingsDetails')?.open ||
+          !!document.getElementById('tileSettingsDialog')?.open ||
+          !!document.getElementById('viewSelectPopup')?.classList.contains('show');
+      }
+      function scrollToTasks() { if (!exerciseConfigurationOpen()) scrollAnswerIntoView(activeAnswerRow()); }
 
       function focusFirstTaskInput(openKeyboard = false) {
         if (window.__schoolSection === "realschule") return;
         if (window.__appUpdateDialogOpen) return;
+        if (exerciseConfigurationOpen()) return;
         const settingsOpen = !!document.getElementById("settingsDetails")?.open;
         if (settingsOpen) return;
 
@@ -9295,7 +9309,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         dialog.innerHTML='<h2 id="chainGuideTitle">Hinweise und Rechenweg</h2><div class="chain-guide-body"><div class="chain-paper"></div><p class="chain-hint"></p></div><footer><button type="button" data-next>Nächster Hinweis</button><button type="button" data-solution>Rechenweg anzeigen</button><button type="button" data-close>Schließen</button></footer>';
         const hints=task.hints || ['Zuerst Mal und Geteilt rechnen. Sie kommen vor Plus und Minus.','Mal und Geteilt haben denselben Rang: rechne von links nach rechts.','Danach Plus und Minus von links nach rechts rechnen.','Prüfe am Ende die ganze Kette und trage dein Ergebnis ein.'];let hint=0;
         const paper=dialog.querySelector('.chain-paper'),text=dialog.querySelector('.chain-hint');
-        const render=()=>{paper.replaceChildren();for(const line of (showAll?(task.op==='worksheet'?[task.expression,...task.solutionLines]:task.steps):(task.op==='worksheet'&&hint>0?[task.expression,...task.solutionLines.slice(0,hint)]:[task.expression]))){const row=document.createElement('div');row.textContent=(paper.childNodes.length?(task.op==='worksheet'?paper.childNodes.length+'. ':'= '):'')+line;paper.appendChild(row);}text.textContent=showAll?'Punkt vor Strich; bei gleichem Rang von links nach rechts.':hints[Math.min(hints.length-1,hint)];dialog.querySelector('[data-next]').disabled=showAll||hint>=Math.max(hints.length-1,(task.solutionLines||[]).length);};
+        const render=()=>{paper.replaceChildren();for(const line of (showAll?(['worksheet','builder'].includes(task.op)?[task.expression,...task.solutionLines]:task.steps):(['worksheet','builder'].includes(task.op)&&hint>0?[task.expression,...task.solutionLines.slice(0,hint)]:[task.expression]))){const row=document.createElement('div');row.textContent=(paper.childNodes.length?(['worksheet','builder'].includes(task.op)?paper.childNodes.length+'. ':'= '):'')+line;paper.appendChild(row);}text.textContent=showAll?'Punkt vor Strich; bei gleichem Rang von links nach rechts.':hints[Math.min(hints.length-1,hint)];dialog.querySelector('[data-next]').disabled=showAll||hint>=Math.max(hints.length-1,(task.solutionLines||[]).length);};
         dialog.querySelector('[data-next]').onclick=()=>{showAll=false;hint=Math.min(Math.max(hints.length-1,(task.solutionLines||[]).length),hint+1);render();};
         dialog.querySelector('[data-solution]').onclick=()=>{showAll=true;render();};
         const trigger=document.activeElement;dialog.querySelector('[data-close]').onclick=()=>{dialog.close();dialog.remove();trigger?.focus();};dialog.addEventListener('cancel',()=>setTimeout(()=>dialog.remove(),0));document.body.appendChild(dialog);render();dialog.showModal();dialog.querySelector('[data-next]').focus();
@@ -9528,6 +9542,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         applyModeSettings(mode);
         displayedMode = mode;
         displayedGrade = activeGrade;
+        window.MathePositions?.refresh();
 
         updateViewSelectLabels();
 
@@ -10271,6 +10286,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       }
 
       function taskToPrintHTML(task, max) {
+        if(task.op === "builder") return task.fmt === "wahrfalsch" ? task.expression + " · Richtig / Falsch" : task.expression.replace("□", '<span class="pBlank"></span>');
         if(task.op === 'chain') return task.expression + ' = <span class="pBlank"></span>';
         if(task.op === 'worksheet') return task.expression.replace('□','<span class="pBlank"></span>');
         const blank = '<span class="pBlank"></span>';
@@ -10692,6 +10708,14 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       /* -------- Zeilen -------- */
       function generiereZeilen(op) {
         const max = getMax();
+        if (window.MathePositions?.usesCustom(op)) {
+          try {
+            MatheBuilder.generate(MathePositions.config());
+            const tasks = Array.from({length:getTaskCount()}, () => makeRandomTask(op, max, getTaskFormat(), getDifficulty(), getRowTrain(), getMulProfile()));
+            tasks.forEach(task => renderTask(document.getElementById('zeilenAufgaben'), task, max));
+          } catch(error) { document.getElementById('statusMessage').textContent = error.message; }
+          return;
+        }
         if(op==='mixedMal'){
           window.__worksheetRound={index:0,total:getTaskCount()};
           try{const task=makeWorksheetTask(max);task.roundPosition=1;task.roundTotal=getTaskCount();renderTask(document.getElementById('zeilenAufgaben'),task,max);}catch(error){document.getElementById('statusMessage').textContent=error.message;}
@@ -10753,7 +10777,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           (t) =>
             t &&
             t.res <= max &&
-            (!['chain','worksheet'].includes(t.op)||(t.numbers.every(n=>n<=max)&&t.intermediates.every(n=>n<=max))) &&
+            (!['chain','worksheet','builder'].includes(t.op)||(t.numbers.every(n=>n<=max)&&t.intermediates.every(n=>n<=max))) &&
             t.a <= max &&
             t.b <= max &&
             (t.operandCount !== 3 || t.c <= max) &&
@@ -10973,6 +10997,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           try{return makeWorksheetTask(max);}catch(error){document.getElementById('statusMessage').textContent=error.message;}
         }
 
+        if(window.MathePositions?.usesCustom(mode)) return MathePositions.generate(mode);
         if(mode === "chain") return MatheChains.generate({max,count:document.getElementById('chainLength').value,pattern:document.getElementById('chainPattern').value,ops:MatheChains.normalizeOps(document.getElementById('chainOps').value)});
         // Welche Operatoren sind in diesem Modus erlaubt?
         const allowedOps =
@@ -12152,8 +12177,36 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         aufg.className = "zeilenAufgabe";
         aufg.dataset.task = JSON.stringify(task);
 
+        if(task.op === 'builder' && task.fmt === 'wahrfalsch') {
+          const equation=document.createElement('div');equation.textContent=task.expression;equation.className='builder-expression';aufg.append(equation);
+          for(const [label,value] of [['Richtig',true],['Falsch',false]]){const button=document.createElement('button');button.type='button';button.className='btn-mini';button.textContent=label;button.onclick=()=>pruefeWahrFalsch(button,value);aufg.append(button);}
+          container.append(aufg);return;
+        }
+        if(task.op === 'builder' && task.fmt === 'compare') {
+          const left=document.createElement('span'),right=document.createElement('span'),select=document.createElement('select');left.textContent=task.leftTxt;right.textContent=task.rightTxt;select.className='inlineSelect';select.setAttribute('aria-label','Rechnungen vergleichen');
+          for(const value of ['', '<','=','>']){const option=document.createElement('option');option.value=value;option.textContent=value||'?';select.append(option);}select.onchange=()=>pruefeCompare(select);aufg.append(left,select,right);container.append(aufg);return;
+        }
+        if(task.op === 'builder') {
+          aufg.classList.add('chain-task');const builderFlash=isFlashActiveForMode(getCurrentModeSafe());if(builderFlash)aufg.classList.add('flashTask');
+          const expression=document.createElement('div');expression.className='builder-expression';
+          task.parts.forEach(part=>{
+            const box=document.createElement('span');box.className=part.kind==='number'?'stein':'task-operator';
+            if(part.text==='□') {
+              if(task.fmt==='operator') {
+                const select=document.createElement('select');select.className='inlineSelect';select.setAttribute('aria-label','Fehlendes Rechenzeichen');
+                for(const value of ['', '+','−','×','÷']){const option=document.createElement('option');option.value=value;option.textContent=value||'?';select.appendChild(option);}
+                select.onchange=()=>pruefeOperator(select);box.appendChild(select);
+              } else {box.className='stein steinInput';box.innerHTML=mkInput(task.res);}
+            } else {box.textContent=part.text;if(builderFlash&&part.kind==='number'){box.classList.add('flashVal');box.dataset.val=part.text;}}
+            expression.appendChild(box);
+          });
+          const actions=document.createElement('div');actions.className='chain-actions';
+          for(const [text,all] of [['Hilfe',false],['Rechenweg',true]]){const button=document.createElement('button');button.type='button';button.className='btn-mini';button.textContent=text;button.onclick=()=>{rememberAnswerHelp(aufg);openChainGuide(task,all);};actions.append(button);}
+          if(builderFlash){const peek=document.createElement('button');peek.type='button';peek.className='btn-mini flashPeekBtn';peek.textContent='Zahlen anzeigen';peek.onclick=()=>flashPeek(peek);actions.append(peek);}aufg.append(expression,actions);container.appendChild(aufg);applyTaskAccessibility(aufg,task);decorateNumericInputs(aufg);return;
+        }
+
         if(task.op === 'chain' || task.op === 'worksheet') {
-          aufg.classList.add('chain-task');if(task.op==='worksheet')aufg.classList.add('worksheet-task');
+          aufg.classList.add('chain-task');if(['worksheet','builder'].includes(task.op))aufg.classList.add('worksheet-task');
           const input = `<span class="stein steinInput">${mkInput(task.res)}</span>`;
           const raw = task.op === 'chain' ? task.expression + ' = □' : task.expression;
           const tokens = raw.match(/\d+|□|[^\d\s]/g) || [];
@@ -12771,7 +12824,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
         }
 
         const taskEl = firstOpen.closest(".zeilenAufgabe");
-        if(taskEl?.dataset.task){const compound=JSON.parse(taskEl.dataset.task);if(compound.op==='worksheet'){openChainGuide(compound,false);return;}}
+        if(taskEl?.dataset.task){const compound=JSON.parse(taskEl.dataset.task);if(['worksheet','builder'].includes(compound.op)){openChainGuide(compound,false);return;}}
         if (!taskEl || !taskEl.dataset.task) {
           msg.innerHTML = renderTipBox(
             "Allgemeiner Tipp",
@@ -13387,7 +13440,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v225";
+        const SW_VERSION = "rechenguru-lgi-v229";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -14703,7 +14756,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       <button class="appDownloadBtn" id="appDownloadBtn" type="button" title="Android-APK herunterladen" aria-label="Android-APK herunterladen" aria-haspopup="dialog" aria-controls="appUpdateDialog"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M10 3h8v13h5l-9 9-9-9h5z" /></svg></button>
       <span id="appShareWidget"></span>
     </div>
-    <footer id="appFooter" data-app-version="225" class="matheFooter">
+    <footer id="appFooter" data-app-version="229" class="matheFooter">
       <span class="footerCredits"><span id="footerDeveloperLabel">Entwickelt von:</span> <button id="developerInfoLink" type="button">Bachner Gerhard</button> <span class="footerIsabella">&amp; Isabella</span> · Ver.<span id="appVersion"></span></span>
       <div class="appUpdateWidget" id="appUpdateWidget">
         <button class="appUpdateBtn" id="appUpdateBtn" type="button" title="Kurz drücken: Update prüfen · Lang drücken: Update-Einstellungen" aria-label="Update prüfen. Lange drücken für Update-Einstellungen.">↻</button>
@@ -14776,7 +14829,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
           <a
             class="developer-project-card"
-            href="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?update-check=225"
+            href="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?update-check=229"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Mathe Kids öffnen"
@@ -15174,5 +15227,6 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
     </script>
     <script src="realschule/core.js"></script>
     <script src="realschule/ui.js"></script>
+    <script src="positions/ui.js"></script>
   </body>
 </html>

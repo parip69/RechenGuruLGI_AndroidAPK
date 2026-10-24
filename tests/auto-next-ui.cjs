@@ -44,7 +44,7 @@ const simple={op:'plus',fmt:'standard',a:3,b:5,res:8,sym:'+',missing:2,key:'auto
   await page.locator('#refreshBtn').click();assert.equal(await page.locator('#settingsDetails').getAttribute('open'),null);assert.equal(await input().inputValue(),'');
   // A previously confirmed answer must only advance, never score again.
   await inject();let before=await score();await page.evaluate(()=>{const row=document.querySelector('#zeilenAufgaben .zeilenAufgabe');const state=answerState(row);document.querySelector('#zeilenAufgaben input').value='8';completeAnswer(row,MatheAnswerFlow.finish(state,'correct'));});await page.locator('#refreshBtn').click();assert.deepEqual(await score(),{right:before.right+1,wrong:before.wrong});assert(await input().evaluate(e=>e===document.activeElement));
-  await page.evaluate(()=>document.getElementById('settingsDetails').open=true);await page.locator('#closeSettingsBottom').click();assert.equal(await page.locator('#settingsDetails').getAttribute('open'),null);
+  await page.evaluate(()=>MathePositions.openSettings());await page.locator('#tileSettingsDialog [data-close]').click();assert.equal(await page.locator('#settingsDetails').getAttribute('open'),null);
   await page.evaluate(()=>document.getElementById('settingsDetails').open=true);await page.locator('#scoreArea').click();assert.equal(await page.locator('#settingsDetails').getAttribute('open'),null);
   await page.evaluate(()=>RealschuleUI.switchSection('realschule'));
   await page.locator('.rs-settings').evaluate(e=>e.open=true);

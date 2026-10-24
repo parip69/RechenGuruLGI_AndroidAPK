@@ -56,7 +56,7 @@ jobs:
         with:
           node-version: '22'
       - name: Check generators and answer flow
-        run: node --test tests/answer-flow.test.cjs tests/realschule.test.cjs tests/rechenketten.test.cjs tests/gemischte-malaufgaben.test.cjs
+        run: node --test tests/*.test.cjs
       - name: Ensure Android SDK 35
         run: '"$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-35" "build-tools;35.0.0"'
       - name: Prepare the existing private key outside the checkout

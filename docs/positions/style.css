@@ -1,0 +1,58 @@
+/* Uses the existing theme surfaces so the prototype works in every colour scheme. */
+#settingsDetails>.settingsTitle,#settingsDetails>summary .settingsTitle{display:none}
+#settingsDetails:not([open])>summary{cursor:pointer}
+#viewSelectPopupList.selectPopupList{grid-template-columns:minmax(0,1fr);gap:10px}
+.position-tile{display:flex;align-items:center;min-width:0;box-sizing:border-box;border:3px solid transparent;border-radius:16px;background:var(--surface78);box-shadow:0 0 0 1px var(--dividerStrong);overflow:hidden}
+.position-tile.selected{border-color:#f77968;box-shadow:inset 4px 0 0 #f77968,0 0 0 1px #f77968}
+.position-tile button{color:var(--text);font:inherit;border:0;background:transparent;cursor:pointer}
+.position-tile-pick{flex:1 1 0;text-align:left;display:flex;flex-direction:column;justify-content:center;align-items:stretch;gap:4px;padding:12px 10px 12px 14px;min-width:0;min-height:96px}
+.position-tile-pick strong{display:block;font-size:clamp(15px,4.2vw,18px);line-height:1.35;white-space:nowrap;word-break:normal;overflow-wrap:normal}
+.position-tile-pick span{display:block;font-size:13px;line-height:1.4;white-space:normal;word-break:normal;overflow-wrap:normal;text-wrap:pretty}
+.position-tile-gear{flex:0 0 48px;display:grid;place-items:center;align-self:center;box-sizing:border-box;margin:8px 10px 8px 0;width:48px;min-width:48px;max-width:48px;min-height:48px;padding:0;font-size:25px!important;border:1px solid var(--dividerStrong)!important;border-radius:12px}
+.position-tile.small .position-tile-pick{min-height:82px}
+#tileSettingsDialog{box-sizing:border-box;width:min(680px,calc(100vw - 16px));max-width:calc(100vw - 16px);max-height:calc(100dvh - 16px);padding:0;border:1px solid var(--dividerStrong);border-radius:20px;background:var(--bg,#fff);color:var(--text);overflow:hidden}
+#tileSettingsDialog[open]{display:flex;flex-direction:column}
+#tileSettingsDialog::backdrop{background:rgba(0,0,0,.62)}
+#tileSettingsDialog header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--dividerStrong)}
+#tileSettingsDialog h2{font-size:21px;margin:0}#tileSettingsDialog header button{min-width:48px;font-size:27px}
+#tileSettingsDialog button{font:inherit;min-height:48px;padding:8px 12px;border:1px solid var(--dividerStrong);border-radius:12px;background:var(--surface78);color:var(--text);cursor:pointer;white-space:normal;overflow-wrap:anywhere}
+#tileSettingsDialog button[aria-pressed=true]{border:2px solid var(--primary);font-weight:800;background:var(--surface92)}
+#tileSettingsDialog button:disabled{opacity:.5;cursor:default}
+#tileSettingsDialog .position-dialog-body{padding:12px;overflow-y:auto;min-height:0;overscroll-behavior:contain}
+#tileSettingsDialog #settingsDetails{border:0;padding:0;box-shadow:none;background:transparent;margin:0}
+#tileSettingsDialog #settingsDetails>summary{display:none}
+#tileSettingsDialog #controlsArea{padding:0;margin:0;gap:12px}
+#tileSettingsDialog footer{padding:10px 12px;border-top:1px solid var(--dividerStrong)}
+#positionPractice{width:100%;font-weight:800!important}
+#positionMessage{margin:0 0 8px;line-height:1.45}
+#positionLegacyOptions{order:12;flex-basis:100%;min-width:0;border:1px solid var(--dividerStrong);border-radius:12px;padding:10px}
+#positionLegacyOptions>summary{cursor:pointer;font-weight:700;min-height:36px;display:flex;align-items:center}
+.position-legacy-body{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
+.position-legacy-body>.control-group,.position-legacy-body>details{flex-basis:100%;min-width:0}
+.position-box[aria-invalid=true]{outline:2px solid #c23737;outline-offset:2px}
+#tileSettingsDialog .settings-guide,#tileSettingsDialog .settings-section-title,#tileSettingsDialog #closeSettingsTop,#tileSettingsDialog #closeSettingsBottom{display:none}
+#tileFamilyOptions{order:-2;display:flex;flex-wrap:wrap;gap:8px;flex-basis:100%;min-width:0}
+#tileSettingsDialog #presetGroup{order:1}#positionEditor{order:4;flex-basis:100%;min-width:0}
+#tileSettingsDialog #maxValueGroup{order:2}#tileSettingsDialog #rowGroup{order:3}
+#tileSettingsDialog #mulProfileGroup{order:3}#tileSettingsDialog #chainGroup{order:6}
+#tileSettingsDialog #resetSelectedModeGroup{order:20}
+#positionEditor h3{margin:4px 0 12px;font-size:18px}
+.position-equation{display:flex;flex-wrap:wrap;align-items:flex-start;gap:12px 8px;margin:14px 0}
+.position-term{display:flex;align-items:flex-start;gap:8px;min-width:0;max-width:100%}
+.position-slot{display:flex;flex-direction:column;gap:6px;min-width:0;max-width:100%}
+.position-slot>small{font-size:12px;line-height:1.4;min-height:18px}
+.position-box{font-size:17px!important;font-weight:800!important;min-width:62px;max-width:100%}
+.position-equals{padding-top:31px;font-size:22px}
+.position-check{display:flex!important;align-items:center;gap:6px;font-size:13px!important;margin:0!important;min-height:32px;font-weight:500!important;white-space:normal}
+.position-check input{width:20px!important;height:20px!important;flex:0 0 20px;accent-color:var(--primary);margin:0}
+.position-buttons{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.position-inputs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.position-detail{border:1px solid var(--dividerStrong);border-radius:14px;padding:12px;margin:12px 0;background:var(--surface78)}
+.position-detail h4{margin:0 0 10px;font-size:17px}.position-detail>button{margin:4px}
+.position-detail label{display:block;font-size:14px;margin:8px 0}
+.position-detail input[type=number]{display:block;box-sizing:border-box;width:100%;min-width:0;max-width:100%;min-height:48px;padding:8px;border:1px solid var(--dividerStrong);border-radius:10px;font:inherit;font-size:17px;background:var(--surface92);color:var(--text)}
+.position-summary{font-size:13px;line-height:1.5;margin:8px 0}
+.position-count{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.position-count>span{margin-right:auto}
+.position-examples p{font-size:18px;font-weight:700;overflow-wrap:anywhere}
+.builder-expression{display:flex;flex-wrap:wrap;gap:8px;align-items:center;flex:1 1 100%;font-size:clamp(24px,6vw,36px)}
+@media(max-width:380px){#tileSettingsDialog .position-dialog-body{padding:8px}.position-box{min-width:54px;font-size:16px!important;padding:8px!important}.position-term,.position-equation{gap:6px}.position-tile-pick{padding-left:10px;padding-right:6px}.position-tile-pick strong{font-size:15px}.position-tile-pick span{font-size:12px}}
