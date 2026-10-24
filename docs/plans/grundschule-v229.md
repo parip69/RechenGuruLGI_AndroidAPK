@@ -32,3 +32,11 @@ Dateigröße: 13.691.566 Bytes. APK-SHA-256: `38310df9488652f5f3de4afda96886567a
 Versionierte APK und HTML liegen im Archiv `Privat`; MatheKids- und bisherige MatheGuru-Downloadadressen sind für Version 229 vorbereitet. Der lokale Teststand 228 bleibt separat erhalten und wird nicht zusätzlich als öffentlicher Release eingecheckt.
 
 Die laufende Cloud-Instanz blockiert weiterhin direkte Abrufe von `parip69.github.io` mit HTTP 403. Deshalb darf ein erfolgreicher Download-/Hashvergleich über die Pages-Adresse nicht behauptet werden. Nach dem normalen GitHub-Upload werden Branch, öffentliche GitHub-APK und GitHub-Actions/Pages-Status gesondert geprüft. Erfolg des Auto-Updates auf einem echten Gerät ist damit noch nicht belegt.
+
+## Abschluss des GitHub-Uploads
+
+Der geprüfte App-Stand wurde ohne Force-Push als `19ebb4ab2b5f81f4d5c05c9141b5b7948a00d7bc` auf `main` hochgeladen. Der Branch wurde über die GitHub-Verbindung bestätigt. Die öffentliche versionierte APK aus genau diesem Commit wurde erneut heruntergeladen und hat denselben SHA-256 wie die lokale Release-APK. `docs/version.json` auf GitHub enthält Version 229. Projekt-Signierungsprüfungen und alle fünf APK-Ablehnungsfälle wurden auch für diesen Release erfolgreich ausgeführt.
+
+Geprüfter öffentlicher GitHub-Download: https://raw.githubusercontent.com/parip69/RechenGuruLGI_AndroidAPK/19ebb4ab2b5f81f4d5c05c9141b5b7948a00d7bc/docs/MatheKids-v229.apk
+
+Für den neuen App-Commit waren bei den abschließenden API-Abfragen noch keine Workflow-Läufe gelistet. Die Pages-Bereitstellung und damit das Auto-Update über die bisherige Pages-Adresse sind deshalb nicht als erfolgreich bestätigt. Die Cloud-Netzwerksperre für diese Adresse bleibt bestehen. Der direkt geprüfte GitHub-Download ist davon getrennt verfügbar.
