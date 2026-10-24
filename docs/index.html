@@ -14,7 +14,7 @@
     <meta property="og:locale" content="de_DE" />
     <meta property="og:title" content="Mathe Kids – Rechnen üben, spielerisch lernen" />
     <meta property="og:description" content="Mathe Kids öffnen und die aktuelle Android-App herunterladen. Auf Wunsch lassen sich Rechen-Einstellungen mit dem Link teilen." />
-    <meta property="og:url" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?v=230&amp;update-check=230&amp;preview=whatsapp-v1" />
+    <meta property="og:url" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?v=231&amp;update-check=231&amp;preview=whatsapp-v1" />
     <meta property="og:image" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/icons/share-preview-whatsapp-v1.jpg" />
     <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1200" />
@@ -13440,7 +13440,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v230";
+        const SW_VERSION = "rechenguru-lgi-v231";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -14397,8 +14397,19 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           try { return appStorage.getItem(UPDATE_MODE_KEY) === "auto" ? "auto" : "ask"; } catch (_) { return "ask"; }
         }
 
-        // In der installierten Android-App wird die neue APK im Browser heruntergeladen.
-        // PWA-Installationen aktualisieren weiterhin ihren Service Worker.
+        let nativeUpdateVersion = null;
+        window.__matheNativeUpdate = function (state) {
+          if (state.title.startsWith('Update wird heruntergeladen') && !window.__appUpdateDialogOpen) return;
+          openUpdateDialog({
+            title: state.title,
+            text: state.text,
+            kind: state.kind,
+            installVersion: state.kind === 'error' ? nativeUpdateVersion : null,
+          });
+        };
+
+        // Native Android downloads directly; older wrappers retain their browser fallback.
+        // PWA installations continue updating their service worker.
         async function installRemote(remoteVersion) {
           openUpdateDialog({
             title: "Aktualisierung läuft",
@@ -14411,6 +14422,15 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
           if (isAndroidApp()) {
             const apkUrl = RELEASE_INDEX + "MatheKids-v" + encodeURIComponent(remoteVersion) + ".apk?update-check=apk";
             const native = typeof getAndroidBridge === "function" ? getAndroidBridge() : null;
+            if (native && typeof native.downloadAndInstallUpdate === "function") {
+              nativeUpdateVersion = remoteVersion;
+              try {
+                if (!native.downloadAndInstallUpdate(String(remoteVersion))) throw new Error("Bitte starte die Update-Prüfung erneut.");
+              } catch (error) {
+                openUpdateDialog({ title: "Update nicht gestartet", text: error?.message || "Bitte versuche es erneut.", kind: "error", installVersion: remoteVersion });
+              }
+              return;
+            }
             if (native && typeof native.openExternal === "function" && native.openExternal(apkUrl)) {
               openUpdateDialog({
                 title: "APK-Download geöffnet",
@@ -14534,7 +14554,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
             '<div class="appUpdateDialogCard">' +
             '<div class="appUpdateDialogTitle">Update-Einstellung</div>' +
             '<label class="appShareChoice"><input type="radio" name="appUpdateMode" value="ask"><span><strong>Manuell</strong><small>Beim Antippen von „Update“ wird geprüft und nachgefragt, ob installiert werden soll.</small></span></label>' +
-            '<label class="appShareChoice"><input type="radio" name="appUpdateMode" value="auto"><span><strong>Vollautomatisch</strong><small>Beim Start wird geprüft und eine neue Version ohne Nachfrage installiert.</small></span></label>' +
+            '<label class="appShareChoice"><input type="radio" name="appUpdateMode" value="auto"><span><strong>Automatisch aktualisieren</strong><small>Beim Start wird geprüft und das Update geladen. Android verlangt anschließend deine Installationsbestätigung.</small></span></label>' +
             '<div class="appUpdateDialogActions">' +
             '<button class="appUpdateDialogBtn secondary" type="button" data-act="cancel">Abbrechen</button>' +
             '<button class="appUpdateDialogBtn" type="button" data-act="save">Speichern</button></div></div>';
@@ -14547,7 +14567,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
               const mode = overlay.querySelector("input:checked")?.value === "auto" ? "auto" : "ask";
               try { appStorage.setItem(UPDATE_MODE_KEY, mode); } catch (_) {}
               close();
-              showUpdateToast(mode === "auto" ? "Update: vollautomatisch" : "Update: manuell");
+              showUpdateToast(mode === "auto" ? "Update: automatisch laden" : "Update: manuell");
             }
           });
           document.body.appendChild(overlay);
@@ -14763,7 +14783,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       <button class="appDownloadBtn" id="appDownloadBtn" type="button" title="Android-APK herunterladen" aria-label="Android-APK herunterladen" aria-haspopup="dialog" aria-controls="appUpdateDialog"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M10 3h8v13h5l-9 9-9-9h5z" /></svg></button>
       <span id="appShareWidget"></span>
     </div>
-    <footer id="appFooter" data-app-version="230" class="matheFooter">
+    <footer id="appFooter" data-app-version="231" class="matheFooter">
       <span class="footerCredits"><span id="footerDeveloperLabel">Entwickelt von:</span> <button id="developerInfoLink" type="button">Bachner Gerhard</button> <span class="footerIsabella">&amp; Isabella</span> · Ver.<span id="appVersion"></span></span>
       <div class="appUpdateWidget" id="appUpdateWidget">
         <button class="appUpdateBtn" id="appUpdateBtn" type="button" title="Kurz drücken: Update prüfen · Lang drücken: Update-Einstellungen" aria-label="Update prüfen. Lange drücken für Update-Einstellungen.">↻</button>
@@ -14836,7 +14856,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
           <a
             class="developer-project-card"
-            href="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?update-check=230"
+            href="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?update-check=231"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Mathe Kids öffnen"

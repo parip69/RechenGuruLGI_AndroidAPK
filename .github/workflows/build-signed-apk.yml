@@ -88,6 +88,8 @@ jobs:
             $published = (Get-ChildItem docs -Filter '*-v*.apk' | ForEach-Object { if ($_.Name -match '-v(\d+)\.apk$') { [int]$Matches[1] } } | Measure-Object -Maximum).Maximum
             $version = [Math]::Max($current, $published + 1)
           }
+          & bash ./gradlew testReleaseUnitTest --no-daemon --max-workers=2 --console=plain
+          if ($LASTEXITCODE -ne 0) { throw 'Native update regression checks failed.' }
           ./scripts/build-release.ps1 -VersionCode $version -PublishFiles
           ./tests/project-signing-checks.ps1
           if ($LASTEXITCODE -ne 0) { throw 'Project signing regression checks failed.' }

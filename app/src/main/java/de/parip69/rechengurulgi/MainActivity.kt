@@ -42,6 +42,7 @@ import kotlin.math.roundToInt
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var appUpdater: AppUpdater
     private var currentChromeTheme: ChromeTheme? = null
     private val immersiveModeRunnable = Runnable { hideSystemBars() }
 
@@ -155,6 +156,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        appUpdater = AppUpdater(this) { title, message, error ->
+            val payload = JSONObject().put("title", title).put("text", message).put("kind", if (error) "error" else "new")
+            binding.webView.evaluateJavascript("window.__matheNativeUpdate && window.__matheNativeUpdate($payload);", null)
+        }
 
         configureEdgeToEdge()
         configurePullToRefresh()
@@ -248,6 +253,12 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         scheduleImmersiveFullscreen()
+        if (::appUpdater.isInitialized) appUpdater.resume()
+    }
+
+    override fun onPause() {
+        if (::appUpdater.isInitialized) appUpdater.pause()
+        super.onPause()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -313,6 +324,18 @@ class MainActivity : AppCompatActivity() {
             runOnUiThread {
                 applyChromeTheme(chromeTheme)
             }
+        }
+
+        @JavascriptInterface
+        fun downloadAndInstallUpdate(version: String?): Boolean {
+            val requested = version?.toIntOrNull()?.takeIf { it > 0 } ?: return false
+            runOnUiThread {
+                // This privileged bridge is only available to the bundled app page.
+                if (binding.webView.url?.substringBefore('#')?.substringBefore('?') == "file:///android_asset/index.html") {
+                    appUpdater.start(requested)
+                } else showToast("Updates bitte direkt in der Mathe-Kids-App starten.")
+            }
+            return true
         }
 
         @JavascriptInterface
@@ -570,6 +593,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        if (::appUpdater.isInitialized) appUpdater.destroy()
         if (::binding.isInitialized) {
             binding.root.removeCallbacks(immersiveModeRunnable)
         }
