@@ -11,10 +11,10 @@ const {chromium}=require('playwright'),fs=require('fs'),path=require('path'),ass
   await page.locator('input[data-group=modes]').check();
   await page.locator('.appShareModesToggle').click();await page.locator('#appShareModesAll').uncheck();await page.locator('input[data-mode=plus]').check();
   await page.locator('#appShareStart').click();const url=await page.evaluate(()=>window.__shared);assert(url.includes('#settings='));
-  const decoded=JSON.parse(Buffer.from(url.split('#settings=')[1],'base64url').toString());assert(!Object.keys(decoded.settings).includes('mathParentPin'));
+  const decoded=await page.evaluate(url=>JSON.parse(LZString.decompressFromBase64(url.split('#settings=z_')[1].replace(/-/g,'+').replace(/_/g,'/'))),url);assert(!Object.keys(decoded.settings).includes('mathParentPin'));
   const target=await context(),other=await target.newPage();await other.goto(base);await other.waitForTimeout(300);await other.evaluate(()=>{appStorage.setItem('mathParentPin','4321');appStorage.setItem('mathModeSettings:minus',JSON.stringify({maxWert:'81',op1Mode:'tens'}));});
   await other.goto(url);await other.locator('[data-act=ok]').click();await other.waitForTimeout(400);
-  assert.equal(await other.evaluate(()=>JSON.parse(appStorage.getItem('mathModeSettings:plus')).positionConfig),raw);
+  const imported=await other.evaluate(()=>JSON.parse(JSON.parse(appStorage.getItem('mathModeSettings:plus')).positionConfig));const expected=JSON.parse(raw);delete imported.legacy;delete expected.legacy;assert.deepEqual(imported,expected);
   assert.equal(await other.evaluate(()=>JSON.parse(appStorage.getItem('mathModeSettings:minus')).maxWert),'81');assert.equal(await other.evaluate(()=>appStorage.getItem('mathParentPin')),'4321');
   const portable=await page.evaluate(async()=>bundleRealschuleAssets(embedPortableAppStateIntoHtml(await(await fetch(location.href)).text())));
   for(const name of ['config.js','style.css','ui.js'])assert(!portable.includes('src="positions/'+name+'"')&&!portable.includes('href="positions/'+name+'"'));

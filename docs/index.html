@@ -14,7 +14,7 @@
     <meta property="og:locale" content="de_DE" />
     <meta property="og:title" content="Mathe Kids – Rechnen üben, spielerisch lernen" />
     <meta property="og:description" content="Mathe Kids öffnen und die aktuelle Android-App herunterladen. Auf Wunsch lassen sich Rechen-Einstellungen mit dem Link teilen." />
-    <meta property="og:url" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?v=237&amp;update-check=237&amp;preview=whatsapp-v1" />
+    <meta property="og:url" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?v=238&amp;update-check=238&amp;preview=whatsapp-v1" />
     <meta property="og:image" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/icons/share-preview-whatsapp-v1.jpg" />
     <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1200" />
@@ -24,6 +24,33 @@
     <meta name="twitter:title" content="Mathe Kids – Rechnen üben, spielerisch lernen" />
     <meta name="twitter:description" content="Mathe Kids öffnen und die aktuelle Android-App herunterladen." />
     <meta name="twitter:image" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/icons/share-preview-whatsapp-v1.jpg" />
+    <script>
+/* lz-string 1.5.0
+MIT License
+
+Copyright (c) 2013 pieroxy
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
+var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",n="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$",e={};function t(r,o){if(!e[r]){e[r]={};for(var n=0;n<r.length;n++)e[r][r.charAt(n)]=n}return e[r][o]}var i={compressToBase64:function(r){if(null==r)return"";var n=i._compress(r,6,function(r){return o.charAt(r)});switch(n.length%4){default:case 0:return n;case 1:return n+"===";case 2:return n+"==";case 3:return n+"="}},decompressFromBase64:function(r){return null==r?"":""==r?null:i._decompress(r.length,32,function(n){return t(o,r.charAt(n))})},compressToUTF16:function(o){return null==o?"":i._compress(o,15,function(o){return r(o+32)})+" "},decompressFromUTF16:function(r){return null==r?"":""==r?null:i._decompress(r.length,16384,function(o){return r.charCodeAt(o)-32})},compressToUint8Array:function(r){for(var o=i.compress(r),n=new Uint8Array(2*o.length),e=0,t=o.length;e<t;e++){var s=o.charCodeAt(e);n[2*e]=s>>>8,n[2*e+1]=s%256}return n},decompressFromUint8Array:function(o){if(null==o)return i.decompress(o);for(var n=new Array(o.length/2),e=0,t=n.length;e<t;e++)n[e]=256*o[2*e]+o[2*e+1];var s=[];return n.forEach(function(o){s.push(r(o))}),i.decompress(s.join(""))},compressToEncodedURIComponent:function(r){return null==r?"":i._compress(r,6,function(r){return n.charAt(r)})},decompressFromEncodedURIComponent:function(r){return null==r?"":""==r?null:(r=r.replace(/ /g,"+"),i._decompress(r.length,32,function(o){return t(n,r.charAt(o))}))},compress:function(o){return i._compress(o,16,function(o){return r(o)})},_compress:function(r,o,n){if(null==r)return"";var e,t,i,s={},u={},a="",p="",c="",l=2,f=3,h=2,d=[],m=0,v=0;for(i=0;i<r.length;i+=1)if(a=r.charAt(i),Object.prototype.hasOwnProperty.call(s,a)||(s[a]=f++,u[a]=!0),p=c+a,Object.prototype.hasOwnProperty.call(s,p))c=p;else{if(Object.prototype.hasOwnProperty.call(u,c)){if(c.charCodeAt(0)<256){for(e=0;e<h;e++)m<<=1,v==o-1?(v=0,d.push(n(m)),m=0):v++;for(t=c.charCodeAt(0),e=0;e<8;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}else{for(t=1,e=0;e<h;e++)m=m<<1|t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t=0;for(t=c.charCodeAt(0),e=0;e<16;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}0==--l&&(l=Math.pow(2,h),h++),delete u[c]}else for(t=s[c],e=0;e<h;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;0==--l&&(l=Math.pow(2,h),h++),s[p]=f++,c=String(a)}if(""!==c){if(Object.prototype.hasOwnProperty.call(u,c)){if(c.charCodeAt(0)<256){for(e=0;e<h;e++)m<<=1,v==o-1?(v=0,d.push(n(m)),m=0):v++;for(t=c.charCodeAt(0),e=0;e<8;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}else{for(t=1,e=0;e<h;e++)m=m<<1|t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t=0;for(t=c.charCodeAt(0),e=0;e<16;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}0==--l&&(l=Math.pow(2,h),h++),delete u[c]}else for(t=s[c],e=0;e<h;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;0==--l&&(l=Math.pow(2,h),h++)}for(t=2,e=0;e<h;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;for(;;){if(m<<=1,v==o-1){d.push(n(m));break}v++}return d.join("")},decompress:function(r){return null==r?"":""==r?null:i._decompress(r.length,32768,function(o){return r.charCodeAt(o)})},_decompress:function(o,n,e){var t,i,s,u,a,p,c,l=[],f=4,h=4,d=3,m="",v=[],g={val:e(0),position:n,index:1};for(t=0;t<3;t+=1)l[t]=t;for(s=0,a=Math.pow(2,2),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;switch(s){case 0:for(s=0,a=Math.pow(2,8),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;c=r(s);break;case 1:for(s=0,a=Math.pow(2,16),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;c=r(s);break;case 2:return""}for(l[3]=c,i=c,v.push(c);;){if(g.index>o)return"";for(s=0,a=Math.pow(2,d),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;switch(c=s){case 0:for(s=0,a=Math.pow(2,8),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;l[h++]=r(s),c=h-1,f--;break;case 1:for(s=0,a=Math.pow(2,16),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;l[h++]=r(s),c=h-1,f--;break;case 2:return v.join("")}if(0==f&&(f=Math.pow(2,d),d++),l[c])m=l[c];else{if(c!==h)return null;m=i+i.charAt(0)}v.push(m),l[h++]=i+m.charAt(0),i=m,0==--f&&(f=Math.pow(2,d),d++)}}};return i}();"function"==typeof define&&define.amd?define(function(){return LZString}):"undefined"!=typeof module&&null!=module?module.exports=LZString:"undefined"!=typeof angular&&null!=angular&&angular.module("LZString",[]).factory("LZString",function(){return LZString});
+    </script>
     <script>
       /* Geteilte Rechen-Einstellungen nur erkennen; Übernahme erfolgt später nach ausdrücklicher Bestätigung. */
       (function () {
@@ -72,21 +99,35 @@
         const match = location.hash.match(/^#settings=([A-Za-z0-9_-]+)$/);
         if (!match || match[1].length > 60000) return;
         try {
-          const binary = atob(match[1].replace(/-/g, "+").replace(/_/g, "/"));
-          const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
-          const payload = JSON.parse(new TextDecoder().decode(bytes));
+          let json;
+          if (match[1].startsWith("z_")) {
+            json = LZString.decompressFromBase64(match[1].slice(2).replace(/-/g, "+").replace(/_/g, "/"));
+          } else {
+            const binary = atob(match[1].replace(/-/g, "+").replace(/_/g, "/"));
+            json = new TextDecoder().decode(Uint8Array.from(binary, char => char.charCodeAt(0)));
+          }
+          if (!json || json.length > 100000) return;
+          const payload = JSON.parse(json);
           const allowed = (key) => !!window.rgShareGroupOf(key);
           const schema = payload.schema;
-          if (payload.kind !== "RechenGuru-settings" || (schema !== 1 && schema !== 2) ||
+          if (payload.kind !== "RechenGuru-settings" || (schema !== 1 && schema !== 2 && schema !== 3) ||
               !payload.settings || typeof payload.settings !== "object" ||
               Object.keys(payload.settings).length > 200 ||
               Object.entries(payload.settings).some(([key, value]) =>
                 !allowed(key) || typeof value !== "string" || value.length > 12000)) return;
           /* schema 2 benennt die ausgewählten Rechenarten ausdrücklich; nur bekannte Modus-IDs akzeptieren. */
-          if (schema === 2 && (!Array.isArray(payload.selectedModes) ||
+          if (schema >= 2 && (!Array.isArray(payload.selectedModes) ||
               payload.selectedModes.length > window.RG_SHARE_MODES.length ||
               payload.selectedModes.some((m) => typeof m !== "string" || !window.RG_SHARE_MODES.some((x) => x.id === m)))) return;
 
+          if (schema === 3 && (payload.defaultsVersion !== 1 ||
+              !Array.isArray(payload.selectedGroups) || !payload.selectedGroups.length ||
+              payload.selectedGroups.some(id => !window.RG_SHARE_GROUPS.some(g => g.id === id)) ||
+              Object.keys(payload.settings).some(key => !payload.selectedGroups.includes(window.rgShareGroupOf(key)?.id)) ||
+              Object.keys(payload.settings).some(key => {
+                const m = window.RG_SHARE_MODE_KEY_RE.exec(key);
+                return key.startsWith("mathModeSettings:") && (!m || !payload.selectedModes.includes(m[1]));
+              }))) return;
           /* Die Quellversion ist nur Information. Sie entscheidet ausdrücklich NICHT über die Übernahme. */
           window.__pendingSharedSettings = payload;
           window.__sharedSettingsPayload = match[1];
@@ -3757,6 +3798,14 @@
     </div>
 
     <script>
+      // Frozen before UI initialization. Bump defaultsVersion when changing these baseline defaults.
+      const SHARE_CONTROL_DEFAULTS_V1 = Object.fromEntries(
+        [...document.querySelectorAll("#controlsArea input[id], #controlsArea select[id], #controlsArea textarea[id]")]
+          .filter(el => el.dataset.mgGlobal !== "1")
+          .map(el => [el.id, el.type === "checkbox" ? el.defaultChecked :
+            el.tagName === "SELECT" ? ([...el.options].find(o => o.defaultSelected) || el.options[0])?.value || "" : el.defaultValue])
+      );
+
       const APP_STORAGE_PREFIX = "RechenGuruLGI_";
       const APP_NAME_FALLBACK = "Mathe Kids";
       const PORTABLE_HTML_MARKER_PREFIX = "__portableBootstrapApplied_";
@@ -3841,7 +3890,7 @@
         try {
           const settings = payload.settings;
           const keys = Object.keys(settings);
-          if (!keys.length || keys.some((key) => !window.rgShareGroupOf(key))) {
+          if ((payload.schema !== 3 && !keys.length) || keys.some((key) => !window.rgShareGroupOf(key))) {
             throw new Error("Der Link enthält nicht erlaubte Einstellungen.");
           }
           if (keys.some((key) => typeof settings[key] !== "string")) {
@@ -3862,23 +3911,23 @@
 
           /* schema 1: altes Verhalten (komplette mathModeSettings-Gruppe ersetzen). schema 2: nur die
              tatsächlich ausgewählten Rechenarten werden ersetzt, alles andere bleibt unangetastet. */
-          const schema = payload.schema === 2 ? 2 : 1;
+          const schema = payload.schema === 3 ? 3 : payload.schema === 2 ? 2 : 1;
           const modeKeyRe = window.RG_SHARE_MODE_KEY_RE || /^mathModeSettings:(?:grade[1-4]:)?([A-Za-z0-9_-]+)$/;
           const knownModeIds = new Set((window.RG_SHARE_MODES || []).map((m) => m.id));
-          const selectedModesFromPayload = schema === 2 && Array.isArray(payload.selectedModes)
+          const selectedModesFromPayload = schema >= 2 && Array.isArray(payload.selectedModes)
             ? payload.selectedModes.filter((m) => knownModeIds.has(m))
             : null;
 
           const groups = window.RG_SHARE_GROUPS
             .map((g) => ({ g, keys: keys.filter((key) => g.test(key)) }))
-            .filter((x) => x.keys.length);
+            .filter((x) => schema === 3 ? payload.selectedGroups.includes(x.g.id) : x.keys.length);
 
           /* Nur für schema 2: welche Rechenarten sind enthalten, damit sie einzeln gewählt werden können. */
           let modeEntries = [];
-          if (schema === 2) {
+          if (schema >= 2) {
             const modesGroup = groups.find((x) => x.g.id === "modes");
             if (modesGroup) {
-              const presentIds = new Set();
+              const presentIds = new Set(schema === 3 ? selectedModesFromPayload : []);
               modesGroup.keys.forEach((key) => {
                 const m = modeKeyRe.exec(key);
                 if (m && knownModeIds.has(m[1]) && (!selectedModesFromPayload || selectedModesFromPayload.includes(m[1]))) {
@@ -3890,9 +3939,21 @@
           }
 
           const applySettings = (selectedIds, selectedModeIds) => {
+            // Validate and reconstruct everything before changing storage.
+            const expanded = {};
+            if (schema === 3 && selectedIds.includes("modes")) {
+              const allowed = new Set(selectedModeIds || []);
+              for (const mode of allowed) for (const grade of ["0","1","2","3","4"]) {
+                const key = modeSettingsKey(mode,grade);
+                expanded[key] = JSON.stringify(shareExpandProfile(key, settings[key] ? JSON.parse(settings[key]) : {}));
+              }
+            }
             groups.filter((x) => selectedIds.includes(x.g.id)).forEach(({ g, keys: gKeys }) => {
               if (g.id === "modes") {
-                if (schema === 2) {
+                if (schema === 3) {
+                  Object.entries(expanded).forEach(([key,value]) => appStorage.setItem(key,value));
+                  for (const key of ["mathLastMode","mathActiveGrade"]) if (settings[key] !== undefined) appStorage.setItem(key,settings[key]);
+                } else if (schema >= 2) {
                   /* Nur die ausgewählten Rechenarten gezielt ersetzen; alles Nicht-Ausgewählte bleibt unberührt. */
                   const allowSet = new Set(selectedModeIds || []);
                   gKeys.forEach((key) => {
@@ -3911,6 +3972,10 @@
                   gKeys.forEach((key) => appStorage.setItem(key, settings[key]));
                 }
                 return;
+              }
+              if (schema === 3) {
+                appStorage.ownKeys().filter(key => key !== "mathParentPin" && g.test(key)).forEach(key => appStorage.removeItem(key));
+                Object.entries(SHARE_GLOBAL_DEFAULTS_V1).filter(([key]) => g.test(key)).forEach(([key,value]) => appStorage.setItem(key,value));
               }
               /* Defensive Zusatzsperre: der Eltern-PIN darf durch keine Schleife übernommen werden. */
               gKeys.filter((key) => key !== "mathParentPin").forEach((key) => appStorage.setItem(key, settings[key]));
@@ -3931,14 +3996,14 @@
             let hint = g.hint;
             let modeCount = 0;
             if (g.id === "modes") {
-              modeCount = schema === 2 ? modeEntries.length : gKeys.filter((k) => k.startsWith("mathModeSettings:")).length;
+              modeCount = schema >= 2 ? modeEntries.length : gKeys.filter((k) => k.startsWith("mathModeSettings:")).length;
               hint = modeCount + (modeCount === 1 ? " Rechenart" : " Rechenarten") +
                 (settings.mathLastMode ? ", aktive Rechenart: " + settings.mathLastMode : "");
-            } else if (g.id === "target") hint = "Ziel: " + settings.mathTargetCorrect + " Aufgaben";
+            } else if (g.id === "target") hint = "Ziel: " + (settings.mathTargetCorrect ?? "0") + " Aufgaben";
             const head = '<label style="display:flex;gap:10px;align-items:flex-start;text-align:left;margin:0;cursor:pointer">' +
               '<input type="checkbox" data-group="' + g.id + '" checked style="margin-top:4px;width:18px;height:18px;accent-color:#22c55e" />' +
               "<span><strong>" + esc(g.label) + "</strong><br><small style=\"opacity:.8\">" + esc(hint) + "</small></span></label>";
-            if (g.id === "modes" && schema === 2 && modeEntries.length) {
+            if (g.id === "modes" && schema >= 2 && modeEntries.length) {
               const modeRows = modeEntries.map((m) =>
                 '<label style="display:flex;gap:8px;align-items:center;margin:4px 0;cursor:pointer;font-size:13px">' +
                 '<input type="checkbox" data-mode="' + m.id + '" checked style="width:16px;height:16px;accent-color:#22c55e" />' +
@@ -3952,7 +4017,7 @@
           }).join("");
           const summaryLines = groups.map(({ g, keys: gKeys }) => {
             if (g.id === "modes") {
-              const n = schema === 2 ? modeEntries.length : gKeys.filter((k) => k.startsWith("mathModeSettings:")).length;
+              const n = schema >= 2 ? modeEntries.length : gKeys.filter((k) => k.startsWith("mathModeSettings:")).length;
               return n + (n === 1 ? " Rechenart" : " Rechenarten");
             }
             return g.label;
@@ -3980,7 +4045,7 @@
             if (act === "ok") {
               const ids = [...overlay.querySelectorAll("input[data-group]:checked")].map((i) => i.dataset.group);
               const modeIds = [...overlay.querySelectorAll("input[data-mode]:checked")].map((i) => i.dataset.mode);
-              if (ids.length) applySettings(ids, modeIds);
+              if (ids.length) { try { applySettings(ids, modeIds); } catch (error) { alert(error.message || "Die Einstellungen konnten nicht übernommen werden."); } }
             }
             else if (act === "cancel" || event.target === overlay) overlay.remove();
           });
@@ -7080,6 +7145,78 @@
           return null;
         }
       }
+
+
+      // Schema 3 / defaultsVersion 1: compare without modifying UI or local profiles.
+      function shareModeDefaults(mode, grade) {
+        const max = mode === "mixedMal" ? String(({1:10,2:20,3:100,4:1000})[grade] || 100)
+          : ["mal","geteilt","mixMD","mixALL","double","half","fehler"].includes(mode) ? "100" : "20";
+        return {...SHARE_CONTROL_DEFAULTS_V1, maxWert:max, ...(presetDefaultsForMode(grade, mode) || {})};
+      }
+      function sharePlain(value) {
+        return value !== null && typeof value === "object" && !Array.isArray(value);
+      }
+      function shareEqual(a, b) {
+        if (a === b) return true;
+        if (Array.isArray(a) && Array.isArray(b)) return a.length === b.length && a.every((v,i) => shareEqual(v,b[i]));
+        if (sharePlain(a) && sharePlain(b)) return Object.keys(a).length === Object.keys(b).length && Object.keys(a).every(k => Object.hasOwn(b,k) && shareEqual(a[k],b[k]));
+        return false;
+      }
+      function shareDifference(value, base) {
+        const patch = {};
+        for (const key of Object.keys(value)) {
+          if (["__proto__","constructor","prototype"].includes(key)) throw new Error("Ungültiges Einstellungsfeld.");
+          if (shareEqual(value[key], base?.[key])) continue;
+          patch[key] = sharePlain(value[key]) && sharePlain(base?.[key]) ? shareDifference(value[key],base[key]) : value[key];
+        }
+        return patch;
+      }
+      function shareMerge(base, patch) {
+        if (!sharePlain(patch)) throw new Error("Ungültige Einstellungsänderungen.");
+        const result = {...base};
+        for (const key of Object.keys(patch)) {
+          if (["__proto__","constructor","prototype"].includes(key)) throw new Error("Ungültiges Einstellungsfeld.");
+          result[key] = sharePlain(patch[key]) ? shareMerge(sharePlain(base?.[key]) ? base[key] : {}, patch[key]) : patch[key];
+        }
+        return result;
+      }
+      function shareProfileParts(key) {
+        const match = /^mathModeSettings:(?:grade([1-4]):)?([A-Za-z0-9_-]+)$/.exec(key);
+        if (!match) throw new Error("Ungültiges Rechenprofil.");
+        return {grade:match[1] || "0", mode:match[2]};
+      }
+      function shareProfileDelta(key, raw) {
+        const {grade,mode} = shareProfileParts(key), base = shareModeDefaults(mode,grade);
+        const value = JSON.parse(raw);
+        if (!sharePlain(value)) throw new Error("Ungültiges Rechenprofil.");
+        const full = {...base,...value};
+        const patch = shareDifference(value,base);
+        if (value.positionConfig) {
+          const position = JSON.parse(value.positionConfig);
+          const positionBase = window.MatheBuilder.fromLegacy(mode,full,grade);
+          delete patch.positionConfig;
+          const delta = shareDifference(position,positionBase);
+          if (Object.keys(delta).length) patch.positionDelta = delta;
+        }
+        return patch;
+      }
+      function shareExpandProfile(key, patch) {
+        const {grade,mode} = shareProfileParts(key);
+        const {positionDelta,...controls} = patch;
+        if (Object.keys(controls).some(id => !Object.hasOwn(SHARE_CONTROL_DEFAULTS_V1,id))) throw new Error("Unbekanntes Einstellungsfeld.");
+        const full = shareMerge(shareModeDefaults(mode,grade),controls);
+        if (positionDelta !== undefined) {
+          full.positionConfig = JSON.stringify(shareMerge(window.MatheBuilder.fromLegacy(mode,full,grade), positionDelta));
+        }
+        return full;
+      }
+      const SHARE_GLOBAL_DEFAULTS_V1 = {
+        mathAutoNextCorrect:"0", mathTargetCorrect:"0", mathTargetProgress:"0", mathThemeIndex:"0", mathThemeSchema:"3",
+        mathLang:"de", mathCelebrateMode:"2", mathConfettiEnabled:"1", mathLevel:"1", mathMaxLevelEver:"1",
+        mathScoreCorrect:"0", mathScoreWrong:"0", mathStreak:"0", mathBestStreakEver:"0", mathTotalCorrect:"0", mathTotalWrong:"0",
+        mathTotalPracticeSolved:"0", mathTotalFullResets:"0", mathLevelBaseCorrect:"0", mathLevelBaseStreakBonus:"0",
+        mathRecentOutcomes:"[]", mathAnswerStats_v1:"{}", mathWrongPool:"[]"
+      };
 
       function ensureTaskCountOneDefaults() {
         const migrationKey = "defaults:taskCount1:v69";
@@ -13464,7 +13601,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v237";
+        const SW_VERSION = "rechenguru-lgi-v238";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -14838,7 +14975,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
       <button class="appDownloadBtn" id="appDownloadBtn" type="button" title="Android-APK herunterladen" aria-label="Android-APK herunterladen" aria-haspopup="dialog" aria-controls="appUpdateDialog"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M10 3h8v13h5l-9 9-9-9h5z" /></svg></button>
       <span id="appShareWidget"></span>
     </div>
-    <footer id="appFooter" data-app-version="237" class="matheFooter">
+    <footer id="appFooter" data-app-version="238" class="matheFooter">
       <span class="footerCredits"><span id="footerDeveloperLabel">Entwickelt von:</span> <button id="developerInfoLink" type="button">Bachner Gerhard</button> <span class="footerIsabella">&amp; Isabella</span> · Ver.<span id="appVersion"></span></span>
       <div class="appUpdateWidget" id="appUpdateWidget">
         <button class="appUpdateBtn" id="appUpdateBtn" type="button" title="Kurz drücken: Update prüfen · Lang drücken: Update-Einstellungen" aria-label="Update prüfen. Lange drücken für Update-Einstellungen.">↻</button>
@@ -14911,7 +15048,7 @@ body { margin: 0; padding: 0; background: #fff; color: #000;
 
           <a
             class="developer-project-card"
-            href="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?update-check=237"
+            href="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?update-check=238"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Mathe Kids öffnen"
@@ -17294,7 +17431,7 @@ var qrcode = function() {
         </label>
         <label class="appShareChoice">
           <input type="radio" name="appShareMode" value="data">
-          <span><strong>App + Einstellungen</strong><small>Mit deiner Auswahl unten. Ohne Eltern-PIN.</small></span>
+          <span><strong>App + Einstellungen</strong><small>Nur Änderungen · Empfang ab V238 · ohne Eltern-PIN.</small></span>
         </label>
         <div id="appShareGroups" hidden style="margin:8px 0 4px"></div>
         <div id="appSharePreview" class="appSharePreview" hidden></div>
@@ -17365,15 +17502,22 @@ var qrcode = function() {
           try { url = selectedShareUrl(); }
           catch (error) { status.textContent = error.message; return; }
           try {
+            if (url.length > 2953) throw new Error("QR-Kapazität überschritten");
             const qr = qrcode(0, "L");
             qr.addData(url, "Byte");
             qr.make();
             target.innerHTML = qr.createSvgTag({cellSize:4, margin:16, scalable:true});
             const withData = url.includes("#settings=");
             target.setAttribute("aria-label", withData ? "QR-Code: App mit ausgewählten Einstellungen" : "QR-Code: nur App-Link");
-            status.textContent = withData ? "Scannen: App + ausgewählte Einstellungen." : "Scannen: nur die App.";
+            if (withData) {
+              const payload = JSON.parse(LZString.decompressFromBase64(url.split("#settings=z_")[1].replace(/-/g,"+").replace(/_/g,"/")));
+              const changes = Object.entries(payload.settings).reduce((n,[key,value]) => n +
+                (key.startsWith("mathModeSettings:") ? Object.keys(JSON.parse(value)).length :
+                  ["mathLastMode","mathActiveGrade"].includes(key) ? 0 : 1),0);
+              status.textContent = payload.selectedModes.length + " Rechenarten · " + changes + " Änderungen · " + url.length + "/2953 Zeichen. QR-Code passt.";
+            } else status.textContent = "Scannen: nur die App.";
           } catch (_) {
-            status.textContent = "Zu viele Einstellungen für einen QR-Code. Bitte weniger auswählen oder den Teilen-Button nutzen.";
+            status.textContent = "QR-Code zu groß (" + url.length + "/2953 Zeichen). Alles abwählen und z. B. nur Plus auswählen oder den Teilen-Button nutzen.";
           }
         }
         function updatePreview() {
@@ -17450,7 +17594,10 @@ var qrcode = function() {
             /* Der Eltern-PIN darf durch keine generische Schleife eingesammelt werden. */
             if (key === "mathParentPin") return;
             const value = storage(key);
-            if (value !== null && value !== undefined && String(value).length <= 12000) settings[key] = String(value);
+            if (value !== null && value !== undefined) {
+              if (String(value).length > 12000) throw new Error("Ein ausgewählter Bereich ist zu groß. Bitte weniger auswählen.");
+              settings[key] = String(value);
+            }
           };
 
           let selectedModes = [];
@@ -17458,7 +17605,7 @@ var qrcode = function() {
             const allowedModeIds = new Set(modes.map((m) => m.id));
             selectedModes = (selectedModeIds || []).filter((id) => allowedModeIds.has(id));
             if (selectedModes.length) {
-              settings.mathLastMode = String(mode);
+              settings.mathLastMode = selectedModes.includes(mode) ? String(mode) : selectedModes[0];
               settings.mathActiveGrade = grade;
               if (!/^[A-Za-z0-9_-]{1,40}$/.test(settings.mathLastMode) || !/^[0-4]$/.test(grade)) {
                 throw new Error("Die aktive Rechenart oder Klassen-/Bereichszuordnung ist ungültig.");
@@ -17472,9 +17619,7 @@ var qrcode = function() {
                 })
                 .sort()
                 .forEach(put);
-              if (!Object.keys(settings).some((key) => key.startsWith("mathModeSettings:"))) {
-                throw new Error("Für die ausgewählten Rechenarten wurden keine gespeicherten Einstellungen gefunden.");
-              }
+
             }
           }
           window.RG_SHARE_GROUPS.filter((g) => groupIds.includes(g.id) && g.id !== "modes").forEach((g) => {
@@ -17486,15 +17631,21 @@ var qrcode = function() {
           if (settings.mathTargetProgress !== undefined && !/^\d{1,6}$/.test(settings.mathTargetProgress)) {
             throw new Error("Der Zielfortschritt ist ungültig und kann nicht geteilt werden.");
           }
-          if (!Object.keys(settings).length) throw new Error("Für die Auswahl sind keine gespeicherten Daten vorhanden.");
+          if (groupIds.includes("modes") && !selectedModes.length && groupIds.length === 1) throw new Error("Bitte mindestens eine Rechenart auswählen.");
 
-          /* Neue Links verwenden immer schema 2 (selektive Rechenarten-Übernahme). */
-          const payload = { kind: "RechenGuru-settings", schema: 2, settings, selectedModes };
-          const bytes = new TextEncoder().encode(JSON.stringify(payload));
-          let binary = "";
-          bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
-          const encoded = btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-          if (encoded.length > 60000) throw new Error("Die Rechen-Einstellungen sind für einen einzelnen Link zu groß.");
+          const changes = {};
+          for (const [key,value] of Object.entries(settings)) {
+            if (key.startsWith("mathModeSettings:")) {
+              const delta = shareProfileDelta(key,value);
+              if (Object.keys(delta).length) changes[key] = JSON.stringify(delta);
+            } else if (value !== SHARE_GLOBAL_DEFAULTS_V1[key]) changes[key] = value;
+          }
+          const payload = {kind:"RechenGuru-settings", schema:3, defaultsVersion:1,
+            settings:changes, selectedModes, selectedGroups:groupIds};
+          const json = JSON.stringify(payload);
+          if (json.length > 100000) throw new Error("Die Auswahl ist zu groß. Bitte weniger auswählen.");
+          const encoded = "z_" + LZString.compressToBase64(json).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+          if (encoded.length > 60000) throw new Error("Die Auswahl ist zu groß. Bitte weniger auswählen.");
           return shareUrl + "#settings=" + encoded;
         }
         async function share(url) {

@@ -1,0 +1,46 @@
+const {chromium}=require('playwright'),fs=require('fs'),path=require('path'),assert=require('node:assert/strict');
+const base='https://parip69.github.io/RechenGuruLGI_AndroidAPK/',assets=path.resolve(__dirname,'../app/src/main/assets');
+(async()=>{
+ const browser=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--no-sandbox']});
+ async function page(){const c=await browser.newContext({viewport:{width:390,height:844}});await c.route('**/*',r=>{const name=new URL(r.request().url()).pathname.replace('/RechenGuruLGI_AndroidAPK/','')||'index.html',file=path.join(assets,name);return fs.existsSync(file)&&fs.statSync(file).isFile()?r.fulfill({body:fs.readFileSync(file),contentType:name.endsWith('.html')?'text/html':name.endsWith('.js')?'application/javascript':name.endsWith('.css')?'text/css':undefined}):r.abort()});const p=await c.newPage();p.errors=[];p.on('pageerror',e=>p.errors.push(e.message));await p.addInitScript(()=>window.AndroidInterface={getAppVersionName:()=> '99999',shareLink:url=>{window.testShared=url;return true}});await p.goto(base);await p.waitForTimeout(150);return p;}
+ async function open(p){await p.locator('#appShareWidget button').click();await p.locator('input[name=appShareMode][value=data]').check();}
+ async function send(p){await p.locator('#appShareStart').click();const url=await p.evaluate(()=>testShared);const payload=await p.evaluate(url=>JSON.parse(LZString.decompressFromBase64(url.split('#settings=z_')[1].replace(/-/g,'+').replace(/_/g,'/'))),url);return {url,payload};}
+ async function onlyModes(p,modes){await p.locator('.appShareModesToggle').click();await p.locator('#appShareModesAll').uncheck();for(const mode of modes)await p.locator('input[data-mode='+mode+']').check();}
+ async function apply(p,url){await p.goto(url);await p.locator('[data-act=ok]').click();await p.waitForFunction(()=>!location.hash);await p.waitForTimeout(100);}
+ try{
+  const s=await page();await open(s);assert(await s.locator('#appShareQr svg').count());const defaults=await send(s);const profiles=Object.keys(defaults.payload.settings).filter(k=>k.startsWith('mathModeSettings:'));assert.equal(profiles.length,0,JSON.stringify(defaults.payload.settings));assert(defaults.url.length<1000);assert.equal(defaults.payload.selectedModes.length,16);
+  const oldSize=await s.evaluate(()=>{const settings={};appStorage.ownKeys().filter(k=>RG_SHARE_GROUPS.find(g=>g.id==='modes').test(k)).forEach(k=>settings[k]=appStorage.getItem(k));return btoa(JSON.stringify({kind:'RechenGuru-settings',schema:2,settings,selectedModes:RG_SHARE_MODES.map(m=>m.id)})).length});assert(defaults.url.length<oldSize);console.log('Default selection:',defaults.url.length,'characters; old uncompressed payload alone:',oldSize,'characters; no default profiles sent');
+  const original=await s.evaluate(()=>{
+   document.getElementById('viewSelect').value='plus';wechselAnsicht(false);
+   const values={...shareModeDefaults('plus','0'),maxWert:'80',taskCount:'3',mixedMalEnabled:false};
+   const c=MatheBuilder.fromLegacy('plus',values,'0');c.numbers[0].min=0;c.numbers[0].max=7;c.numbers[1].min=2;c.numbers[1].max=11;c.numbers[1].query=true;c.resultQuery=false;
+   values.positionConfig=JSON.stringify(c);appStorage.setItem('mathModeSettings:plus',JSON.stringify(values));applyModeSettings('plus');
+   appStorage.setItem('mathModeSettings:grade2:plus',JSON.stringify({...shareModeDefaults('plus','2'),maxWert:'150',flashMode:'1'}));
+   appStorage.setItem('mathParentPin','1234');appStorage.setItem('mathTargetCorrect','0');
+   return {values,c};
+  });
+  await open(s);await onlyModes(s,['plus']);const one=await send(s);const patch=JSON.parse(one.payload.settings['mathModeSettings:plus']);assert(!Object.hasOwn(patch,'taskFormat'));assert(!Object.hasOwn(patch,'positionConfig'));assert(patch.positionDelta);assert(!Object.hasOwn(one.payload.settings,'mathParentPin'));assert(!Object.hasOwn(one.payload.settings,'mathTargetCorrect'));assert.deepEqual(one.payload.selectedModes,['plus']);
+  const target=await page();await target.evaluate(()=>{appStorage.setItem('mathParentPin','4321');appStorage.setItem('mathModeSettings:plus',JSON.stringify({maxWert:'999',taskCount:'20',onesOnly:'1'}));appStorage.setItem('mathModeSettings:minus',JSON.stringify({maxWert:'81'}));appStorage.setItem('mathTargetCorrect','100')});await apply(target,one.url);
+  const actual=await target.evaluate(()=>({plus:JSON.parse(appStorage.getItem('mathModeSettings:plus')),grade:JSON.parse(appStorage.getItem('mathModeSettings:grade2:plus')),minus:appStorage.getItem('mathModeSettings:minus'),pin:appStorage.getItem('mathParentPin'),goal:getTargetCorrect()}));
+  assert.equal(actual.plus.maxWert,'80');assert.equal(actual.plus.onesOnly,original.values.onesOnly);assert.equal(actual.plus.taskCount,'3');assert.deepEqual(JSON.parse(actual.plus.positionConfig),original.c);assert.equal(actual.grade.maxWert,'150');assert.equal(actual.grade.flashMode,'1');assert.equal(actual.goal,0);assert.equal(actual.minus,'{"maxWert":"81"}');assert.equal(actual.pin,'4321');
+  // Receiver can decline a transmitted mode; default-only profiles still reset correctly.
+  const receiver=await page();await receiver.evaluate(()=>{appStorage.setItem('mathModeSettings:plus','{"maxWert":"77"}');appStorage.setItem('mathModeSettings:minus','{"maxWert":"88"}')});await receiver.goto(defaults.url);await receiver.locator('summary').filter({hasText:'Welche Rechenarten?'}).click();await receiver.locator('.firstInstallChoice input[data-mode=plus]').uncheck();await receiver.locator('[data-act=ok]').click();await receiver.waitForFunction(()=>!location.hash);assert.equal(await receiver.evaluate(()=>JSON.parse(appStorage.getItem('mathModeSettings:plus')).maxWert),'77');assert.equal(await receiver.evaluate(()=>JSON.parse(appStorage.getItem('mathModeSettings:minus')).maxWert),'20');
+  // Default-only non-mode group: empty settings remains a valid explicit selection.
+  await open(s);await s.locator('input[data-group=modes]').uncheck();const goal=await send(s);assert.deepEqual(goal.payload.settings,{});const t=await page();await t.evaluate(()=>appStorage.setItem('mathTargetCorrect','100'));await apply(t,goal.url);assert.equal(await t.evaluate(()=>getTargetCorrect()),0);
+  // Global defaults must be reconstructed too (especially the theme migration marker).
+  await s.evaluate(()=>{appStorage.setItem('mathThemeIndex','2');appStorage.setItem('mathThemeSchema','3');appStorage.setItem('mathLang','ro');appStorage.setItem('mathCelebrateMode','0')});
+  await open(s);for(const group of ['theme','lang','celebrate'])await s.locator('input[data-group='+group+']').check();const globals=await send(s);
+  assert(!Object.hasOwn(globals.payload.settings,'mathThemeSchema'));const g=await page();await apply(g,globals.url);
+  assert.equal(await g.evaluate(()=>appStorage.getItem('mathThemeIndex')),'2');assert.equal(await g.evaluate(()=>appStorage.getItem('mathThemeSchema')),'3');assert.equal(await g.evaluate(()=>currentLang),'ro');assert.equal(await g.evaluate(()=>celebrateMode),0);assert.deepEqual(g.errors,[]);
+  // Invalid profile patches cannot partially overwrite existing data.
+  const bad=await page();await bad.evaluate(()=>appStorage.setItem('mathModeSettings:plus','{"maxWert":"77"}'));
+  const invalid=await bad.evaluate(()=> 'z_'+LZString.compressToBase64(JSON.stringify({kind:'RechenGuru-settings',schema:3,defaultsVersion:1,selectedGroups:['modes'],selectedModes:['plus'],settings:{'mathModeSettings:plus':'{"unknownControl":"bad"}'}})).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''));
+  bad.once('dialog',d=>d.accept());await bad.goto(base+'?invalid=1#settings='+invalid);await bad.locator('[data-act=ok]').click();assert.equal(await bad.evaluate(()=>appStorage.getItem('mathModeSettings:plus')),'{"maxWert":"77"}');assert.deepEqual(bad.errors,[]);
+  // Overflow and live recovery by deselecting the large optional group.
+  await s.evaluate(()=>{let a=new Uint8Array(7000);crypto.getRandomValues(a);appStorage.setItem('mathWrongPool',JSON.stringify(Array.from(a,v=>String.fromCharCode(33+v%90)).join('')))});await open(s);await s.locator('input[data-group=wrong]').check();assert.equal(await s.locator('#appShareQr svg').count(),0);assert((await s.locator('#appShareQrStatus').innerText()).includes('zu groß'));await s.locator('input[data-group=wrong]').uncheck();assert.equal(await s.locator('#appShareQr svg').count(),1);await s.locator('#appShareCancel').click();
+  // Old uncompressed links stay supported (schemas 1 and 2).
+  for(const schema of [1,2]){const old={kind:'RechenGuru-settings',schema,settings:{'mathModeSettings:minus':'{"maxWert":"55"}'},selectedModes:['minus']};const p=await page();await apply(p,base+'?legacy='+schema+'#settings='+Buffer.from(JSON.stringify(old)).toString('base64url'));assert.equal(await p.evaluate(()=>JSON.parse(appStorage.getItem('mathModeSettings:minus')).maxWert),'55');assert.deepEqual(p.errors,[])}
+  for(const p of [s,target,receiver,t])assert.deepEqual(p.errors,[]);
+  console.log('PASS: compressed deltas, nested positions/independent numbers, class profiles, default-only imports, selective receive, PIN/unselected preservation, QR overflow/recovery, legacy links');
+ }finally{await browser.close()}
+})().catch(e=>{console.error(e);process.exit(1)});
