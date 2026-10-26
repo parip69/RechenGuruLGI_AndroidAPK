@@ -263,19 +263,60 @@ class MainActivity : AppCompatActivity() {
         scheduleImmersiveFullscreen()
     }
 
-    private fun printWebView() {
+    private var printWebView: WebView? = null
+
+    private fun printWorksheet(html: String) {
         val printManager = getSystemService(PRINT_SERVICE) as? PrintManager ?: return
-        val jobName = "Mathe Kids Arbeitsblatt"
-        val printAdapter = binding.webView.createPrintDocumentAdapter(jobName)
-        printManager.print(jobName, printAdapter, PrintAttributes.Builder()
-            .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
-            .build())
+        // Keep the isolated WebView alive for Android's asynchronous layout/write calls.
+        val sheet = WebView(this)
+        printWebView = sheet
+        sheet.setBackgroundColor(Color.WHITE)
+        sheet.settings.javaScriptEnabled = false
+        sheet.settings.allowFileAccess = false
+        sheet.settings.allowContentAccess = false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            @Suppress("DEPRECATION")
+            sheet.settings.forceDark = WebSettings.FORCE_DARK_OFF
+        }
+        sheet.webViewClient = object : WebViewClient() {
+            private var started = false
+            override fun onPageFinished(view: WebView, url: String) {
+                if (started || isDestroyed) return
+                started = true
+                val jobName = "Mathe Kids Arbeitsblatt"
+                val adapter = view.createPrintDocumentAdapter(jobName)
+                val managedAdapter = object : android.print.PrintDocumentAdapter() {
+                    override fun onStart() = adapter.onStart()
+                    override fun onLayout(oldAttributes: PrintAttributes?, newAttributes: PrintAttributes,
+                        cancellationSignal: android.os.CancellationSignal,
+                        callback: LayoutResultCallback, extras: Bundle?) =
+                        adapter.onLayout(oldAttributes, newAttributes, cancellationSignal, callback, extras)
+                    override fun onWrite(pages: Array<android.print.PageRange>,
+                        destination: android.os.ParcelFileDescriptor,
+                        cancellationSignal: android.os.CancellationSignal,
+                        callback: WriteResultCallback) =
+                        adapter.onWrite(pages, destination, cancellationSignal, callback)
+                    override fun onFinish() {
+                        adapter.onFinish()
+                        if (printWebView === sheet) printWebView = null
+                        sheet.destroy()
+                    }
+                }
+                printManager.print(jobName, managedAdapter, PrintAttributes.Builder()
+                    .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
+                    .setColorMode(PrintAttributes.COLOR_MODE_MONOCHROME)
+                    .build())
+            }
+        }
+        sheet.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null)
     }
 
     inner class WebAppInterface {
         @JavascriptInterface
-        fun printPage() {
-            runOnUiThread { printWebView() }
+        fun printPage(html: String) {
+            runOnUiThread {
+                if (!isDestroyed && isBundledPage() && html.length <= 2_000_000) printWorksheet(html)
+            }
         }
     }
 
@@ -485,7 +526,7 @@ class MainActivity : AppCompatActivity() {
                 view?.evaluateJavascript(
                     """
                         (function() {
-                            window.print = function() { AndroidPrint.printPage(); };
+                            window.print = function() { AndroidPrint.printPage(buildNativePrintHTML()); };
                             if (window.__syncNativeThemeChrome) {
                                 window.__syncNativeThemeChrome();
                             }
