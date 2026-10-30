@@ -14,7 +14,7 @@
     <meta property="og:locale" content="de_DE" />
     <meta property="og:title" content="Mathe Kids – Rechnen üben, spielerisch lernen" />
     <meta property="og:description" content="Mathe Kids öffnen und die aktuelle Android-App herunterladen. Auf Wunsch lassen sich Rechen-Einstellungen mit dem Link teilen." />
-    <meta property="og:url" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?v=243&amp;update-check=243&amp;preview=whatsapp-v1" />
+    <meta property="og:url" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?v=244&amp;update-check=244&amp;preview=whatsapp-v1" />
     <meta property="og:image" content="https://parip69.github.io/RechenGuruLGI_AndroidAPK/icons/share-preview-whatsapp-v1.jpg" />
     <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1200" />
@@ -13711,7 +13711,7 @@ html, body { margin: 0; padding: 0; background: #fff !important; color: #000 !im
 
     <script>
       (function () {
-        const SW_VERSION = "rechenguru-lgi-v243";
+        const SW_VERSION = "rechenguru-lgi-v244";
         const INSTALL_UI_MODES = Object.freeze({
           APK: "apk",
           STANDALONE: "standalone",
@@ -15085,7 +15085,7 @@ html, body { margin: 0; padding: 0; background: #fff !important; color: #000 !im
       <button class="appDownloadBtn" id="appDownloadBtn" type="button" title="Android-APK herunterladen" aria-label="Android-APK herunterladen" aria-haspopup="dialog" aria-controls="appUpdateDialog"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M10 3h8v13h5l-9 9-9-9h5z" /></svg></button>
       <span id="appShareWidget"></span>
     </div>
-    <footer id="appFooter" data-app-version="243" class="matheFooter">
+    <footer id="appFooter" data-app-version="244" class="matheFooter">
       <span class="footerCredits"><span id="footerDeveloperLabel">Entwickelt von:</span> <button id="developerInfoLink" type="button">Bachner Gerhard</button> <span class="footerIsabella">&amp; Isabella</span> · Ver.<span id="appVersion"></span></span>
       <div class="appUpdateWidget" id="appUpdateWidget">
         <button class="appUpdateBtn" id="appUpdateBtn" type="button" title="Kurz drücken: Update prüfen · Lang drücken: Update-Einstellungen" aria-label="Update prüfen. Lange drücken für Update-Einstellungen.">↻</button>
@@ -15158,7 +15158,7 @@ html, body { margin: 0; padding: 0; background: #fff !important; color: #000 !im
 
           <a
             class="developer-project-card"
-            href="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?update-check=243"
+            href="https://parip69.github.io/RechenGuruLGI_AndroidAPK/?update-check=244"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Mathe Kids öffnen"
@@ -15204,6 +15204,19 @@ html, body { margin: 0; padding: 0; background: #fff !important; color: #000 !im
         const overlay = document.getElementById("developerInfoOverlay");
         const opener = document.getElementById("developerInfoLink");
         let previousOverflow;
+        // Android's embedded WebView cannot download APKs. Open project
+        // download pages in the browser through the existing native bridge.
+        overlay.querySelectorAll("a.developer-project-card[href]").forEach(link => {
+          link.addEventListener("click", event => {
+            const native = window.AndroidInterface;
+            if (!native || typeof native.openExternal !== "function") return;
+            try {
+              if (native.openExternal(link.href)) event.preventDefault();
+            } catch (error) {
+              console.warn("Projekt konnte nicht im Browser geöffnet werden", error);
+            }
+          });
+        });
         function close() {
           if (!overlay.classList.contains("show")) return;
           overlay.classList.remove("show");
